@@ -52,27 +52,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CalendarWindow.xaml.cs">
+    <Compile Include="Windows\CalendarWindow.xaml.cs">
       <DependentUpon>CalendarWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="FileHandler.cs" />
-    <Compile Include="LogWriter.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="Reservations.cs" />
     <Compile Include="TextBoxTemplate.cs" />
     <Compile Include="Commands\AddReservation.cs" />
     <Compile Include="Commands\EditReservation.cs" />
-    <Compile Include="ReservationWindow.xaml.cs">
+    <Compile Include="Windows\ReservationWindow.xaml.cs">
       <DependentUpon>ReservationWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Reservation.cs" />
-    <Compile Include="SelectWebsiteWindow.xaml.cs">
+    <Compile Include="Windows\SelectWebsiteWindow.xaml.cs">
       <DependentUpon>SelectWebsiteWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="CalendarWindow.xaml">
+    <Page Include="Windows\CalendarWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ReservationWindow.xaml">
+    <Page Include="Windows\ReservationWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -88,7 +88,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SelectWebsiteWindow.xaml">
+    <Page Include="Windows\SelectWebsiteWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

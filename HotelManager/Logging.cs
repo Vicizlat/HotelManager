@@ -3,14 +3,14 @@ using System.IO;
 
 namespace HotelManager
 {
-    internal class LogWriter
+    internal class Logging
     {
-        private static LogWriter ThisInstance { get; set; }
+        private static Logging ThisInstance { get; set; }
         private readonly TextWriter Writer;
 
-        public static LogWriter Instance => ThisInstance ?? new LogWriter();
+        public static Logging Instance => ThisInstance ?? new Logging();
 
-        public LogWriter()
+        public Logging()
         {
             Writer = new StreamWriter(Path.Combine(FileHandler.LocalPath,"Log.txt"));
             ThisInstance = this;
@@ -26,7 +26,6 @@ namespace HotelManager
         {
             WriteLine("Logging ended");
             Writer.Dispose();
-            FileHandler.TryUploadFile("Log.txt", true);
         }
     }
 }

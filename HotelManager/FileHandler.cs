@@ -9,7 +9,7 @@ namespace HotelManager
 {
     public static class FileHandler
     {
-        public static string LocalPath => Directory.CreateDirectory(Path.Combine(AppDataPath, $"HotelManager")).FullName;
+        public static string LocalPath => Directory.CreateDirectory(Path.Combine(AppDataPath, "HotelManager")).FullName;
         private static readonly string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
         public static bool IsLocalFileNewer()
@@ -24,12 +24,12 @@ namespace HotelManager
                     FtpWebResponse response = (FtpWebResponse)request.GetResponse();
                     remoteFileLastWrite = response.LastModified;
                     response.Close();
-                    LogWriter.Instance.WriteLine(localFileLastWrite >= remoteFileLastWrite ? "Local file is newer." : "Remote file is newer. Downloading remote file.");
+                    Logging.Instance.WriteLine(localFileLastWrite >= remoteFileLastWrite ? "Local file is newer." : "Remote file is newer. Downloading remote file.");
                     return localFileLastWrite >= remoteFileLastWrite;
                 }
                 catch
                 {
-                    LogWriter.Instance.WriteLine("Could not connect to server! Using local file only.");
+                    Logging.Instance.WriteLine("Could not connect to server! Using local file only.");
                     return true;
                 }
             }
@@ -53,12 +53,12 @@ namespace HotelManager
                     File.WriteAllText(Path.Combine(LocalPath, "temp"), reader.ReadToEnd());
                 }
                 Reservations.Instance.LoadReservations("temp");
-                LogWriter.Instance.WriteLine("Download completed successfully!");
+                Logging.Instance.WriteLine("Successfully downloaded 'Reservations'!");
                 return true;
             }
             catch
             {
-                LogWriter.Instance.WriteLine("Download failed - could not connect to server!");
+                Logging.Instance.WriteLine("Download failed - could not connect to server!");
                 return false;
             }
         }
@@ -76,12 +76,12 @@ namespace HotelManager
                     using StreamReader reader = new StreamReader(response.GetResponseStream());
                     File.WriteAllText(Path.Combine(LocalPath, "Config.xml"), reader.ReadToEnd());
                 }
-                LogWriter.Instance.WriteLine("Download completed successfully!");
+                Logging.Instance.WriteLine("Successfully downloaded 'Config.xml'!");
                 return true;
             }
             catch
             {
-                LogWriter.Instance.WriteLine("Download failed - could not connect to server!");
+                Logging.Instance.WriteLine("Download failed - could not connect to server!");
                 return false;
             }
         }
@@ -98,11 +98,11 @@ namespace HotelManager
                 Stream requestStream = request.GetRequestStream();
                 requestStream.Write(fileContents, 0, fileContents.Length);
                 requestStream.Close();
-                if (!isLogWriterClosed) LogWriter.Instance.WriteLine("Upload completed successfully!");
+                if (!isLogWriterClosed) Logging.Instance.WriteLine("Upload completed successfully!");
             }
             catch
             {
-                if (!isLogWriterClosed) LogWriter.Instance.WriteLine("Upload failed - could not connect to server!");
+                if (!isLogWriterClosed) Logging.Instance.WriteLine("Upload failed - could not connect to server!");
             }
         }
 

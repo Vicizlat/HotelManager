@@ -22,7 +22,7 @@ namespace HotelManager
 
         public bool CanExecute(object parameter)
         {
-            var reservation = Reservations.Instance.FindReservationByRoomAndDate(Room, StartDate);
+            var reservation = Reservations.Instance.GetReservation(Room, StartDate);
             return reservation == null || !reservation.Status;
         }
 

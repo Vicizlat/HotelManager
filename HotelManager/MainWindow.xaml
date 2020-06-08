@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelManager" xmlns:ViewModels="clr-namespace:HotelManager"
         x:Class="HotelManager.MainWindow" mc:Ignorable="d"
-        Title="Hotel Manager" WindowState="Maximized" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
+        Title="Hotel Manager" WindowState="Maximized" WindowStartupLocation="CenterScreen">
     <Border Padding="20" Background="WhiteSmoke">
         <Grid>
             <Grid.RowDefinitions>

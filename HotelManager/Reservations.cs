@@ -42,7 +42,7 @@ namespace HotelManager
                 }
                 catch
                 {
-                    LogWriter.Instance.WriteLine($"Failed to read line: {line}");
+                    Logging.Instance.WriteLine($"Failed to read line: {line}");
                     continue;
                 }
             }
@@ -50,13 +50,13 @@ namespace HotelManager
 
         public void AddReservation(int id, bool status, int room, string guestName, DateTime startDate, DateTime endDate, int guestsInRoom, decimal totalPrice, decimal paidSum, string additionalInfo)
         {
-            if (FindReservationById(id) != null) EditReservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo);
+            if (GetReservation(id) != null) EditReservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo);
             else List.Add(new Reservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo));
         }
 
         public void EditReservation(int id, bool status, int room, string guestName, DateTime startDate, DateTime endDate, int guestsInRoom, decimal totalPrice, decimal paidSum, string additionalInfo)
         {
-            int index = List.IndexOf(FindReservationById(id));
+            int index = List.IndexOf(GetReservation(id));
             List[index].Status = status;
             List[index].Room = room;
             List[index].GuestName = guestName;
@@ -82,24 +82,14 @@ namespace HotelManager
             return lines;
         }
 
-        public Reservation FindReservationById(int id)
+        public Reservation GetReservation(int id)
         {
             return List.Find(r => r.Id == id);
         }
 
-        public Reservation FindReservationByRoomAndDate(int room, DateTime date)
+        public Reservation GetReservation(int room, DateTime date)
         {
-            return List.FindAll(r => r.Room == room).Find(r => r.StartDate <= date && date < r.EndDate);
-        }
-
-        public List<Reservation> FindAllReservationsByDate(DateTime date)
-        {
-            return List.FindAll(r => r.StartDate <= date && r.EndDate > date);
-        }
-
-        public List<Reservation> FindAllReservationsByRoom(int room)
-        {
-            return List.FindAll(r => r.Room == room);
+            return List.Find(r => r.Room == room && r.StartDate <= date && date < r.EndDate);
         }
     }
 }

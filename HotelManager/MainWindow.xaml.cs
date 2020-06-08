@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,8 +12,6 @@ namespace HotelManager
         public MainWindow()
         {
             InitializeComponent();
-            LogWriter.Instance.WriteLine($"Logging started");
-            if (!File.Exists(Path.Combine(FileHandler.LocalPath, "Config.xml"))) FileHandler.TryGetConfigFile();
             Instance = this;
             StartDate.SelectedDate = DateTime.Now;
             EndDate.SelectedDate = DateTime.Now.AddDays(9);
@@ -31,7 +28,7 @@ namespace HotelManager
                 for (int col = 0; col < datesToShow; col++)
                 {
                     DateTime date = StartDate.SelectedDate.Value.AddDays(col);
-                    Reservation reservation = Reservations.Instance.FindReservationByRoomAndDate(GetRoom(row), date);
+                    Reservation reservation = Reservations.Instance.GetReservation(GetRoom(row), date);
                     TextBox tableTextBox = new TextBoxTemplate().ReservationsTextBox(row, date, reservation != null && reservation.Status ? reservation : null);
                     if (skipColumns-- > 0) continue;
                     Grid.SetRow(tableTextBox, row);
@@ -83,7 +80,10 @@ namespace HotelManager
             }
         }
 
-        private ColumnDefinition ColumnDef(double minWidth, double maxWidth) => new ColumnDefinition() { MinWidth = minWidth, MaxWidth = maxWidth };
+        private ColumnDefinition ColumnDef(double minWidth, double maxWidth)
+        {
+            return new ColumnDefinition() { MinWidth = minWidth, MaxWidth = maxWidth };
+        }
 
         private RowDefinition RowDef(double rowHeight, double minHeight)
         {
@@ -109,8 +109,9 @@ namespace HotelManager
             }
         }
 
-        private void CalendarButton_Click(object sender, RoutedEventArgs e) => new CalendarWindow(this).ShowDialog();
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) => LogWriter.Instance.Close();
+        private void CalendarButton_Click(object sender, RoutedEventArgs e)
+        {
+            new CalendarWindow(this).ShowDialog();
+        }
     }
 }
