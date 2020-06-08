@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,6 +14,7 @@ namespace HotelManager
         {
             InitializeComponent();
             LogWriter.Instance.WriteLine($"Logging started");
+            if (!File.Exists(Path.Combine(FileHandler.LocalPath, "Config.xml"))) FileHandler.TryGetConfigFile();
             Instance = this;
             StartDate.SelectedDate = DateTime.Now;
             EndDate.SelectedDate = DateTime.Now.AddDays(9);
@@ -58,8 +60,8 @@ namespace HotelManager
             Table.ColumnDefinitions.Clear();
             for (int col = 0; col < datesToShow; col++)
             {
-                Dates.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star), MinWidth = 150 });
-                Table.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star), MinWidth = 150 });
+                Dates.ColumnDefinitions.Add(ColumnDef(150, 150));
+                Table.ColumnDefinitions.Add(ColumnDef(150, 150));
 
                 TextBox dateTextBox = new TextBoxTemplate().DatesTextBox(col, StartDate.SelectedDate.Value);
                 Grid.SetColumn(dateTextBox, col);
@@ -72,13 +74,20 @@ namespace HotelManager
             for (int row = 0; row < Rows; row++)
             {
                 int rowHeight = row == 0 || row == 8 || row == 16 ? 50 : 30;
-                Rooms.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(rowHeight, GridUnitType.Pixel), MinHeight = 30 });
-                Table.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(rowHeight, GridUnitType.Pixel), MinHeight = 30 });
+                Rooms.RowDefinitions.Add(RowDef(rowHeight, 30));
+                Table.RowDefinitions.Add(RowDef(rowHeight, 30));
 
                 TextBox roomTextBox = new TextBoxTemplate().RoomsTextBox(row);
                 Grid.SetRow(roomTextBox, row);
                 Rooms.Children.Add(roomTextBox);
             }
+        }
+
+        private ColumnDefinition ColumnDef(double minWidth, double maxWidth) => new ColumnDefinition() { MinWidth = minWidth, MaxWidth = maxWidth };
+
+        private RowDefinition RowDef(double rowHeight, double minHeight)
+        {
+            return new RowDefinition() { Height = new GridLength(rowHeight, GridUnitType.Pixel), MinHeight = minHeight };
         }
 
         internal void AddReservation(int room, DateTime startDate)

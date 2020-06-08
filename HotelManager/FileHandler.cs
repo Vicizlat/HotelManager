@@ -9,7 +9,8 @@ namespace HotelManager
 {
     public static class FileHandler
     {
-        public static string LocalPath => Directory.CreateDirectory($"C:\\Users\\{Environment.UserName}\\Documents\\HotelManager").FullName;
+        public static string LocalPath => Directory.CreateDirectory(Path.Combine(AppDataPath, $"HotelManager")).FullName;
+        private static readonly string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
         public static bool IsLocalFileNewer()
         {
@@ -48,10 +49,8 @@ namespace HotelManager
                 FtpWebRequest request = FtpRequest("Reservations", WebRequestMethods.Ftp.DownloadFile);
                 using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
                 {
-                    using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-                    {
-                        File.WriteAllText(Path.Combine(LocalPath, "temp"), reader.ReadToEnd());
-                    }
+                    using StreamReader reader = new StreamReader(response.GetResponseStream());
+                    File.WriteAllText(Path.Combine(LocalPath, "temp"), reader.ReadToEnd());
                 }
                 Reservations.Instance.LoadReservations("temp");
                 LogWriter.Instance.WriteLine("Download completed successfully!");
@@ -64,7 +63,30 @@ namespace HotelManager
             }
         }
 
-        public static void TryUploadFile(string fileName)
+        public static bool TryGetConfigFile()
+        {
+            try
+            {
+                SelectWebsiteWindow dialog = new SelectWebsiteWindow();
+                dialog.ShowDialog();
+                WebRequest request = WebRequest.Create($"https://{dialog.Address.Text}/HotelManager/Config.xml");
+                request.Method = WebRequestMethods.File.DownloadFile;
+                using (WebResponse response = request.GetResponse())
+                {
+                    using StreamReader reader = new StreamReader(response.GetResponseStream());
+                    File.WriteAllText(Path.Combine(LocalPath, "Config.xml"), reader.ReadToEnd());
+                }
+                LogWriter.Instance.WriteLine("Download completed successfully!");
+                return true;
+            }
+            catch
+            {
+                LogWriter.Instance.WriteLine("Download failed - could not connect to server!");
+                return false;
+            }
+        }
+
+        public static void TryUploadFile(string fileName, bool isLogWriterClosed = false)
         {
             try
             {
@@ -76,11 +98,11 @@ namespace HotelManager
                 Stream requestStream = request.GetRequestStream();
                 requestStream.Write(fileContents, 0, fileContents.Length);
                 requestStream.Close();
-                LogWriter.Instance.WriteLine("Upload completed successfully!");
+                if (!isLogWriterClosed) LogWriter.Instance.WriteLine("Upload completed successfully!");
             }
             catch
             {
-                LogWriter.Instance.WriteLine("Upload failed - could not connect to server!");
+                if (!isLogWriterClosed) LogWriter.Instance.WriteLine("Upload failed - could not connect to server!");
             }
         }
 
@@ -113,7 +135,6 @@ namespace HotelManager
         //    XmlWriter xml = XmlWriter.Create($"{LocalPath}\\Config.xml");
         //    xml.WriteStartDocument();
         //    xml.WriteStartElement("Configuration");
-        //    xml.WriteElementString("LocalPath", LocalPath);
         //    xml.WriteElementString("RemotePath", FtpPath);
         //    xml.WriteElementString("FtpUserName", UserName);
         //    xml.WriteElementString("FtpPassword", Password);

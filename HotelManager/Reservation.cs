@@ -33,7 +33,7 @@ namespace HotelManager
 
         public override string ToString()
         {
-            return $"{Id}|{Status}|{Room}|{GuestName}|{StartDate.ToString("dd.MM.yyyy")}|{EndDate.ToString("dd.MM.yyyy")}|{GuestsInRoom}|{TotalPrice}|{PaidSum}|{AdditionalInformation}";
+            return $"{Id}|{Status}|{Room}|{GuestName}|{StartDate:dd.MM.yyyy}|{EndDate:dd.MM.yyyy}|{GuestsInRoom}|{TotalPrice}|{PaidSum}|{AdditionalInformation}";
         }
     }
 }

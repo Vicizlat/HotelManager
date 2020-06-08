@@ -12,21 +12,21 @@ namespace HotelManager
 
         public LogWriter()
         {
-            Writer = new StreamWriter($"{FileHandler.LocalPath}\\Log.txt");
+            Writer = new StreamWriter(Path.Combine(FileHandler.LocalPath,"Log.txt"));
             ThisInstance = this;
         }
 
         public void WriteLine(string text)
         {
-            Writer.WriteLine($"{DateTime.Now}: {text}");
+            Writer.WriteLine($"{DateTime.Now:dd.MM.yyyy HH:mm:ss:ffff}: {text}");
             Writer.Flush();
         }
 
         internal void Close()
         {
             WriteLine("Logging ended");
-            FileHandler.TryUploadFile("Log.txt");
             Writer.Dispose();
+            FileHandler.TryUploadFile("Log.txt", true);
         }
     }
 }
