@@ -25,7 +25,7 @@ namespace HotelManager
 
         public void Execute(object parameter)
         {
-            MainWindow.Instance.EditReservation(Reservation);
+            if (Reservation != null) new ReservationWindow(Reservation).ShowDialog();
         }
     }
 }

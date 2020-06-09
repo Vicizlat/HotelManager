@@ -137,7 +137,6 @@ namespace HotelManager
             string additionalInfo = AdditionalInformation.Text;
 
             Reservations.Instance.AddReservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo);
-            Reservations.Instance.SaveReservations();
             Close();
         }
 

@@ -16,16 +16,17 @@ namespace HotelManager
         {
             if (TryGetLocalFile(out FileInfo localFile))
             {
-                DateTime localFileLastWrite = localFile.LastWriteTime;
-                DateTime remoteFileLastWrite;
                 try
                 {
+                    DateTime localFileLastWrite = localFile.LastWriteTime;
+                    Logging.Instance.WriteLine($"Local file time: {localFileLastWrite:dd.MM.yyyy HH:mm:ss:ffff}");
                     FtpWebRequest request = FtpRequest("Reservations", WebRequestMethods.Ftp.GetDateTimestamp);
-                    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                    remoteFileLastWrite = response.LastModified;
-                    response.Close();
-                    Logging.Instance.WriteLine(localFileLastWrite >= remoteFileLastWrite ? "Local file is newer." : "Remote file is newer. Downloading remote file.");
-                    return localFileLastWrite >= remoteFileLastWrite;
+                    using FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                    DateTime remoteFileLastWrite = response.LastModified;
+                    Logging.Instance.WriteLine($"Remote file time: {remoteFileLastWrite:dd.MM.yyyy HH:mm:ss:ffff}");
+                    bool localFileIsNewer = localFileLastWrite >= remoteFileLastWrite;
+                    Logging.Instance.WriteLine(localFileIsNewer ? "Local file is newer." : "Remote file is newer. Downloading remote file.");
+                    return localFileIsNewer;
                 }
                 catch
                 {

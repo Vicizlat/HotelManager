@@ -28,7 +28,7 @@ namespace HotelManager
 
         public void Execute(object parameter)
         {
-            MainWindow.Instance.AddReservation(Room, StartDate);
+            new ReservationWindow(Reservations.Instance.Count + 1, true, Room, "", StartDate, null).ShowDialog();
         }
     }
 }

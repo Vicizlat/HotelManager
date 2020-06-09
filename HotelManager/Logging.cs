@@ -5,15 +5,14 @@ namespace HotelManager
 {
     internal class Logging
     {
-        private static Logging ThisInstance { get; set; }
+        public static Logging Instance => thisInstance ?? new Logging();
+        private static Logging thisInstance;
         private readonly TextWriter Writer;
-
-        public static Logging Instance => ThisInstance ?? new Logging();
 
         public Logging()
         {
             Writer = new StreamWriter(Path.Combine(FileHandler.LocalPath,"Log.txt"));
-            ThisInstance = this;
+            thisInstance = this;
         }
 
         public void WriteLine(string text)

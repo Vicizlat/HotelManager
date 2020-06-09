@@ -14,18 +14,17 @@ namespace HotelManager
             InitializeComponent();
             Instance = this;
             StartDate.SelectedDate = DateTime.Now;
-            EndDate.SelectedDate = DateTime.Now.AddDays(9);
+            EndDate.SelectedDate = DateTime.Now.AddDays(13);
             CreateRoomRows();
         }
 
         public void CreateReservationsTable()
         {
-            int datesToShow = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days + 1;
             Table.Children.Clear();
             for (int row = 0; row < Rows; row++)
             {
                 int skipColumns = 0;
-                for (int col = 0; col < datesToShow; col++)
+                for (int col = 0; col <= (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days; col++)
                 {
                     DateTime date = StartDate.SelectedDate.Value.AddDays(col);
                     Reservation reservation = Reservations.Instance.GetReservation(GetRoom(row), date);
@@ -52,13 +51,13 @@ namespace HotelManager
 
         private void CreateDatesColumns()
         {
-            int datesToShow = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days + 1;
+            Dates.Children.Clear();
             Dates.ColumnDefinitions.Clear();
             Table.ColumnDefinitions.Clear();
-            for (int col = 0; col < datesToShow; col++)
+            for (int col = 0; col <= (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days; col++)
             {
-                Dates.ColumnDefinitions.Add(ColumnDef(150, 150));
-                Table.ColumnDefinitions.Add(ColumnDef(150, 150));
+                Dates.ColumnDefinitions.Add(ColumnDef(150));
+                Table.ColumnDefinitions.Add(ColumnDef(150));
 
                 TextBox dateTextBox = new TextBoxTemplate().DatesTextBox(col, StartDate.SelectedDate.Value);
                 Grid.SetColumn(dateTextBox, col);
@@ -80,27 +79,17 @@ namespace HotelManager
             }
         }
 
-        private ColumnDefinition ColumnDef(double minWidth, double maxWidth)
+        private ColumnDefinition ColumnDef(double width)
         {
-            return new ColumnDefinition() { MinWidth = minWidth, MaxWidth = maxWidth };
+            return new ColumnDefinition() { MinWidth = width, Width = new GridLength(width), MaxWidth = width };
         }
 
         private RowDefinition RowDef(double rowHeight, double minHeight)
         {
-            return new RowDefinition() { Height = new GridLength(rowHeight, GridUnitType.Pixel), MinHeight = minHeight };
+            return new RowDefinition() { Height = new GridLength(rowHeight), MinHeight = minHeight };
         }
 
-        internal void AddReservation(int room, DateTime startDate)
-        {
-            new ReservationWindow(Reservations.Instance.Count + 1, true, room, "", startDate, null).ShowDialog();
-        }
-
-        internal void EditReservation(Reservation reservation)
-        {
-            if (reservation != null) new ReservationWindow(reservation).ShowDialog();
-        }
-
-        private void StartEndDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        private void SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
         {
             if (StartDate.SelectedDate != null && EndDate.SelectedDate != null && EndDate.SelectedDate > StartDate.SelectedDate)
             {
