@@ -28,7 +28,7 @@ namespace HotelManager
 
         public void Execute(object parameter)
         {
-            new ReservationWindow(Reservations.Instance.Count + 1, true, Room, "", StartDate, null).ShowDialog();
+            new ReservationWindow(Room, StartDate).ShowDialog();
         }
     }
 }

@@ -52,10 +52,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Handlers\WebHandler.cs" />
+    <Compile Include="Handlers\FtpHandler.cs" />
+    <Compile Include="Handlers\XmlHandler.cs" />
     <Compile Include="Windows\CalendarWindow.xaml.cs">
       <DependentUpon>CalendarWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FileHandler.cs" />
+    <Compile Include="Handlers\FileHandler.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="Reservations.cs" />
     <Compile Include="TextBoxTemplate.cs" />

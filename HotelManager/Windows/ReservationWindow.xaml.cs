@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -8,27 +9,15 @@ namespace HotelManager
 {
     public partial class ReservationWindow : Window
     {
-        public ReservationWindow(int id, bool status, int room, string guestName, DateTime startDate, DateTime? endDate, int numGuests = 0, decimal totalPrice = 0, decimal paidSum = 0, string additionalInfo = "Без допълнителна информация")
+        private decimal totalPrice;
+        private decimal paidSum;
+
+        public ReservationWindow(int room, DateTime startDate)
         {
             InitializeComponent();
-            Id.Text = $"{id}";
-            Status.IsChecked = status;
-            Status.Content = Status.IsChecked.Value ? "Активна резервация" : "Отменена резервация";
+            Id.Text = $"{Reservations.Instance.Count + 1}";
             Room.SelectedIndex = GetRoomIndex(room);
-            GuestName.Text = guestName;
             StartDate.SelectedDate = startDate;
-            if (endDate != null)
-            {
-                EndDate.SelectedDate = endDate;
-                Nights.Text = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days.ToString();
-            }
-            else Nights.Text = "0";
-            GuestsInRoom.Text = numGuests > 0 ? $"{numGuests}" : "0";
-            TotalPrice.Text = totalPrice > 0 ? $"{totalPrice}" : "0";
-            PaidSum.Text = paidSum > 0 ? $"{paidSum}" : "0";
-            RemainingSum.Text = totalPrice > 0 ? $"{totalPrice - paidSum}" : "0";
-            AdditionalInformation.Text = additionalInfo;
-            Save.IsEnabled = IsSaveEnabled();
         }
 
         public ReservationWindow(Reservation reservation)
@@ -47,7 +36,6 @@ namespace HotelManager
             PaidSum.Text = $"{reservation.PaidSum}";
             RemainingSum.Text = $"{reservation.TotalPrice - reservation.PaidSum}";
             AdditionalInformation.Text = reservation.AdditionalInformation;
-            Save.IsEnabled = IsSaveEnabled();
         }
 
         private int GetRoomIndex(int room)
@@ -63,14 +51,7 @@ namespace HotelManager
 
         private void Room_SelectionChanged(object sender, SelectionChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
 
-        private void GuestName_TextChanged(object sender, TextChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
-
-        private void GuestsInRoom_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (GuestsInRoom.Text.Length == 0) GuestsInRoom.Text = "0";
-            if (GuestsInRoom.Text.Length > 1) GuestsInRoom.Text = GuestsInRoom.Text.Substring(0, 1);
-            Save.IsEnabled = IsSaveEnabled();
-        }
+        private void GenericText_TextChanged(object sender, TextChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
 
         private void Dates_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -78,35 +59,44 @@ namespace HotelManager
             {
                 Nights.Text = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days.ToString();
             }
-            else Nights.Text = "0";
             Save.IsEnabled = IsSaveEnabled();
         }
 
         private void Nights_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (Nights.Text.Length > 0)
+            if (Nights.Text.Length > 0 && int.TryParse(Nights.Text, out int result))
             {
-                EndDate.SelectedDate = StartDate.SelectedDate.Value.AddDays(int.Parse(Nights.Text));
+                EndDate.SelectedDate = StartDate.SelectedDate.Value.AddDays(result);
             }
-            else Nights.Text = "0";
             Save.IsEnabled = IsSaveEnabled();
         }
 
         private void Price_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (decimal.TryParse(TotalPrice.Text, out decimal totalPrice) && decimal.TryParse(PaidSum.Text, out decimal paidSum))
+            if (string.IsNullOrEmpty(TotalPrice.Text)) TotalPrice.Text = "0";
+            if (string.IsNullOrEmpty(PaidSum.Text)) PaidSum.Text = "0";
+            if (decimal.TryParse(TotalPrice.Text, out totalPrice) && decimal.TryParse(PaidSum.Text, out paidSum))
             {
                 RemainingSum.Text = $"{totalPrice - paidSum}";
             }
+            else RemainingSum.Text = "0";
             Save.IsEnabled = IsSaveEnabled();
         }
 
-        private void NumbersOnly_PreviewTextInput(object sender, TextCompositionEventArgs e) => e.Handled = !int.TryParse(e.Text, out int num);
+        private void IntegersOnly_PreviewTextInput(object sender, TextCompositionEventArgs e) => e.Handled = !Regex.IsMatch(e.Text, "^[0-9]+$");
+
+        private void DecimalsOnly_PreviewTextInput(object sender, TextCompositionEventArgs e) => e.Handled = !Regex.IsMatch(e.Text, "^[0-9,]+$");
 
         private bool IsSaveEnabled()
         {
-            if (!decimal.TryParse(TotalPrice.Text, out decimal totalPrice) || !decimal.TryParse(PaidSum.Text, out decimal paidSum)) return false;
-            else return GuestName.Text.Length > 0 && Room.SelectedIndex > 0 && int.Parse(GuestsInRoom.Text) > 0 && int.Parse(Nights.Text) > 0 && totalPrice > 0;
+            if (string.IsNullOrEmpty(GuestName.Text)) return false;
+            if (string.IsNullOrEmpty(GuestsInRoom.Text)) return false;
+            if (string.IsNullOrEmpty(Nights.Text)) return false;
+            if (string.IsNullOrEmpty(TotalPrice.Text)) return false;
+            if (string.IsNullOrEmpty(PaidSum.Text)) return false;
+            if (string.IsNullOrEmpty(AdditionalInformation.Text)) return false;
+            if (!decimal.TryParse(RemainingSum.Text, out decimal remainingSum)) return false;
+            else return Room.SelectedIndex > 0 && int.Parse(GuestsInRoom.Text) > 0 && int.Parse(Nights.Text) > 0 && remainingSum > 0;
         }
 
         private void Room_Loaded(object sender, RoutedEventArgs e)

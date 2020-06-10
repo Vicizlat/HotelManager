@@ -6,22 +6,20 @@ namespace HotelManager
 {
     public partial class MainWindow : Window
     {
-        public static MainWindow Instance { get; set; }
-        private readonly int Rows = 25;
-
         public MainWindow()
         {
             InitializeComponent();
-            Instance = this;
+            CreateRoomRows();
+            Reservations.Instance.LoadReservations();
             StartDate.SelectedDate = DateTime.Now;
             EndDate.SelectedDate = DateTime.Now.AddDays(13);
-            CreateRoomRows();
+            Reservations.Instance.ReservationsUpdated += CreateReservationsTable;
         }
 
         public void CreateReservationsTable()
         {
             Table.Children.Clear();
-            for (int row = 0; row < Rows; row++)
+            for (int row = 0; row < 25; row++)
             {
                 int skipColumns = 0;
                 for (int col = 0; col <= (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days; col++)
@@ -67,7 +65,7 @@ namespace HotelManager
 
         private void CreateRoomRows()
         {
-            for (int row = 0; row < Rows; row++)
+            for (int row = 0; row < 25; row++)
             {
                 int rowHeight = row == 0 || row == 8 || row == 16 ? 50 : 30;
                 Rooms.RowDefinitions.Add(RowDef(rowHeight, 30));
