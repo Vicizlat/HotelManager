@@ -17,7 +17,7 @@ namespace HotelManager
         public decimal RemainingSum => TotalPrice - PaidSum;
         public string AdditionalInformation { get; set; }
 
-        public Reservation(int id, bool status, int room, string guestName, DateTime startDate, DateTime endDate, int guestsInRoom, decimal totalPrice, decimal paidSum = 0, string additionalInfo = "")
+        public Reservation(int id, bool status, int room, string guestName, DateTime startDate, DateTime endDate, int guestsInRoom, decimal totalPrice, decimal paidSum, string additionalInfo)
         {
             Id = id;
             Status = status;

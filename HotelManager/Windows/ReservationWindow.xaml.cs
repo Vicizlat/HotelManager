@@ -35,7 +35,8 @@ namespace HotelManager
             TotalPrice.Text = $"{reservation.TotalPrice}";
             PaidSum.Text = $"{reservation.PaidSum}";
             RemainingSum.Text = $"{reservation.TotalPrice - reservation.PaidSum}";
-            AdditionalInformation.Text = reservation.AdditionalInformation;
+            if (reservation.AdditionalInformation == "Няма") AdditionalInformation.Text = null;
+            else AdditionalInformation.Text = reservation.AdditionalInformation;
         }
 
         private int GetRoomIndex(int room)
@@ -94,7 +95,6 @@ namespace HotelManager
             if (string.IsNullOrEmpty(Nights.Text)) return false;
             if (string.IsNullOrEmpty(TotalPrice.Text)) return false;
             if (string.IsNullOrEmpty(PaidSum.Text)) return false;
-            if (string.IsNullOrEmpty(AdditionalInformation.Text)) return false;
             if (!decimal.TryParse(RemainingSum.Text, out decimal remainingSum)) return false;
             else return Room.SelectedIndex > 0 && int.Parse(GuestsInRoom.Text) > 0 && int.Parse(Nights.Text) > 0 && remainingSum > 0;
         }
@@ -124,7 +124,7 @@ namespace HotelManager
             int guestsInRoom = int.Parse(GuestsInRoom.Text);
             decimal totalPrice = decimal.Parse(TotalPrice.Text);
             decimal paidSum = decimal.Parse(PaidSum.Text);
-            string additionalInfo = AdditionalInformation.Text;
+            string additionalInfo = string.IsNullOrEmpty(AdditionalInformation.Text) ? "Няма" : AdditionalInformation.Text;
 
             Reservations.Instance.AddReservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo);
             Close();
