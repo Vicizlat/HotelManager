@@ -78,8 +78,10 @@ namespace Gui
         private void Price_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (string.IsNullOrEmpty(TotalPrice.Text)) TotalPrice.Text = "0";
-            if (string.IsNullOrEmpty(PaidSum.Text)) paidSum = 0;
-            RemainingSum.Text = decimal.TryParse(TotalPrice.Text, out totalPrice) ? $"{totalPrice - paidSum}" : "0";
+            if (!decimal.TryParse(TotalPrice.Text, out totalPrice)) totalPrice = 0;
+            if (string.IsNullOrEmpty(PaidSum.Text)) PaidSum.Text = "0";
+            if (!decimal.TryParse(PaidSum.Text, out paidSum)) paidSum = 0;
+            RemainingSum.Text = $"{totalPrice - paidSum}";
             Save.IsEnabled = IsSaveEnabled();
         }
 
@@ -92,7 +94,7 @@ namespace Gui
             if (string.IsNullOrEmpty(GuestName.Text) || string.IsNullOrEmpty(GuestsInRoom.Text) || string.IsNullOrEmpty(Nights.Text) ||
                 string.IsNullOrEmpty(TotalPrice.Text) || string.IsNullOrEmpty(RemainingSum.Text)) return false;
             if (decimal.TryParse(RemainingSum.Text, out decimal remainingSum))
-                return Room.SelectedIndex > 0 && int.Parse(GuestsInRoom.Text) > 0 && int.Parse(Nights.Text) > 0 && remainingSum > 0;
+                return Room.SelectedIndex > 0 && int.Parse(GuestsInRoom.Text) > 0 && int.Parse(Nights.Text) > 0 && remainingSum >= 0;
             return false;
         }
 
