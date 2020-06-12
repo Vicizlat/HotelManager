@@ -4,16 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4893C60D-FC67-41A2-B1D8-9181DF29870B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>HotelManager</RootNamespace>
-    <AssemblyName>HotelManager</AssemblyName>
+    <ProjectGuid>{CC055B09-0953-4BB8-BFBD-ED43BBF5078F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Core</RootNamespace>
+    <AssemblyName>Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +24,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,18 +32,23 @@
     <WarningLevel>4</WarningLevel>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>HotelManager.Program</StartupObject>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileHandler.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reservation.cs" />
+    <Compile Include="Reservations.cs" />
+    <Compile Include="ReservationsEventHandler.cs" />
+    <Compile Include="ReservationWindow1EventHandler.cs" />
+    <Compile Include="ReservationWindow2EventHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Handlers\Handlers.csproj">
+      <Project>{F19A6A00-2292-496F-B2ED-55FCAD63405E}</Project>
+      <Name>Handlers</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
