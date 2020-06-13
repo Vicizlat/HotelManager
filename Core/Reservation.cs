@@ -8,32 +8,34 @@ namespace Core
         public bool Status { get; set; }
         public int Room { get; set; }
         public string GuestName { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public int Nights => (EndDate - StartDate).Days;
+        public Period Period { get; set; }
         public int GuestsInRoom { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal PaidSum { get; set; }
         public decimal RemainingSum => TotalPrice - PaidSum;
         public string AdditionalInformation { get; set; }
 
-        public Reservation(int id, bool status, int room, string guestName, DateTime startDate, DateTime endDate, int guestsInRoom, decimal totalPrice, decimal paidSum, string additionalInfo)
+        public Reservation(int id, bool status, int room, string guestName, DateTime[] dates, int guestsInRoom, decimal totalPrice, decimal paidSum, string additionalInfo)
         {
             Id = id;
             Status = status;
             Room = room;
             GuestName = guestName;
-            StartDate = startDate;
-            EndDate = endDate;
+            Period = new Period(dates[0], dates[1]);
             GuestsInRoom = guestsInRoom;
             TotalPrice = totalPrice;
             PaidSum = paidSum;
             AdditionalInformation = additionalInfo;
         }
 
+        public bool IsMatchingRoomAndDate(int room, DateTime date)
+        {
+            return Room == room && Period.ContainsDate(date);
+        }
+
         public override string ToString()
         {
-            return $"{Id}|{Status}|{Room}|{GuestName}|{StartDate:dd.MM.yyyy}|{EndDate:dd.MM.yyyy}|{GuestsInRoom}|{TotalPrice}|{PaidSum}|{AdditionalInformation}";
+            return $"{Id}|{Status}|{Room}|{GuestName}|{Period}|{GuestsInRoom}|{TotalPrice}|{PaidSum}|{AdditionalInformation}";
         }
     }
 }

@@ -29,19 +29,22 @@ namespace Handlers
             return File.ReadAllLines(Path.Combine(LocalPath, fileName));
         }
 
-        public static void WriteToFile(string fileName, string[] contents)
+        public static bool WriteToFile(string fileName, string[] contents)
         {
-            File.WriteAllLines(Path.Combine(LocalPath, fileName), contents);
+            try
+            {
+                File.WriteAllLines(Path.Combine(LocalPath, fileName), contents);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static void WriteToFile(string fileName, string contents)
         {
             File.WriteAllText(Path.Combine(LocalPath, fileName), contents);
-        }
-
-        public static bool CheckFileExists(string fileName)
-        {
-            return File.Exists(Path.Combine(LocalPath, fileName));
         }
     }
 }

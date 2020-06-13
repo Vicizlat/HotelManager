@@ -28,18 +28,17 @@ namespace Core
             {
                 try
                 {
-                    string[] lineArr = line.Split(new [] { "|", " |", "| ", " | " }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] lineArr = line.Split(new[] { "|", " |", "| ", " | " }, StringSplitOptions.RemoveEmptyEntries);
                     int id = int.Parse(lineArr[0].Trim());
                     bool status = bool.Parse(lineArr[1].Trim());
                     int room = int.Parse(lineArr[2].Trim());
-                    string guestName = lineArr[3];
-                    DateTime startDate = DateTime.Parse(lineArr[4].Trim());
-                    DateTime endDate = DateTime.Parse(lineArr[5].Trim());
+                    string guestName = lineArr[3].Trim();
+                    DateTime[] dates = { DateTime.Parse(lineArr[4].Trim()), DateTime.Parse(lineArr[5].Trim()) };
                     int guestsInRoom = int.Parse(lineArr[6].Trim());
                     decimal totalPrice = decimal.Parse(lineArr[7].Trim());
                     decimal paidSum = decimal.Parse(lineArr[8].Trim());
-                    string additionalInfo = lineArr[9];
-                    ResList.Add(new Reservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo));
+                    string additionalInfo = lineArr[9].Trim();
+                    ResList.Add(new Reservation(id, status, room, guestName, dates, guestsInRoom, totalPrice, paidSum, additionalInfo));
                 }
                 catch
                 {
@@ -48,57 +47,40 @@ namespace Core
             }
         }
 
-        public void AddReservation(int id, bool status, int room, string guestName, DateTime startDate, DateTime endDate, int guestsInRoom, decimal totalPrice, decimal paidSum, string additionalInfo)
+        public void AddReservation(int id, bool status, int room, string guestName, DateTime[] dates, int guestsInRoom, decimal[] sums, string additionalInfo)
         {
-            if (GetReservation(id) != null) EditReservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo);
-            else ResList.Add(new Reservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo));
+            if (GetReservation(id) != null)
+            {
+                int index = ResList.IndexOf(GetReservation(id));
+                ResList[index].Status = status;
+                ResList[index].Room = room;
+                ResList[index].GuestName = guestName;
+                ResList[index].Period.StartDate = dates[0];
+                ResList[index].Period.EndDate = dates[1];
+                ResList[index].GuestsInRoom = guestsInRoom;
+                ResList[index].TotalPrice = sums[0];
+                ResList[index].PaidSum = sums[1];
+                ResList[index].AdditionalInformation = additionalInfo;
+            }
+            else ResList.Add(new Reservation(id, status, room, guestName, dates, guestsInRoom, sums[0], sums[1], additionalInfo));
             OnReservationsUpdated();
-            SaveReservations();
+            if (FileHandler.WriteToFile("Reservations", ReservationsString())) FtpHandler.TryUploadFile("Reservations");
         }
 
         protected virtual void OnReservationsUpdated() => ReservationsUpdated?.Invoke();
 
-        public void EditReservation(int id, bool status, int room, string guestName, DateTime startDate, DateTime endDate, int guestsInRoom, decimal totalPrice, decimal paidSum, string additionalInfo)
-        {
-            int index = ResList.IndexOf(GetReservation(id));
-            ResList[index].Status = status;
-            ResList[index].Room = room;
-            ResList[index].GuestName = guestName;
-            ResList[index].StartDate = startDate;
-            ResList[index].EndDate = endDate;
-            ResList[index].GuestsInRoom = guestsInRoom;
-            ResList[index].TotalPrice = totalPrice;
-            ResList[index].PaidSum = paidSum;
-            ResList[index].AdditionalInformation = additionalInfo;
-        }
+        public string[] ReservationsString() => ResList.Select(r => r.ToString()).ToArray();
 
-        public void SaveReservations()
-        {
-            FileHandler.WriteToFile("Reservations", ReservationsString());
-            FtpHandler.TryUploadFile("Reservations");
-        }
+        public Reservation GetReservation(int id) => ResList.Find(r => r.Id == id);
 
-        public string[] ReservationsString()
-        {
-            return ResList.Select(r => r.ToString()).ToArray();
-        }
+        public Reservation GetReservation(int room, DateTime date) => ResList.Find(r => r.IsMatchingRoomAndDate(room, date));
 
-        public Reservation GetReservation(int id)
-        {
-            return ResList.Find(r => r.Id == id);
-        }
+        public void RequestReservationWindow(int room, DateTime startDate) => OnReservationWindowRequested(room, startDate);
 
-        public Reservation GetReservation(int room, DateTime date)
-        {
-            return ResList.Find(r => r.Room == room && r.StartDate <= date && date < r.EndDate);
-        }
+        public void RequestReservationWindow(Reservation reservation) => OnReservationWindowRequested(reservation);
 
-        public void RequestReservationWindow(int room, DateTime startDate) => OnReservationWindow1Requested(room, startDate);
+        protected virtual void OnReservationWindowRequested(int room, DateTime startDate) => ReservationWindow1Requested?.Invoke(room, startDate);
 
-        public void RequestReservationWindow(Reservation reservation) => OnReservationWindow2Requested(reservation);
-
-        protected virtual void OnReservationWindow1Requested(int room, DateTime startDate) => ReservationWindow1Requested?.Invoke(room, startDate);
-
-        protected virtual void OnReservationWindow2Requested(Reservation reservation) => ReservationWindow2Requested?.Invoke(reservation);
+        protected virtual void OnReservationWindowRequested(Reservation reservation) => ReservationWindow2Requested?.Invoke(reservation);
     }
 }

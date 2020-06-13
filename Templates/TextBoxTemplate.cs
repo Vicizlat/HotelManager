@@ -28,7 +28,7 @@ namespace Templates
                 textBox.Text = $"{reservation.GuestName} - {reservation.GuestsInRoom} гости - За плащане: {reservation.RemainingSum} лв.";
                 textBox.ToolTip = $"Име: {reservation.GuestName}\n";
                 textBox.ToolTip += $"Брой гости: {reservation.GuestsInRoom}\n";
-                textBox.ToolTip += $"Период: {reservation.StartDate.ToShortDateString()} - {reservation.EndDate.ToShortDateString()}\n";
+                textBox.ToolTip += $"Период: {reservation.Period.StartDate:dd.MM.yyyy} - {reservation.Period.EndDate:dd.MM.yyyy}\n";
                 textBox.ToolTip += $"Обща цена: {reservation.TotalPrice}\n";
                 textBox.ToolTip += $"Предплатена сума: {reservation.PaidSum}\n";
                 textBox.ToolTip += $"Оставаща сума: {reservation.RemainingSum}\n";

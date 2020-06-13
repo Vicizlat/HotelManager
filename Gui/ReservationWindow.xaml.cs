@@ -29,8 +29,8 @@ namespace Gui
             Status.Content = Status.IsChecked.Value ? "Активна резервация" : "Отменена резервация";
             Room.SelectedIndex = GetRoomIndex(reservation.Room);
             GuestName.Text = reservation.GuestName;
-            StartDate.SelectedDate = reservation.StartDate;
-            EndDate.SelectedDate = reservation.EndDate;
+            StartDate.SelectedDate = reservation.Period.StartDate;
+            EndDate.SelectedDate = reservation.Period.EndDate;
             Nights.Text = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days.ToString();
             GuestsInRoom.Text = $"{reservation.GuestsInRoom}";
             TotalPrice.Text = $"{reservation.TotalPrice}";
@@ -93,9 +93,8 @@ namespace Gui
         {
             if (string.IsNullOrEmpty(GuestName.Text) || string.IsNullOrEmpty(GuestsInRoom.Text) || string.IsNullOrEmpty(Nights.Text) ||
                 string.IsNullOrEmpty(TotalPrice.Text) || string.IsNullOrEmpty(RemainingSum.Text)) return false;
-            if (decimal.TryParse(RemainingSum.Text, out decimal remainingSum))
-                return Room.SelectedIndex > 0 && int.Parse(GuestsInRoom.Text) > 0 && int.Parse(Nights.Text) > 0 && remainingSum >= 0;
-            return false;
+            if (!decimal.TryParse(RemainingSum.Text, out decimal remainingSum)) return false;
+            return Room.SelectedIndex > 0 && int.Parse(GuestsInRoom.Text) > 0 && int.Parse(Nights.Text) > 0 && remainingSum >= 0;
         }
 
         private void Room_Loaded(object sender, RoutedEventArgs e)
@@ -115,14 +114,12 @@ namespace Gui
             bool status = Status.IsChecked != null && Status.IsChecked.Value;
             int room = int.Parse(Room.SelectedItem.ToString().Substring(Room.SelectedItem.ToString().Length - 2, 2));
             string guestName = GuestName.Text;
-            DateTime startDate = StartDate.SelectedDate.GetValueOrDefault();
-            DateTime endDate = EndDate.SelectedDate.GetValueOrDefault();
+            DateTime[] dates = { StartDate.SelectedDate.GetValueOrDefault(), EndDate.SelectedDate.GetValueOrDefault() };
             int guestsInRoom = int.Parse(GuestsInRoom.Text);
-            //decimal totalPrice = decimal.Parse(TotalPrice.Text);
-            //decimal paidSum = decimal.Parse(PaidSum.Text);
+            decimal[] sums = { totalPrice, paidSum };
             string additionalInfo = string.IsNullOrEmpty(AdditionalInformation.Text) ? "Няма" : AdditionalInformation.Text;
 
-            Reservations.Instance.AddReservation(id, status, room, guestName, startDate, endDate, guestsInRoom, totalPrice, paidSum, additionalInfo);
+            Reservations.Instance.AddReservation(id, status, room, guestName, dates, guestsInRoom, sums, additionalInfo);
             Close();
         }
 
