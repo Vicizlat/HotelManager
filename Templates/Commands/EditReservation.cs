@@ -2,11 +2,11 @@
 using System.Windows.Input;
 using Core;
 
-namespace Commands
+namespace Templates.Commands
 {
     public class EditReservation : ICommand
     {
-        private Reservation Reservation { get; set; }
+        private Reservation Reservation { get; }
 
         public EditReservation(Reservation reservation)
         {

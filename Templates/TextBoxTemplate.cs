@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Commands;
 using Core;
 
 namespace Templates
@@ -93,7 +92,7 @@ namespace Templates
             return new MenuItem
             {
                 Header = "Добави резервация",
-                Command = new AddReservation(room, startDate)
+                Command = new Commands.AddReservation(room, startDate)
             };
         }
 
@@ -102,7 +101,7 @@ namespace Templates
             return new MenuItem
             {
                 Header = "Редактирай резервация",
-                Command = new EditReservation(reservation)
+                Command = new Commands.EditReservation(reservation)
             };
         }
     }

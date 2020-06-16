@@ -2,12 +2,12 @@
 using System.Windows.Input;
 using Core;
 
-namespace Commands
+namespace Templates.Commands
 {
     public class AddReservation : ICommand
     {
-        private int Room { get; set; }
-        private DateTime StartDate { get; set; }
+        private int Room { get; }
+        private DateTime StartDate { get; }
 
         public AddReservation(int room, DateTime startDate)
         {
