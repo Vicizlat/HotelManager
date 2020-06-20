@@ -24,6 +24,8 @@ namespace DotNetInstaller
                 }
                 Console.WriteLine($"Installing {dotNetFileName}...");
                 Process.Start(Path.Combine(localPath, dotNetFileName), "-q")?.WaitForExit();
+                Console.WriteLine($"Removing {dotNetFileName}...");
+                File.Delete(Path.Combine(localPath, dotNetFileName));
             }
             catch
             {
