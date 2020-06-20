@@ -9,12 +9,7 @@ namespace Handlers
         {
             try
             {
-                //WebRequest request = WebRequest.Create($"{webAddress}{fileName}");
-                //request.Method = WebRequestMethods.File.DownloadFile;
-                //using WebResponse response = request.GetResponse();
-                //using StreamReader reader = new StreamReader(response.GetResponseStream());
-                //FileHandler.WriteToFile(fileName, reader.ReadToEnd());
-                new WebClient().DownloadFile($"{webAddress}{fileName}", Path.Combine(FileHandler.LocalPath, fileName));
+                new WebClient().DownloadFile(Path.Combine(webAddress, fileName), Path.Combine(FileHandler.LocalPath, fileName));
                 Logging.Instance.WriteLine($"Successfully downloaded \"{fileName}\"!");
                 return true;
             }
