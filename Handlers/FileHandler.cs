@@ -8,20 +8,29 @@ namespace Handlers
         public static string LocalPath => Directory.CreateDirectory(Path.Combine(AppDataPath, "HotelManager")).FullName;
         private static readonly string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-        public static bool IsLocalFileNewer(string fileName, out bool checkLocalFile, out bool checkRemoteFile)
+        public static bool IsLocalFileNewer(string fileName, out bool checkedRemoteFile)
         {
-            checkLocalFile = TryGetLocalFileTime(fileName, out DateTime? localFileLastWrite);
-            checkRemoteFile = FtpHandler.TryGetRemoteFileTime(fileName, out DateTime? remoteFileLastWrite);
-            if (!checkLocalFile) return false;
-            if (!checkRemoteFile) return true;
-            return localFileLastWrite >= remoteFileLastWrite;
+            DateTime? localFileLastWrite = TryGetLocalFileTime(fileName);
+            DateTime? remoteFileLastWrite = FtpHandler.TryGetRemoteFileTime(fileName);
+            checkedRemoteFile = remoteFileLastWrite.HasValue;
+            if (!localFileLastWrite.HasValue) return false;
+            if (!remoteFileLastWrite.HasValue) return true;
+            return localFileLastWrite.Value >= remoteFileLastWrite.Value;
         }
 
-        private static bool TryGetLocalFileTime(string localFileName, out DateTime? localFileLastWrite)
+        private static DateTime? TryGetLocalFileTime(string localFileName)
         {
-            localFileLastWrite = File.GetLastWriteTime(Path.Combine(LocalPath, localFileName));
-            Logging.Instance.WriteLine($"Local {localFileName} time: {localFileLastWrite:dd.MM.yyyy HH:mm:ss}");
-            return localFileLastWrite != null;
+            try
+            {
+                DateTime? localFileLastWrite = File.GetLastWriteTime(Path.Combine(LocalPath, localFileName));
+                Logging.Instance.WriteLine($"Local {localFileName} time: {localFileLastWrite:dd.MM.yyyy HH:mm:ss}");
+                return localFileLastWrite;
+            }
+            catch (Exception e)
+            {
+                Logging.Instance.WriteLine($"Failed to get local file time. Exception:\n{e.Message}\n{e.StackTrace}");
+                return null;
+            }
         }
 
         public static string[] ReadFromFile(string fileName)
