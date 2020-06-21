@@ -4,7 +4,7 @@ using System.Text;
 using System.Windows;
 using Handlers;
 
-namespace Gui
+namespace HotelManager
 {
     public partial class App
     {

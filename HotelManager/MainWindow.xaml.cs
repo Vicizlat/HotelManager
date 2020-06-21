@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using Core;
 using Templates;
 
-namespace Gui
+namespace HotelManager
 {
     public partial class MainWindow
     {

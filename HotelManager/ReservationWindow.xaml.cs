@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Core;
 
-namespace Gui
+namespace HotelManager
 {
     public partial class ReservationWindow
     {

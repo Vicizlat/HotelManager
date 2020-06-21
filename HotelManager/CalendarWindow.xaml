@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        x:Class="Gui.CalendarWindow" mc:Ignorable="d"
+        x:Class="HotelManager.CalendarWindow" mc:Ignorable="d"
         SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowState="Normal" WindowStartupLocation="CenterOwner" Topmost="True">
     <Grid>

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace Gui
+namespace Updater
 {
     public partial class SelectWebsiteWindow
     {

@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        x:Class="Gui.ReservationWindow" mc:Ignorable="d"
+        x:Class="HotelManager.ReservationWindow" mc:Ignorable="d"
         Title="Добавяне / Редактиране на резервация" Width="600" Height="400" ShowInTaskbar="True" ResizeMode="NoResize" WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen" BorderBrush="Black" BorderThickness="1">
     <Border Padding="20">

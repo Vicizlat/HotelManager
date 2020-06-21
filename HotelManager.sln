@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gui", "Gui\Gui.csproj", "{471147F2-E5EA-4A97-AAB3-FB8281EA17B4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelManager", "HotelManager\HotelManager.csproj", "{4893C60D-FC67-41A2-B1D8-9181DF29870B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelManager", "HotelManager\HotelManager.csproj", "{471147F2-E5EA-4A97-AAB3-FB8281EA17B4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Templates", "Templates\Templates.csproj", "{BB4C0583-DF2D-4766-85F2-6775BF5CC2E8}"
 EndProject
@@ -14,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Handlers", "Handlers\Handlers.csproj", "{F19A6A00-2292-496F-B2ED-55FCAD63405E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetInstaller", "DotNetInstaller\DotNetInstaller.csproj", "{B642E101-BD2C-473A-98FC-6DD7168B7F25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{8A8BE28C-3A1A-4045-8AA5-99AC35815245}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +31,6 @@ Global
 		{471147F2-E5EA-4A97-AAB3-FB8281EA17B4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{471147F2-E5EA-4A97-AAB3-FB8281EA17B4}.Release|x86.ActiveCfg = Debug|x86
 		{471147F2-E5EA-4A97-AAB3-FB8281EA17B4}.Release|x86.Build.0 = Debug|x86
-		{4893C60D-FC67-41A2-B1D8-9181DF29870B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4893C60D-FC67-41A2-B1D8-9181DF29870B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4893C60D-FC67-41A2-B1D8-9181DF29870B}.Debug|x86.ActiveCfg = Debug|x86
-		{4893C60D-FC67-41A2-B1D8-9181DF29870B}.Debug|x86.Build.0 = Debug|x86
-		{4893C60D-FC67-41A2-B1D8-9181DF29870B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4893C60D-FC67-41A2-B1D8-9181DF29870B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4893C60D-FC67-41A2-B1D8-9181DF29870B}.Release|x86.ActiveCfg = Debug|x86
-		{4893C60D-FC67-41A2-B1D8-9181DF29870B}.Release|x86.Build.0 = Debug|x86
 		{BB4C0583-DF2D-4766-85F2-6775BF5CC2E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BB4C0583-DF2D-4766-85F2-6775BF5CC2E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB4C0583-DF2D-4766-85F2-6775BF5CC2E8}.Debug|x86.ActiveCfg = Debug|x86
@@ -71,6 +63,14 @@ Global
 		{B642E101-BD2C-473A-98FC-6DD7168B7F25}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B642E101-BD2C-473A-98FC-6DD7168B7F25}.Release|x86.ActiveCfg = Release|Any CPU
 		{B642E101-BD2C-473A-98FC-6DD7168B7F25}.Release|x86.Build.0 = Release|Any CPU
+		{8A8BE28C-3A1A-4045-8AA5-99AC35815245}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A8BE28C-3A1A-4045-8AA5-99AC35815245}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A8BE28C-3A1A-4045-8AA5-99AC35815245}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8A8BE28C-3A1A-4045-8AA5-99AC35815245}.Debug|x86.Build.0 = Debug|Any CPU
+		{8A8BE28C-3A1A-4045-8AA5-99AC35815245}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A8BE28C-3A1A-4045-8AA5-99AC35815245}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A8BE28C-3A1A-4045-8AA5-99AC35815245}.Release|x86.ActiveCfg = Release|Any CPU
+		{8A8BE28C-3A1A-4045-8AA5-99AC35815245}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
