@@ -30,7 +30,7 @@ namespace Core
 
         public bool IsMatchingRoomAndDate(int room, DateTime date)
         {
-            return Room == room && Period.ContainsDate(date);
+            return Status && Room == room && Period.ContainsDate(date);
         }
 
         public override string ToString()
