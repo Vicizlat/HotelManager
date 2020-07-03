@@ -62,8 +62,9 @@
     <Compile Include="Reservation.cs" />
     <Compile Include="Reservations.cs" />
     <Compile Include="ReservationsEventHandler.cs" />
-    <Compile Include="ReservationWindow1EventHandler.cs" />
-    <Compile Include="ReservationWindow2EventHandler.cs" />
+    <Compile Include="AddReservationEventHandler.cs" />
+    <Compile Include="EditReservationEventHandler.cs" />
+    <Compile Include="Sums.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Handlers\Handlers.csproj">

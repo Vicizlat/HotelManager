@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using Core;
+using Handlers;
 using Templates;
 
 namespace HotelManager
@@ -16,20 +17,24 @@ namespace HotelManager
         {
             InitializeComponent();
             CreateRoomRows();
-            Reservations.Instance.LoadReservations();
             StartDate.SelectedDate = DateTime.Now;
             EndDate.SelectedDate = DateTime.Now.AddDays(13);
-            Reservations.Instance.ReservationsUpdated += CreateReservationsTable;
-            Reservations.Instance.ReservationWindow1Requested += ReservationWindowRequested;
-            Reservations.Instance.ReservationWindow2Requested += ReservationWindowRequested;
+            Reservations.Instance.OnReservationsChanged += CreateReservationsTable;
+            Reservations.Instance.AddReservationWindowRequested += ReservationWindowRequested;
+            Reservations.Instance.EditReservationWindowRequested += ReservationWindowRequested;
         }
 
         internal void ReservationWindowRequested(Reservation reservation) => new ReservationWindow(reservation).ShowDialog();
 
-        internal void ReservationWindowRequested(int room, DateTime startDate) => new ReservationWindow(room, startDate).ShowDialog();
+        internal void ReservationWindowRequested(int room, DateTime startDate)
+        {
+            int id = Reservations.Instance.Count + 1;
+            new ReservationWindow(id, room, startDate).ShowDialog();
+        }
 
         public void CreateReservationsTable()
         {
+            if (FileHandler.WriteToFile("Reservations", Reservations.Instance.ToStringArray())) FtpHandler.TryUploadFile("Reservations");
             Table.Children.Clear();
             for (int row = 0; row < 25; row++)
             {
@@ -37,7 +42,7 @@ namespace HotelManager
                 for (int col = 0; col <= DaysToShow; col++)
                 {
                     DateTime date = StartDateSelectedDate.AddDays(col);
-                    Reservation reservation = Reservations.Instance.GetReservation(GetRoom(row), date);
+                    Reservation reservation = Reservations.Instance.GetReservation(StaticTemplates.GetRoomNumber(row), date);
                     TextBox tableTextBox = new TextBoxTemplate().ReservationsTextBox(row, date, reservation != null && reservation.Status ? reservation : null);
                     if (skipColumns-- > 0) continue;
                     Grid.SetRow(tableTextBox, row);
@@ -49,14 +54,6 @@ namespace HotelManager
                     Table.Children.Add(tableTextBox);
                 }
             }
-        }
-
-        internal int GetRoom(int row)
-        {
-            if (row == 0) return 32;
-            if (row >= 1 && row <= 8) return 20 + row;
-            if (row >= 9 && row <= 16) return 2 + row;
-            return row - 16;
         }
 
         private void CreateDatesColumns()

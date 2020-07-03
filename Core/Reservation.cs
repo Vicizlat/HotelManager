@@ -9,22 +9,19 @@ namespace Core
         public int Room { get; set; }
         public string GuestName { get; set; }
         public Period Period { get; set; }
+        public Sums Sums { get; set; }
         public int GuestsInRoom { get; set; }
-        public decimal TotalPrice { get; set; }
-        public decimal PaidSum { get; set; }
-        public decimal RemainingSum => TotalPrice - PaidSum;
         public string AdditionalInformation { get; set; }
 
-        public Reservation(int id, bool status, int room, string guestName, DateTime[] dates, int guestsInRoom, decimal totalPrice, decimal paidSum, string additionalInfo)
+        public Reservation(int id, bool status, int room, string guestName, Period period, int guestsInRoom, Sums sums, string additionalInfo)
         {
             Id = id;
             Status = status;
             Room = room;
             GuestName = guestName;
-            Period = new Period(dates[0], dates[1]);
+            Period = period;
             GuestsInRoom = guestsInRoom;
-            TotalPrice = totalPrice;
-            PaidSum = paidSum;
+            Sums = sums;
             AdditionalInformation = additionalInfo;
         }
 
@@ -35,7 +32,7 @@ namespace Core
 
         public override string ToString()
         {
-            return $"{Id}|{Status}|{Room}|{GuestName}|{Period}|{GuestsInRoom}|{TotalPrice}|{PaidSum}|{AdditionalInformation}";
+            return $"{Id}|{Status}|{Room}|{GuestName}|{Period}|{GuestsInRoom}|{Sums}|{AdditionalInformation}";
         }
     }
 }

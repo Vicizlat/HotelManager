@@ -63,6 +63,7 @@
     <Compile Include="Commands\AddReservation.cs" />
     <Compile Include="Commands\EditReservation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StaticTemplates.cs" />
     <Compile Include="TextBoxTemplate.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -12,30 +12,28 @@ namespace HotelManager
     {
         private decimal totalPrice;
         private decimal paidSum;
+        private readonly int id;
 
-        public ReservationWindow(int room, DateTime startDate)
+        public ReservationWindow(int id, int room, DateTime startDate)
         {
             InitializeComponent();
-            Id.Text = $"{Reservations.Instance.Count + 1}";
+            this.id = id;
+            Id.Text = $"{this.id}";
             Room.SelectedIndex = GetRoomIndex(room);
             StartDate.SelectedDate = startDate;
         }
 
-        public ReservationWindow(Reservation reservation)
+        public ReservationWindow(Reservation reservation) : this(reservation.Id, reservation.Room, reservation.Period.StartDate)
         {
-            InitializeComponent();
-            Id.Text = $"{reservation.Id}";
             Status.IsChecked = reservation.Status;
             Status.Content = Status.IsChecked.Value ? "Активна резервация" : "Отменена резервация";
-            Room.SelectedIndex = GetRoomIndex(reservation.Room);
             GuestName.Text = reservation.GuestName;
-            StartDate.SelectedDate = reservation.Period.StartDate;
             EndDate.SelectedDate = reservation.Period.EndDate;
-            Nights.Text = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days.ToString();
+            Nights.Text = $"{reservation.Period.Nights}";
             GuestsInRoom.Text = $"{reservation.GuestsInRoom}";
-            TotalPrice.Text = $"{reservation.TotalPrice}";
-            PaidSum.Text = $"{reservation.PaidSum}";
-            RemainingSum.Text = $"{reservation.TotalPrice - reservation.PaidSum}";
+            TotalPrice.Text = $"{reservation.Sums.Total}";
+            PaidSum.Text = $"{reservation.Sums.Paid}";
+            RemainingSum.Text = $"{reservation.Sums.Remaining}";
             AdditionalInformation.Text = reservation.AdditionalInformation == "Няма" ? string.Empty : reservation.AdditionalInformation;
         }
 
@@ -110,16 +108,14 @@ namespace HotelManager
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            int id = int.Parse(Id.Text);
             bool status = Status.IsChecked != null && Status.IsChecked.Value;
             int room = int.Parse(Room.SelectedItem.ToString().Substring(Room.SelectedItem.ToString().Length - 2, 2));
-            string guestName = GuestName.Text;
-            DateTime[] dates = { StartDate.SelectedDate.GetValueOrDefault(), EndDate.SelectedDate.GetValueOrDefault() };
+            Period period = new Period(StartDate.SelectedDate.GetValueOrDefault(), EndDate.SelectedDate.GetValueOrDefault());
             int guestsInRoom = int.Parse(GuestsInRoom.Text);
-            decimal[] sums = { totalPrice, paidSum };
+            Sums sums = new Sums(totalPrice, paidSum);
             string additionalInfo = string.IsNullOrEmpty(AdditionalInformation.Text) ? "Няма" : AdditionalInformation.Text;
-
-            Reservations.Instance.AddReservation(id, status, room, guestName, dates, guestsInRoom, sums, additionalInfo);
+            Reservation reservation = new Reservation(id, status, room, GuestName.Text, period, guestsInRoom, sums, additionalInfo);
+            Reservations.Instance.SaveReservation(reservation);
             Close();
         }
 

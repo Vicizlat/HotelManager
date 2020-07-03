@@ -13,50 +13,38 @@ namespace Templates
         {
             TextBox textBox = new TextBox
             {
-                Text = string.Empty,
+                Text = reservation == null ? string.Empty : StaticTemplates.GetReservationText(reservation),
                 IsReadOnly = true,
                 FontSize = 18,
                 VerticalContentAlignment = VerticalAlignment.Center,
-                Margin = row == 0 || row == 8 || row == 16 ? new Thickness(0, 0, 0, 20) : new Thickness(0),
+                Margin = StaticTemplates.Margin(row),
                 Cursor = Cursors.Hand,
                 BorderThickness = new Thickness(1.5),
                 ContextMenu = new ContextMenu()
             };
             if (reservation != null)
             {
-                textBox.Text = $"{reservation.GuestName} - {reservation.GuestsInRoom} гости - За плащане: {reservation.RemainingSum} лв.";
-                textBox.ToolTip = $"Име: {reservation.GuestName}\n";
-                textBox.ToolTip += $"Брой гости: {reservation.GuestsInRoom}\n";
-                textBox.ToolTip += $"Период: {reservation.Period.StartDate:dd.MM.yyyy} - {reservation.Period.EndDate:dd.MM.yyyy}\n";
-                textBox.ToolTip += $"Обща цена: {reservation.TotalPrice}\n";
-                textBox.ToolTip += $"Предплатена сума: {reservation.PaidSum}\n";
-                textBox.ToolTip += $"Оставаща сума: {reservation.RemainingSum}\n";
-                textBox.ToolTip += $"Допълнителна информация: {reservation.AdditionalInformation}";
+                textBox.ToolTip = StaticTemplates.GetTooltipText(reservation);
                 textBox.Background = new SolidColorBrush(Colors.AntiqueWhite);
             }
-            textBox.ContextMenu.Items.Add(AddReservationMenuItem(GetRoom(row), startDate));
-            textBox.ContextMenu.Items.Add(EditReservationMenuItem(reservation));
+            textBox.ContextMenu.Items.Add(StaticTemplates.AddReservationMenuItem(row, startDate));
+            textBox.ContextMenu.Items.Add(StaticTemplates.EditReservationMenuItem(reservation));
             return textBox;
         }
 
         public TextBox RoomsTextBox(int row)
         {
-            string text = "";
-            if (row == 0) text = "Апартамент 32";
-            if (row >= 1 && row <= 8) text = $"Стая 2{row}";
-            if (row >= 9 && row <= 16) text = $"Стая 1{row - 8}";
-            if (row >= 17 && row <= 24) text = $"Стая 0{row - 16}";
             TextBox textBox = new TextBox
             {
-                Text = text,
+                Text = StaticTemplates.GetRoomText(row),
                 IsReadOnly = true,
                 FontSize = 20,
                 VerticalContentAlignment = VerticalAlignment.Center,
-                Margin = row == 0 || row == 8 || row == 16 ? new Thickness(0, 0, 0, 20) : new Thickness(0),
+                Margin = StaticTemplates.Margin(row),
                 Cursor = Cursors.Hand,
                 ContextMenu = new ContextMenu()
             };
-            textBox.ContextMenu.Items.Add(AddReservationMenuItem(GetRoom(row), DateTime.Now));
+            textBox.ContextMenu.Items.Add(StaticTemplates.AddReservationMenuItem(row, DateTime.Now));
             return textBox;
         }
 
@@ -77,32 +65,6 @@ namespace Templates
                 IsHitTestVisible = false
             };
             return textBox;
-        }
-
-        internal int GetRoom(int row)
-        {
-            if (row == 0) return 32;
-            if (row >= 1 && row <= 8) return 20 + row;
-            if (row >= 9 && row <= 16) return 2 + row;
-            return row - 16;
-        }
-
-        internal MenuItem AddReservationMenuItem(int room, DateTime startDate)
-        {
-            return new MenuItem
-            {
-                Header = "Добави резервация",
-                Command = new Commands.AddReservation(room, startDate)
-            };
-        }
-
-        internal MenuItem EditReservationMenuItem(Reservation reservation)
-        {
-            return new MenuItem
-            {
-                Header = "Редактирай резервация",
-                Command = new Commands.EditReservation(reservation)
-            };
         }
     }
 }
