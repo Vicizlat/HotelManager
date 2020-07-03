@@ -28,7 +28,8 @@ namespace Handlers
             }
             catch (Exception e)
             {
-                Logging.Instance.WriteLine($"Failed to get local file time. Exception:\n{e.Message}\n{e.StackTrace}");
+                Logging.Instance.WriteLine("Failed to get local file time. Exception:");
+                Logging.Instance.WriteLine(e.Message + Environment.NewLine + e.StackTrace);
                 return null;
             }
         }
