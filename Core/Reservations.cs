@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Handlers;
 
 namespace Core
 {
@@ -18,6 +19,7 @@ namespace Core
         {
             if (GetReservation(reservation.Id) == null) Add(reservation);
             else this[reservation.Id - 1] = reservation;
+            if (FileHandler.WriteToFile("Reservations", this.ToStringArray())) FtpHandler.TryUploadFile("Reservations");
             OnReservationsUpdated();
         }
 
@@ -26,6 +28,16 @@ namespace Core
         public Reservation GetReservation(int id) => this.Find(r => r.Id == id);
 
         public Reservation GetReservation(int room, DateTime date) => this.Find(r => r.IsMatchingRoomAndDate(room, date));
+
+        public Reservation GetReservation(int room, Period period)
+        {
+            DateTime maxDate = period.EndDate;
+            foreach (Reservation reservation in this.FindAll(r => r.IsMatchingRoomAndPeriod(room, period)))
+            {
+                if (reservation.Period.StartDate < maxDate) maxDate = reservation.Period.StartDate;
+            }
+            return this.Find(r => r.IsMatchingRoomAndDate(room, maxDate));
+        }
 
         public void RequestReservationWindow(int room, DateTime startDate) => OnReservationWindowRequested(room, startDate);
 

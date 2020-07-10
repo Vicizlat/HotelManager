@@ -30,6 +30,11 @@ namespace Core
             return Status && Room == room && Period.ContainsDate(date);
         }
 
+        public bool IsMatchingRoomAndPeriod(int room, Period period)
+        {
+            return Status && Room == room && period.ContainsDate(Period.StartDate);
+        }
+
         public override string ToString()
         {
             return $"{Id}|{Status}|{Room}|{GuestName}|{Period}|{GuestsInRoom}|{Sums}|{AdditionalInformation}";

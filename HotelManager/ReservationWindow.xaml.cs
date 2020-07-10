@@ -21,6 +21,9 @@ namespace HotelManager
             Id.Text = $"{this.id}";
             Room.SelectedIndex = GetRoomIndex(room);
             StartDate.SelectedDate = startDate;
+            EndDate.DisplayDateStart = startDate.AddDays(1);
+            Reservation res = Reservations.Instance.GetReservation(room, new Period(startDate.AddDays(1), new DateTime(2020, 09, 30)));
+            if (res != null) EndDate.DisplayDateEnd = res.Period.StartDate;
         }
 
         public ReservationWindow(Reservation reservation) : this(reservation.Id, reservation.Room, reservation.Period.StartDate)

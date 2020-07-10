@@ -35,7 +35,6 @@ namespace HotelManager
 
         public void CreateReservationsTable()
         {
-            if (FileHandler.WriteToFile("Reservations", Reservations.Instance.ToStringArray())) FtpHandler.TryUploadFile("Reservations");
             Table.Children.Clear();
             for (int row = 0; row < 25; row++)
             {
