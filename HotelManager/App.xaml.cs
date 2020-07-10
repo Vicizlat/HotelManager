@@ -22,7 +22,7 @@ namespace HotelManager
             else Shutdown();
         }
 
-        private bool TryUpdateFile(string fileName)
+        private static bool TryUpdateFile(string fileName)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace HotelManager
             return response;
         }
 
-        public void LoadReservations(string fileName)
+        private static void LoadReservations(string fileName)
         {
             foreach (string line in FileHandler.ReadFromFile(fileName))
             {

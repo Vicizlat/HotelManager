@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Core;
 using Handlers;
 using Templates;
@@ -44,6 +45,10 @@ namespace HotelManager
                     DateTime date = StartDateSelectedDate.AddDays(col);
                     Reservation reservation = Reservations.Instance.GetReservation(StaticTemplates.GetRoomNumber(row), date);
                     TextBox tableTextBox = new TextBoxTemplate().ReservationsTextBox(row, date, reservation != null && reservation.Status ? reservation : null);
+                    if (reservation != null && IsOverlapingReservation(row, reservation.Period.EndDate))
+                    {
+                        tableTextBox.Background = new SolidColorBrush(Colors.Red);
+                    }
                     if (skipColumns-- > 0) continue;
                     Grid.SetRow(tableTextBox, row);
                     Grid.SetColumn(tableTextBox, col);
@@ -54,6 +59,12 @@ namespace HotelManager
                     Table.Children.Add(tableTextBox);
                 }
             }
+        }
+
+        private bool IsOverlapingReservation(int row, DateTime date)
+        {
+            Reservation res = Reservations.Instance.GetReservation(StaticTemplates.GetRoomNumber(row), date);
+            return res != null && date != res.Period.StartDate;
         }
 
         private void CreateDatesColumns()
