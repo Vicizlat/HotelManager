@@ -5,7 +5,7 @@ namespace Core
     public class Reservation
     {
         public int Id { get; set; }
-        public bool Status { get; set; }
+        public int ReservationState { get; set; }
         public int Room { get; set; }
         public string GuestName { get; set; }
         public Period Period { get; set; }
@@ -13,10 +13,10 @@ namespace Core
         public int GuestsInRoom { get; set; }
         public string AdditionalInformation { get; set; }
 
-        public Reservation(int id, bool status, int room, string guestName, Period period, int guestsInRoom, Sums sums, string additionalInfo)
+        public Reservation(int id, int reservationState, int room, string guestName, Period period, int guestsInRoom, Sums sums, string additionalInfo)
         {
             Id = id;
-            Status = status;
+            ReservationState = reservationState;
             Room = room;
             GuestName = guestName;
             Period = period;
@@ -27,17 +27,17 @@ namespace Core
 
         public bool IsMatchingRoomAndDate(int room, DateTime date)
         {
-            return Status && Room == room && Period.ContainsDate(date);
+            return ReservationState != (int)State.Canceled && Room == room && Period.ContainsDate(date);
         }
 
         public bool IsMatchingRoomAndPeriod(int room, Period period)
         {
-            return Status && Room == room && period.ContainsDate(Period.StartDate);
+            return ReservationState != (int)State.Canceled && Room == room && period.ContainsDate(Period.StartDate);
         }
 
         public override string ToString()
         {
-            return $"{Id}|{Status}|{Room}|{GuestName}|{Period}|{GuestsInRoom}|{Sums}|{AdditionalInformation}";
+            return $"{Id}|{ReservationState}|{Room}|{GuestName}|{Period}|{GuestsInRoom}|{Sums}|{AdditionalInformation}";
         }
     }
 }

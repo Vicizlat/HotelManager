@@ -64,6 +64,7 @@
     <Compile Include="ReservationsEventHandler.cs" />
     <Compile Include="AddReservationEventHandler.cs" />
     <Compile Include="EditReservationEventHandler.cs" />
+    <Compile Include="State.cs" />
     <Compile Include="Sums.cs" />
   </ItemGroup>
   <ItemGroup>

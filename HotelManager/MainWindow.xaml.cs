@@ -41,17 +41,22 @@ namespace HotelManager
                 {
                     DateTime date = StartDateSelectedDate.AddDays(col);
                     Reservation reservation = Reservations.Instance.GetReservation(StaticTemplates.GetRoomNumber(row), date);
-                    TextBox tableTextBox = new TextBoxTemplate().ReservationsTextBox(row, date, reservation != null && reservation.Status ? reservation : null);
+                    TextBox tableTextBox = new TextBoxTemplate().ReservationsTextBox(row, date, IsActiveReservation(reservation) ? reservation : null);
                     if (skipColumns-- > 0) continue;
                     Grid.SetRow(tableTextBox, row);
                     Grid.SetColumn(tableTextBox, col);
-                    Grid.SetColumnSpan(tableTextBox, reservation != null && reservation.Status ? reservation.Period.Nights : 1);
-                    if (reservation == null || !reservation.Status) skipColumns = 0;
+                    Grid.SetColumnSpan(tableTextBox, IsActiveReservation(reservation) ? reservation.Period.Nights : 1);
+                    if (!IsActiveReservation(reservation)) skipColumns = 0;
                     else if (StartDateSelectedDate < reservation.Period.StartDate) skipColumns = reservation.Period.Nights - 1;
                     else skipColumns = (reservation.Period.EndDate - StartDateSelectedDate).Days - 1;
                     Table.Children.Add(tableTextBox);
                 }
             }
+        }
+
+        private static bool IsActiveReservation(Reservation reservation)
+        {
+            return reservation != null && reservation.ReservationState != (int)State.Canceled;
         }
 
         private void CreateDatesColumns()

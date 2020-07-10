@@ -59,5 +59,14 @@ namespace Templates
                 Command = new Commands.EditReservation(reservation)
             };
         }
+
+        public static MenuItem CheckInReservationMenuItem(Reservation reservation)
+        {
+            return new MenuItem
+            {
+                Header = "Настани резервация",
+                Command = new Commands.CheckInReservation(reservation)
+            };
+        }
     }
 }

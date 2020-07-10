@@ -25,14 +25,27 @@ namespace Templates
             if (reservation != null)
             {
                 textBox.ToolTip = StaticTemplates.GetTooltipText(reservation);
-                textBox.Background = IsOverlapingReservation(row, reservation.Period.EndDate) ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.AntiqueWhite);
+                textBox.Background = GetTextBoxBackground(row, reservation);
+                if (reservation.ReservationState == (int) State.CheckedIn)
+                {
+                    textBox.Foreground = new SolidColorBrush(Colors.AntiqueWhite);
+                }
             }
             textBox.ContextMenu.Items.Add(StaticTemplates.AddReservationMenuItem(row, startDate));
             textBox.ContextMenu.Items.Add(StaticTemplates.EditReservationMenuItem(reservation));
+            textBox.ContextMenu.Items.Add(StaticTemplates.CheckInReservationMenuItem(reservation));
             return textBox;
         }
 
-        private bool IsOverlapingReservation(int row, DateTime date)
+        private SolidColorBrush GetTextBoxBackground(int row, Reservation reservation)
+        {
+            SolidColorBrush color = new SolidColorBrush(Colors.AntiqueWhite);
+            if (IsOverlappingReservation(row, reservation.Period.EndDate)) color = new SolidColorBrush(Colors.Red);
+            else if (reservation.ReservationState == (int)State.CheckedIn) color = new SolidColorBrush(Colors.DarkBlue);
+            return color;
+        }
+
+        private bool IsOverlappingReservation(int row, DateTime date)
         {
             Reservation res = Reservations.Instance.GetReservation(StaticTemplates.GetRoomNumber(row), date);
             return res != null && date != res.Period.StartDate;

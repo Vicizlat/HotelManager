@@ -24,7 +24,7 @@ namespace Templates.Commands
         public bool CanExecute(object parameter)
         {
             Reservation reservation = Reservations.Instance.GetReservation(Room, StartDate);
-            return reservation == null || !reservation.Status;
+            return reservation == null || reservation.ReservationState == (int)State.Canceled;
         }
 
         public void Execute(object parameter)

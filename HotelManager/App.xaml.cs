@@ -69,7 +69,7 @@ namespace HotelManager
             {
                 string[] lineArr = line.Split(new[] { "|", " |", "| ", " | " }, StringSplitOptions.RemoveEmptyEntries);
                 int id = int.Parse(lineArr[0].Trim());
-                bool status = bool.Parse(lineArr[1].Trim());
+                int status = int.Parse(lineArr[1].Trim());
                 int room = int.Parse(lineArr[2].Trim());
                 string guestName = lineArr[3].Trim();
                 Period period = new Period(DateTime.Parse(lineArr[4].Trim()), DateTime.Parse(lineArr[5].Trim()));

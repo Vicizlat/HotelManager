@@ -60,6 +60,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CheckInReservation.cs" />
     <Compile Include="Commands\AddReservation.cs" />
     <Compile Include="Commands\EditReservation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

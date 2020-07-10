@@ -19,6 +19,7 @@ namespace HotelManager
             InitializeComponent();
             this.id = id;
             Id.Text = $"{this.id}";
+            State.SelectedIndex = 0;
             Room.SelectedIndex = GetRoomIndex(room);
             StartDate.SelectedDate = startDate;
             EndDate.DisplayDateStart = startDate.AddDays(1);
@@ -28,8 +29,7 @@ namespace HotelManager
 
         public ReservationWindow(Reservation reservation) : this(reservation.Id, reservation.Room, reservation.Period.StartDate)
         {
-            Status.IsChecked = reservation.Status;
-            Status.Content = Status.IsChecked.Value ? "Активна резервация" : "Отменена резервация";
+            State.SelectedIndex = reservation.ReservationState;
             GuestName.Text = reservation.GuestName;
             EndDate.SelectedDate = reservation.Period.EndDate;
             Nights.Text = $"{reservation.Period.Nights}";
@@ -47,11 +47,6 @@ namespace HotelManager
             if (room >= 21 && room <= 28) return room - 4;
             if (room == 32) return 25;
             return 0;
-        }
-
-        private void CheckboxStatus(object sender, RoutedEventArgs e)
-        {
-            Status.Content = Status.IsChecked != null && Status.IsChecked.Value ? "Активна резервация" : "Отменена резервация";
         }
 
         private void Room_SelectionChanged(object sender, SelectionChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
@@ -111,17 +106,23 @@ namespace HotelManager
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            bool status = Status.IsChecked != null && Status.IsChecked.Value;
+            int reservationState = State.SelectedIndex;
             int room = int.Parse(Room.SelectedItem.ToString().Substring(Room.SelectedItem.ToString().Length - 2, 2));
             Period period = new Period(StartDate.SelectedDate.GetValueOrDefault(), EndDate.SelectedDate.GetValueOrDefault());
             int guestsInRoom = int.Parse(GuestsInRoom.Text);
             Sums sums = new Sums(totalPrice, paidSum);
             string additionalInfo = string.IsNullOrEmpty(AdditionalInformation.Text) ? "Няма" : AdditionalInformation.Text;
-            Reservation reservation = new Reservation(id, status, room, GuestName.Text, period, guestsInRoom, sums, additionalInfo);
+            Reservation reservation = new Reservation(id, reservationState, room, GuestName.Text, period, guestsInRoom, sums, additionalInfo);
             Reservations.Instance.SaveReservation(reservation);
             Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
+
+        private void State_Loaded(object sender, RoutedEventArgs e)
+        {
+            string[] statesList = { "Активна", "Настанена", "Отменена" };
+            State.ItemsSource = statesList;
+        }
     }
 }
