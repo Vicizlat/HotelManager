@@ -25,11 +25,17 @@ namespace Templates
             if (reservation != null)
             {
                 textBox.ToolTip = StaticTemplates.GetTooltipText(reservation);
-                textBox.Background = new SolidColorBrush(Colors.AntiqueWhite);
+                textBox.Background = IsOverlapingReservation(row, reservation.Period.EndDate) ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.AntiqueWhite);
             }
             textBox.ContextMenu.Items.Add(StaticTemplates.AddReservationMenuItem(row, startDate));
             textBox.ContextMenu.Items.Add(StaticTemplates.EditReservationMenuItem(reservation));
             return textBox;
+        }
+
+        private bool IsOverlapingReservation(int row, DateTime date)
+        {
+            Reservation res = Reservations.Instance.GetReservation(StaticTemplates.GetRoomNumber(row), date);
+            return res != null && date != res.Period.StartDate;
         }
 
         public TextBox RoomsTextBox(int row)
