@@ -17,7 +17,7 @@ namespace Core
         public void SaveReservation(Reservation reservation)
         {
             if (GetReservation(reservation.Id) == null) Add(reservation);
-            else this[reservation.Id] = reservation;
+            else this[reservation.Id - 1] = reservation;
             OnReservationsUpdated();
         }
 
