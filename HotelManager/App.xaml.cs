@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using Core;
@@ -74,7 +75,7 @@ namespace HotelManager
                 string guestName = lineArr[3].Trim();
                 Period period = new Period(DateTime.Parse(lineArr[4].Trim()), DateTime.Parse(lineArr[5].Trim()));
                 int guestsInRoom = int.Parse(lineArr[6].Trim());
-                Sums sums = new Sums(decimal.Parse(lineArr[7].Trim()), decimal.Parse(lineArr[8].Trim()));
+                Sums sums = new Sums(decimal.Parse(lineArr[7].Trim(), CultureInfo.InvariantCulture), decimal.Parse(lineArr[8].Trim(), CultureInfo.InvariantCulture));
                 string additionalInfo = lineArr[9].Trim();
                 return new Reservation(id, status, room, guestName, period, guestsInRoom, sums, additionalInfo);
             }
