@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using Core;
 using Handlers;
@@ -75,7 +75,7 @@ namespace HotelManager
                 string guestName = lineArr[3].Trim();
                 Period period = new Period(DateTime.Parse(lineArr[4].Trim()), DateTime.Parse(lineArr[5].Trim()));
                 int guestsInRoom = int.Parse(lineArr[6].Trim());
-                Sums sums = new Sums(decimal.Parse(lineArr[7].Trim(), CultureInfo.InvariantCulture), decimal.Parse(lineArr[8].Trim(), CultureInfo.InvariantCulture));
+                Sums sums = ParseSums(lineArr[7].Trim(), lineArr[8].Trim());
                 string additionalInfo = lineArr[9].Trim();
                 return new Reservation(id, status, room, guestName, period, guestsInRoom, sums, additionalInfo);
             }
@@ -84,6 +84,19 @@ namespace HotelManager
                 Logging.Instance.WriteLine($"Failed to read line: {line}");
                 return null;
             }
+        }
+
+        private static Sums ParseSums(string totalPriceString, string paidPriceString)
+        {
+            string correctSeparatorTotalPrice = ReplaceDecimalSeparator(totalPriceString);
+            string correctSeparatorPaidPrice = ReplaceDecimalSeparator(paidPriceString);
+            return new Sums(decimal.Parse(correctSeparatorTotalPrice), decimal.Parse(correctSeparatorPaidPrice));
+        }
+
+        private static string ReplaceDecimalSeparator(string input)
+        {
+            char decimalSeparator = Convert.ToChar(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+            return input.Replace(',', decimalSeparator).Replace('.', decimalSeparator);
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)

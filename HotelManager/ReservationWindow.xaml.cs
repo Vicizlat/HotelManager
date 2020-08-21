@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -81,9 +82,16 @@ namespace HotelManager
             Save.IsEnabled = IsSaveEnabled();
         }
 
-        private void IntegersOnly_PreviewTextInput(object sender, TextCompositionEventArgs e) => e.Handled = !Regex.IsMatch(e.Text, "^[0-9]+$");
+        private void IntegersOnly_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, "^[0-9]+$");
+        }
 
-        private void DecimalsOnly_PreviewTextInput(object sender, TextCompositionEventArgs e) => e.Handled = !Regex.IsMatch(e.Text, "^[0-9,]+$");
+        private void DecimalsOnly_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            char decimalSeparator = Convert.ToChar(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+            e.Handled = !Regex.IsMatch(e.Text, $"^[0-9{decimalSeparator}]+$");
+        }
 
         private bool IsSaveEnabled()
         {
