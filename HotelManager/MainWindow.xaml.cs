@@ -19,8 +19,8 @@ namespace HotelManager
             StartDate.SelectedDate = DateTime.Now;
             EndDate.SelectedDate = DateTime.Now.AddDays(13);
             Reservations.Instance.OnReservationsChanged += CreateReservationsTable;
-            Reservations.Instance.AddReservationWindowRequested += ReservationWindowRequested;
-            Reservations.Instance.EditReservationWindowRequested += ReservationWindowRequested;
+            Reservations.Instance.OnReservationAdd += ReservationWindowRequested;
+            Reservations.Instance.OnReservationEdit += ReservationWindowRequested;
         }
 
         internal void ReservationWindowRequested(Reservation reservation) => new ReservationWindow(reservation).ShowDialog();
