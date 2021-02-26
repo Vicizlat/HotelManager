@@ -1,0 +1,19 @@
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:utils="clr-namespace:HotelManager.Utils"
+        x:Class="HotelManager.Views.CalendarWindow" mc:Ignorable="d"
+        SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowState="Normal" WindowStartupLocation="CenterOwner" Topmost="True" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Viewbox Grid.Row="0" Width="400">
+            <Calendar x:Name="Calendar" SelectionMode="SingleRange" SelectedDatesChanged="Calendar_SelectedDatesChanged"/>
+        </Viewbox>
+        <Button Grid.Row="1" Width="100" FontSize="18" HorizontalAlignment="Right" Content="Отмени" Click="Cancel_Click" Background="IndianRed"/>
+    </Grid>
+</Window>
