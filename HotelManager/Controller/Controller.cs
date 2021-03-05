@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+//using System.Linq;
 using System.Text;
 using HotelManager.Handlers;
 using HotelManager.Models;
@@ -33,12 +34,18 @@ namespace HotelManager.Controller
             //Guests = new Guests();
             //foreach (Reservation reservation in Reservations)
             //{
-            //    Guest guest = new Guest(reservation.GuestName, null, null);
-            //    if (Guests.FirstOrDefault(g => g.Name == guest.Name) == null)
+            //    Guest guest = Guests.FirstOrDefault(g => g.Name.ToLower() == reservation.GuestName.ToLower());
+            //    if (guest == null)
             //    {
+            //        guest = new Guest(reservation.GuestName, null, null);
             //        Guests.AddGuests(guest);
             //    }
-            //    reservation.Guest = Guests.FirstOrDefault(g => g.Name == guest.Name);
+            //    guest.ReservationIds.Add(reservation.Id);
+            //}
+            //if (!FileHandler.WriteToFile("Guests.json", JsonHandler.GetJsonStrings(Guests)))
+            //{
+            //    ShowFailMessage(string.Format(Constants.ErrorWriteFile, "Guests.json"));
+            //    return;
             //}
             OnReservationsChanged += Reservations_OnReservationsChanged;
         }
@@ -88,7 +95,7 @@ namespace HotelManager.Controller
         {
             Period period = new Period(startDate, startDate.AddDays(nights));
             Sums sums = new Sums(total, paid);
-            Reservation oldReservation = Reservations[id - 1];
+            Reservation oldReservation = Reservations.Count >= id ? Reservations[id - 1] : null;
             Reservation newReservation = new Reservation(id, (State)state, (Source)source, room, name, period, guests, sums, notes);
             if (oldReservation == null) Reservations.Add(newReservation);
             else Reservations[id - 1] = newReservation;
@@ -180,7 +187,7 @@ namespace HotelManager.Controller
             {
                 ShowFailMessage(string.Format(Constants.ErrorRemoteFileUpload, fileName));
             }
-            if (!FileHandler.WriteToFile(fileName, JsonHandler.ReservationsJsonStrings(Reservations)))
+            if (!FileHandler.WriteToFile(fileName, JsonHandler.GetJsonStrings(Reservations)))
             {
                 ShowFailMessage(string.Format(Constants.ErrorWriteFile, fileName));
                 return;

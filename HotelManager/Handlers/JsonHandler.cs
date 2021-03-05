@@ -8,12 +8,12 @@ namespace HotelManager.Handlers
 {
     public static class JsonHandler
     {
-        public static IEnumerable<string> ReservationsJsonStrings(IEnumerable<Reservation> reservations)
+        public static IEnumerable<string> GetJsonStrings(IEnumerable<object> entities)
         {
-            foreach (Reservation reservation in reservations)
+            foreach (object entity in entities)
             {
-                if (reservation == null) continue;
-                yield return SerializeToJson(reservation);
+                if (entity == null) continue;
+                yield return SerializeToJson(entity);
             }
         }
 
@@ -26,14 +26,14 @@ namespace HotelManager.Handlers
             }
         }
 
-        private static string SerializeToJson(Reservation reservation)
+        private static string SerializeToJson(object entity)
         {
             JsonSerializerOptions options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 Converters = { new JsonStringEnumConverter() }
             };
-            return JsonSerializer.Serialize(reservation, options);
+            return JsonSerializer.Serialize(entity, options);
         }
 
         private static Reservation DeserializeFromJson(string line)

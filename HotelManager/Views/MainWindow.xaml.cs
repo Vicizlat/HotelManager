@@ -141,7 +141,7 @@ namespace HotelManager.Views
             int index = 0;
             foreach (int id in results)
             {
-                ResultsTable.RowDefinitions.Add(new RowDefinition());
+                ResultsTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30), MinHeight = 30 });
                 TextBox tableTextBox = new ReservationTextBox(controller, id);
                 Grid.SetRow(tableTextBox, index++);
                 ResultsTable.Children.Add(tableTextBox);

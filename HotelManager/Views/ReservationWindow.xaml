@@ -11,6 +11,8 @@
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="30"/>
+                <RowDefinition Height="1"/>
+                <RowDefinition Height="1"/>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="20"/>
@@ -36,7 +38,7 @@
             <TextBox x:Name="GuestName" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Padding="2" Margin="10, 0" VerticalAlignment="Top" TextChanged="GenericText_TextChanged"/>
             <TextBox x:Name="GuestsInRoom" Grid.Row="2" Grid.Column="3" Padding="2" Margin="10, 0" VerticalAlignment="Top"
                      TextChanged="GenericText_TextChanged" KeyDown="Numbers_OnKeyDown" MaxLength="1"/>
-            <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="2">
+            <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="20"/>
                     <RowDefinition Height="30"/>
@@ -50,25 +52,25 @@
                 <DatePicker x:Name="StartDate" Grid.Row="1" Grid.Column="0" Margin="10, 0" VerticalAlignment="Top" SelectedDateChanged="Dates_SelectedDateChanged"/>
                 <DatePicker x:Name="EndDate" Grid.Row="1" Grid.Column="1" Margin="10, 0" VerticalAlignment="Top" SelectedDateChanged="Dates_SelectedDateChanged"/>
             </Grid>
-            <TextBlock Grid.Row="3" Grid.Column="3" Margin="10, 0" VerticalAlignment="Bottom" Text="Брой нощувки"/>
-            <TextBox x:Name="Nights" Grid.Row="4" Grid.Column="3" Padding="2" Margin="10, 0" VerticalAlignment="Top"
+            <TextBlock Grid.Row="5" Grid.Column="3" Margin="10, 0" VerticalAlignment="Bottom" Text="Брой нощувки"/>
+            <TextBox x:Name="Nights" Grid.Row="6" Grid.Column="3" Padding="2" Margin="10, 0" VerticalAlignment="Top"
                      TextChanged="Nights_TextChanged" KeyDown="Numbers_OnKeyDown"/>
-            <TextBlock Grid.Row="5" Grid.Column="0" Margin="10, 0" VerticalAlignment="Bottom" Text="Обща цена"/>
-            <TextBlock Grid.Row="5" Grid.Column="1" Margin="10, 0" VerticalAlignment="Bottom" Text="Предплатена сума"/>
-            <TextBlock Grid.Row="5" Grid.Column="3" Margin="10, 0" VerticalAlignment="Bottom" Text="Остатък за плащане"/>
-            <TextBox x:Name="TotalPrice" Grid.Row="6" Grid.Column="0" Padding="2" Margin="10,0"
+            <TextBlock Grid.Row="7" Grid.Column="0" Margin="10, 0" VerticalAlignment="Bottom" Text="Обща цена"/>
+            <TextBlock Grid.Row="7" Grid.Column="1" Margin="10, 0" VerticalAlignment="Bottom" Text="Предплатена сума"/>
+            <TextBlock Grid.Row="7" Grid.Column="3" Margin="10, 0" VerticalAlignment="Bottom" Text="Остатък за плащане"/>
+            <TextBox x:Name="TotalPrice" Grid.Row="8" Grid.Column="0" Padding="2" Margin="10,0"
                      VerticalAlignment="Top" HorizontalContentAlignment="Right"
                      TextChanged="Price_TextChanged" KeyDown="Numbers_OnKeyDown"/>
-            <TextBox x:Name="PaidSum" Grid.Row="6" Grid.Column="1" Padding="2" Margin="10,0"
+            <TextBox x:Name="PaidSum" Grid.Row="8" Grid.Column="1" Padding="2" Margin="10,0"
                      VerticalAlignment="Top" HorizontalContentAlignment="Right"
                      TextChanged="Price_TextChanged" KeyDown="Numbers_OnKeyDown"/>
-            <TextBox x:Name="RemainingSum" Grid.Row="6" Grid.Column="3" Padding="2" Margin="10, 0"
+            <TextBox x:Name="RemainingSum" Grid.Row="8" Grid.Column="3" Padding="2" Margin="10, 0"
                      VerticalAlignment="Top" HorizontalContentAlignment="Right" IsReadOnly="True"/>
-            <TextBlock Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="4" Margin="10, 0" VerticalAlignment="Bottom" Text="Допълнителна информация"/>
-            <TextBox x:Name="Notes" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="4" Padding="2" Margin="10, 0" TextChanged="GenericText_TextChanged"/>
-            <Button x:Name="Save" Grid.Row="9" Grid.Column="2" Height="20" Margin="10, 0" VerticalAlignment="Bottom" Background="LightGreen"
+            <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="4" Margin="10, 0" VerticalAlignment="Bottom" Text="Допълнителна информация"/>
+            <TextBox x:Name="Notes" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="4" Padding="2" Margin="10, 0" TextChanged="GenericText_TextChanged"/>
+            <Button x:Name="Save" Grid.Row="11" Grid.Column="2" Height="20" Margin="10, 0" VerticalAlignment="Bottom" Background="LightGreen"
                     Content="Запиши" IsEnabled="False" Click="Save_Click"/>
-            <Button x:Name="Cancel" Grid.Row="9" Grid.Column="3" Height="20" Margin="10, 0" VerticalAlignment="Bottom" Background="IndianRed"
+            <Button x:Name="Cancel" Grid.Row="11" Grid.Column="3" Height="20" Margin="10, 0" VerticalAlignment="Bottom" Background="IndianRed"
                     Content="Отмени" Click="Cancel_Click"/>
         </Grid>
     </Border>

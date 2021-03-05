@@ -8,11 +8,14 @@ namespace HotelManager.Models
         public string Name { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-        public IEnumerable<Reservation> Reservations { get; set; }
+        public List<int> ReservationIds { get; set; }
 
-        public Guest() { }
+        public Guest()
+        {
+            ReservationIds = new List<int>();
+        }
 
-        public Guest(string name, string phone, string email)
+        public Guest(string name, string phone, string email) : this()
         {
             Name = name;
             Phone = phone;
