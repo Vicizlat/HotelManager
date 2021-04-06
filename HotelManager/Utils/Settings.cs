@@ -4,6 +4,8 @@ namespace HotelManager.Utils
 {
     public class Settings
     {
+        public static event EventHandler OnSettingsChanged;
+
         private static Settings thisInstance;
         public static Settings Instance => thisInstance ?? new Settings();
         public string WebAddress { get; set; }
@@ -17,6 +19,17 @@ namespace HotelManager.Utils
 
         public Settings() => thisInstance = this;
 
-        public static void CreateSettings(Settings settings) => thisInstance = settings;
+        public static bool CreateSettings(object settings)
+        {
+            if (settings.GetType() != typeof(Settings)) return false;
+            thisInstance = (Settings)settings;
+            return InvokeSettingsChanged();
+        }
+
+        public static bool InvokeSettingsChanged()
+        {
+            OnSettingsChanged?.Invoke(null, EventArgs.Empty);
+            return true;
+        }
     }
 }

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.IO;
 //using System.Linq;
 using System.Text;
 using HotelManager.Handlers;
 using HotelManager.Models;
 using HotelManager.Repositories;
 using HotelManager.Utils;
-using HotelManager.Views;
 using System.Windows;
-using System.Xml.Serialization;
 
 namespace HotelManager.Controller
 {
@@ -21,14 +18,8 @@ namespace HotelManager.Controller
         public Rooms Rooms { get; }
         //public Guests Guests { get; }
 
-        public Controller(out bool controllerInitialized)
+        public Controller()
         {
-            controllerInitialized = ReadSettingsFile();
-            if (controllerInitialized && !Settings.Instance.LocalUseOnly)
-            {
-                controllerInitialized = TryUpdateFile(Constants.ReservationsFileName);
-            }
-            if (!controllerInitialized) return;
             Rooms = new Rooms(3, 8);
             Reservations = new Reservations(JsonHandler.GetReservationsFromFile(Constants.ReservationsFileName));
             //Guests = new Guests();
@@ -50,29 +41,10 @@ namespace HotelManager.Controller
             OnReservationsChanged += Reservations_OnReservationsChanged;
         }
 
-        private bool TryUpdateFile(string fileName)
-        {
-            bool fileExists = FileHandler.FileExists(fileName);
-            bool localFileNewer = FileHandler.IsLocalFileNewer(fileName, out bool checkedRemoteFile);
-            if (fileExists && localFileNewer) return checkedRemoteFile || MessageResponse(fileName);
-            return WebHandler.TryGetFile(fileName) || ShowFailMessage(string.Format(Constants.ErrorRemoteFileDownload, fileName));
-        }
-
         public bool ShowFailMessage(string text)
         {
             Logging.Instance.WriteLine(text);
             return MessageBox.Show(text) == MessageBoxResult.None;
-        }
-
-        private bool MessageResponse(string fileName)
-        {
-            StringBuilder sb = new StringBuilder(string.Format(Constants.ErrorRemoteFileCheck, fileName));
-            sb.AppendLine().AppendLine(Constants.ContinueLocal);
-            Logging.Instance.WriteLine(sb.ToString());
-            sb.AppendLine().AppendLine().AppendLine(Constants.WarningLoss);
-            bool response = MessageBox.Show(sb.ToString(), Constants.NetworkError, MessageBoxButton.YesNo) == MessageBoxResult.Yes;
-            Logging.Instance.WriteLine($"Response: {(response ? "Yes" : "No")}");
-            return response;
         }
 
         public void RequestReservationWindow(int room, DateTime startDate, int? id = null)
@@ -171,23 +143,13 @@ namespace HotelManager.Controller
             return sb.ToString();
         }
 
-        public bool ShowSettingsWindow()
-        {
-            return new SettingsWindow(this).ShowDialog() ?? false;
-        }
-
-        public void SaveSettings()
-        {
-            WriteSettingsFile();
-        }
-
         private void Reservations_OnReservationsChanged(object sender, string fileName)
         {
-            if (!Settings.Instance.LocalUseOnly && !FtpHandler.TryUploadBackupFile(fileName))
+            if (!FtpHandler.TryUploadBackupFile(fileName))
             {
                 ShowFailMessage(string.Format(Constants.ErrorRemoteFileUpload, fileName));
             }
-            if (!FileHandler.WriteToFile(fileName, JsonHandler.GetJsonStrings(Reservations)))
+            if (!FileHandler.WriteAllLines(fileName, JsonHandler.GetJsonStrings(Reservations)))
             {
                 ShowFailMessage(string.Format(Constants.ErrorWriteFile, fileName));
                 return;
@@ -206,27 +168,10 @@ namespace HotelManager.Controller
                     Logging.Instance.WriteLine($"New: {reservations[1]}", true);
                 }
             }
-            if (!Settings.Instance.LocalUseOnly && !FtpHandler.TryUploadFileByName(fileName))
+            if (!FtpHandler.TryUploadFileByName(fileName))
             {
                 ShowFailMessage(string.Format(Constants.ErrorRemoteFileUpload, fileName));
             }
-        }
-
-        private bool ReadSettingsFile()
-        {
-            string configFileName = Path.Combine(Constants.LocalPath, Constants.ConfigFileName);
-            if (!FileHandler.FileExists(configFileName)) return ShowSettingsWindow();
-            XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-            using Stream reader = new FileStream(configFileName, FileMode.Open);
-            Settings.CreateSettings((Settings)serializer.Deserialize(reader));
-            return true;
-        }
-
-        private void WriteSettingsFile()
-        {
-            XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-            using Stream writer = new FileStream(Path.Combine(Constants.LocalPath, Constants.ConfigFileName), FileMode.Create);
-            serializer.Serialize(writer, Settings.Instance);
         }
     }
 }

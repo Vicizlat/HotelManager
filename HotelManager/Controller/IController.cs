@@ -22,8 +22,5 @@ namespace HotelManager.Controller
         bool CanExecuteCheckIn(int room, DateTime startDate);
         void CheckInReservation(int room, DateTime startDate);
         string GetTooltipText(int room, DateTime startDate);
-        bool ShowSettingsWindow();
-        void SaveSettings();
-        bool ShowFailMessage(string text);
     }
 }

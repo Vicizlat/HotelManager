@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using HotelManager.Controller;
 
 namespace HotelManager.Views.Templates
 {
     public class SettingsImage : Image
     {
-        private readonly IController controller;
-        public SettingsImage(IController controller)
+        public SettingsImage()
         {
-            this.controller = controller;
             Source = ImageSource(@"Templates\settings-gear-icon-plain.png");
             Height = 50;
             Width = 50;
@@ -34,7 +30,7 @@ namespace HotelManager.Views.Templates
 
         private void SettingsImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            controller.ShowSettingsWindow();
+            new SettingsWindow().ShowDialog();
         }
 
         private BitmapImage ImageSource(string uriString)

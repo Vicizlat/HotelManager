@@ -19,7 +19,7 @@ namespace HotelManager.Handlers
 
         public static IEnumerable<Reservation> GetReservationsFromFile(string fileName)
         {
-            foreach (string line in FileHandler.ReadFromFile(fileName))
+            foreach (string line in FileHandler.ReadAllLines(fileName))
             {
                 if (string.IsNullOrWhiteSpace(line)) continue;
                 yield return DeserializeFromJson(line);

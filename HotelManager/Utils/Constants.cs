@@ -8,10 +8,10 @@ namespace HotelManager.Utils
         private static readonly string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         public static readonly string LocalPath = Directory.CreateDirectory(Path.Combine(AppDataPath, "HotelManager")).FullName;
         public static readonly string LogsPath = Directory.CreateDirectory(Path.Combine(LocalPath, "Logs")).FullName;
+        public static string LogFileName = $"Log-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}.txt";
 
         public const string ReservationsFileName = "Reservations.json";
-        public static string LogFileName = $"Log-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}.txt";
-        public const string ConfigFileName = "Settings.xml";
+        public const string SettingsFilename = "Settings.xml";
         public const string ErrorRemoteFileDownload = "Не успях да сваля \"{0}\"";
         public const string ErrorRemoteFileUpload = "Не успях да кача \"{0}\"";
         public const string ErrorWriteFile = "Не успях да запиша \"{0}\"";
@@ -24,5 +24,13 @@ namespace HotelManager.Utils
         public const string EndDateText = "Крайна дата: ";
         public const string ReservationText = "{0} - {1} гости - За плащане: {2} лв.";
         public const string NoRoomSelected = "Няма избрана стая";
+        public static readonly string[] SearchOptions =
+        {
+            "Име на госта",
+            "Допълнителна информация",
+            "Начална дата в периода",
+            "Крайна дата в периода",
+            "Изцяло в периода"
+        };
     }
 }

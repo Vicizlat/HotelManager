@@ -18,7 +18,7 @@ namespace HotelManager.Views
         {
             InitializeComponent();
             this.controller = controller;
-            IconsDockPanel.Children.Add(new SettingsImage(controller));
+            IconsDockPanel.Children.Add(new SettingsImage());
             CreateRoomRows();
             StartDate.SelectedDate = DateTime.Now;
             StartDate.DisplayDateStart = Settings.Instance.SeasonStartDate;
@@ -127,33 +127,24 @@ namespace HotelManager.Views
             bool excludeCanceled = !IncludeCanceled.IsChecked.HasValue || !IncludeCanceled.IsChecked.Value;
             DateTime? searchStartDate = SearchStartDate.SelectedDate;
             DateTime? searchEndDate = SearchEndDate.SelectedDate;
-            IEnumerable<int> results = SearchIn.SelectedIndex switch
+            List<int> results = SearchIn.SelectedIndex switch
             {
-                0 => controller.Reservations.SearchInGuestName(searchCriteria, excludeCanceled),
-                1 => controller.Reservations.SearchInNotes(searchCriteria, excludeCanceled),
-                2 => controller.Reservations.SearchInStartDateIncluded(searchStartDate, searchEndDate, excludeCanceled),
-                3 => controller.Reservations.SearchInEndDateIncluded(searchStartDate, searchEndDate, excludeCanceled),
-                4 => controller.Reservations.SearchInAllDatesIncluded(searchStartDate, searchEndDate, excludeCanceled),
+                0 => controller.Reservations.SearchInGuestName(searchCriteria, excludeCanceled).ToList(),
+                1 => controller.Reservations.SearchInNotes(searchCriteria, excludeCanceled).ToList(),
+                2 => controller.Reservations.SearchInStartDateIncluded(searchStartDate, searchEndDate, excludeCanceled).ToList(),
+                3 => controller.Reservations.SearchInEndDateIncluded(searchStartDate, searchEndDate, excludeCanceled).ToList(),
+                4 => controller.Reservations.SearchInAllDatesIncluded(searchStartDate, searchEndDate, excludeCanceled).ToList(),
                 _ => new List<int>()
             };
             SearchResults.Text = $"Обща сума на резервациите: {controller.Reservations.SumOfReservationsWithIds(results)} | ";
-            SearchResults.Text += $"Намерени резултати: {results.Count()}";
-            int index = 0;
-            foreach (int id in results)
+            SearchResults.Text += $"Намерени резултати: {results.Count}";
+            for (int i = 0; i < results.Count; i++)
             {
-                ResultsTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30), MinHeight = 30 });
-                TextBox tableTextBox = new ReservationTextBox(controller, id);
-                Grid.SetRow(tableTextBox, index++);
+                ResultsTable.RowDefinitions.Add(new RowDefinition {Height = new GridLength(30), MinHeight = 30});
+                TextBox tableTextBox = new ReservationTextBox(controller, results[i]);
+                Grid.SetRow(tableTextBox, i);
                 ResultsTable.Children.Add(tableTextBox);
             }
-        }
-
-        private void SearchIn_Loaded(object sender, RoutedEventArgs e)
-        {
-            SearchIn.ItemsSource = new[]
-            {
-                "Име на госта", "Допълнителна информация", "Начална дата в периода", "Крайна дата в периода", "Изцяло в периода"
-            };
         }
 
         private void SearchIn_OnSelectionChanged(object sender, SelectionChangedEventArgs e)

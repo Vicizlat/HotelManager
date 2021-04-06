@@ -39,6 +39,7 @@ namespace HotelManager.Handlers
 
         public static bool TryUploadFileByName(string fileName, bool isLogWriterClosed = false)
         {
+            if (Settings.Instance.LocalUseOnly) return true;
             string ftpDirPath = Settings.Instance.FtpAddress;
             if (fileName == Constants.LogFileName && !FtpMakeDir("Logs", out ftpDirPath)) return false;
             string ftpFilePath = Path.Combine(ftpDirPath, fileName);
@@ -49,6 +50,7 @@ namespace HotelManager.Handlers
 
         public static bool TryUploadBackupFile(string fileName)
         {
+            if (Settings.Instance.LocalUseOnly) return true;
             if (!FtpMakeDir("Backups", out string ftpDirPath)) return false;
             string backupFileName = fileName.Insert(fileName.Length - 5, $"-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}");
             string ftpFilePath = Path.Combine(ftpDirPath, backupFileName);

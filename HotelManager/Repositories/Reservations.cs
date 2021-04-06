@@ -40,41 +40,36 @@ namespace HotelManager.Repositories
 
         public IEnumerable<int> SearchInGuestName(string searchCriteria, bool excludeCanceled)
         {
-            IEnumerable<Reservation> result = excludeCanceled
-                ? this.Where(r => r.State != State.Canceled && r.GuestName.Contains(searchCriteria))
-                : this.Where(r => r.GuestName.Contains(searchCriteria));
+            IEnumerable<Reservation> result = this.Where(r => !excludeCanceled || r.State != State.Canceled)
+                .Where(r => r.GuestName.Contains(searchCriteria));
             foreach (Reservation reservation in result) yield return reservation.Id;
         }
 
         public IEnumerable<int> SearchInNotes(string searchCriteria, bool excludeCanceled)
         {
-            IEnumerable<Reservation> result = excludeCanceled
-                ? this.Where(r => r.State != State.Canceled && r.Notes.Contains(searchCriteria))
-                : this.Where(r => r.Notes.Contains(searchCriteria));
+            IEnumerable<Reservation> result = this.Where(r => !excludeCanceled || r.State != State.Canceled)
+                .Where(r => r.Notes.Contains(searchCriteria));
             foreach (Reservation reservation in result) yield return reservation.Id;
         }
 
         public IEnumerable<int> SearchInStartDateIncluded(DateTime? searchStartDate, DateTime? searchEndDate, bool excludeCanceled)
         {
-            IEnumerable<Reservation> result = excludeCanceled
-                ? this.Where(r => r.State != State.Canceled && r.Period.StartDate >= searchStartDate && r.Period.StartDate <= searchEndDate)
-                : this.Where(r => r.Period.StartDate >= searchStartDate && r.Period.StartDate <= searchEndDate);
+            IEnumerable<Reservation> result = this.Where(r => !excludeCanceled || r.State != State.Canceled)
+                .Where(r => r.Period.StartDate >= searchStartDate && r.Period.StartDate <= searchEndDate);
             foreach (Reservation reservation in result) yield return reservation.Id;
         }
 
         public IEnumerable<int> SearchInEndDateIncluded(DateTime? searchStartDate, DateTime? searchEndDate, bool excludeCanceled)
         {
-            IEnumerable<Reservation> result = excludeCanceled
-                ? this.Where(r => r.State != State.Canceled && r.Period.EndDate >= searchStartDate && r.Period.EndDate <= searchEndDate)
-                : this.Where(r => r.Period.EndDate >= searchStartDate && r.Period.EndDate <= searchEndDate);
+            IEnumerable<Reservation> result = this.Where(r => !excludeCanceled || r.State != State.Canceled)
+                .Where(r => r.Period.EndDate >= searchStartDate && r.Period.EndDate <= searchEndDate);
             foreach (Reservation reservation in result) yield return reservation.Id;
         }
 
         public IEnumerable<int> SearchInAllDatesIncluded(DateTime? searchStartDate, DateTime? searchEndDate, bool excludeCanceled)
         {
-            IEnumerable<Reservation> result = excludeCanceled
-                ? this.Where(r => r.State != State.Canceled && r.Period.StartDate >= searchStartDate && r.Period.EndDate <= searchEndDate)
-                : this.Where(r => r.Period.StartDate >= searchStartDate && r.Period.EndDate <= searchEndDate);
+            IEnumerable<Reservation> result = this.Where(r => !excludeCanceled || r.State != State.Canceled)
+                .Where(r => r.Period.StartDate >= searchStartDate && r.Period.EndDate <= searchEndDate);
             foreach (Reservation reservation in result) yield return reservation.Id;
         }
 

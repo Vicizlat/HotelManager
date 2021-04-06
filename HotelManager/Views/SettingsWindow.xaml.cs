@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using HotelManager.Controller;
 using HotelManager.Utils;
 
 namespace HotelManager.Views
 {
     public partial class SettingsWindow
     {
-        private readonly IController controller;
-
-        public SettingsWindow(IController controller)
+        public SettingsWindow()
         {
             InitializeComponent();
-            this.controller = controller;
             WebAddress.Text = Settings.Instance.WebAddress;
             WebAddressFull.Text = Settings.Instance.WebAddressFull;
             FtpAddress.Text = Settings.Instance.FtpAddress;
@@ -58,14 +54,14 @@ namespace HotelManager.Views
             Settings.Instance.SeasonStartDate = SeasonStartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
             Settings.Instance.SeasonEndDate = SeasonEndDate.SelectedDate.GetValueOrDefault(DateTime.Today.AddDays(365));
             Settings.Instance.LocalUseOnly = LocalUseOnly.IsChecked.GetValueOrDefault();
-            controller.SaveSettings();
-            DialogResult = true;
-            Close();
+            CloseWindow(Settings.InvokeSettingsChanged());
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void CancelButton_Click(object sender, RoutedEventArgs e) => CloseWindow(false);
+
+        private void CloseWindow(bool result)
         {
-            DialogResult = false;
+            DialogResult = result;
             Close();
         }
     }
