@@ -8,7 +8,7 @@ namespace HotelManager.Handlers
     {
         public static bool TryGetFile(string fileName)
         {
-            string remoteFilePath = Path.Combine(Settings.Instance.WebAddressFull, fileName);
+            string remoteFilePath = Path.Combine(Settings.Instance.WebAddress, fileName);
             string localFilePath = Path.Combine(Constants.LocalPath, fileName);
             try
             {

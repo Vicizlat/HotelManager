@@ -3,12 +3,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:Class="HotelManager.Views.SettingsWindow" mc:Ignorable="d"
-        Width="802" Height="322" ShowInTaskbar="True" ResizeMode="NoResize" WindowStyle="None"
+        Width="802" Height="352" ShowInTaskbar="True" ResizeMode="NoResize" WindowStyle="None"
         WindowStartupLocation="CenterScreen" BorderBrush="Black" BorderThickness="1">
     <Border Padding="20">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="30"/>
@@ -29,30 +30,39 @@
                 <TextBlock Grid.Column="0" Grid.Row="1" Padding="2" FontSize="18" Text="WebAddress:"/>
                 <TextBox x:Name="WebAddress" Grid.Column="1" Grid.Row="1" Padding="2, 0" Margin="10, 2" FontSize="16"
                          TextChanged="GenericText_TextChanged"/>
-                <TextBlock Grid.Column="2" Grid.Row="1" Padding="2" FontSize="18" Text="WebAddressFull:"/>
-                <TextBox x:Name="WebAddressFull" Grid.Column="3" Grid.Row="1" Padding="2, 0" Margin="10, 2" FontSize="16"
+                <TextBlock Grid.Column="2" Grid.Row="1" Padding="2" FontSize="18" Text="FtpAddress:"/>
+                <TextBox x:Name="FtpAddress" Grid.Column="3" Grid.Row="1" Padding="2, 0" Margin="10, 2" FontSize="16"
                          TextChanged="GenericText_TextChanged"/>
-                <TextBlock Grid.Column="0" Grid.Row="3" Padding="2" FontSize="18" Text="FtpAddress:"/>
-                <TextBox x:Name="FtpAddress" Grid.Column="1" Grid.Row="3" Padding="2, 0" Margin="10, 2" FontSize="16"
+                <TextBlock Grid.Column="0" Grid.Row="2" Padding="2" FontSize="18" Text="FtpUserName:"/>
+                <TextBox x:Name="FtpUserName" Grid.Column="1" Grid.Row="2" Padding="2, 0" Margin="10, 2" FontSize="16"
                          TextChanged="GenericText_TextChanged"/>
-                <TextBlock Grid.Column="2" Grid.Row="3" Padding="2" FontSize="18" Text="FtpUserName:"/>
-                <TextBox x:Name="FtpUserName" Grid.Column="3" Grid.Row="3" Padding="2, 0" Margin="10, 2" FontSize="16"
+                <TextBlock Grid.Column="2" Grid.Row="2" Padding="2" FontSize="18" Text="FtpPassword:"/>
+                <TextBox x:Name="FtpPassword" Grid.Column="3" Grid.Row="2" Padding="2, 0" Margin="10, 2" FontSize="16"
                          TextChanged="GenericText_TextChanged"/>
-                <TextBlock Grid.Column="2" Grid.Row="4" Padding="2" FontSize="18" Text="FtpPassword:"/>
-                <TextBox x:Name="FtpPassword" Grid.Column="3" Grid.Row="4" Padding="2, 0" Margin="10, 2" FontSize="16"
-                         TextChanged="GenericText_TextChanged"/>
-                <TextBlock Grid.Column="0" Grid.Row="6" Padding="2" FontSize="18" Text="SeasonStartDate:"/>
-                <DatePicker x:Name="SeasonStartDate" Grid.Column="1" Grid.Row="6" Margin="10, 2" FontSize="16"
+                <TextBlock Grid.Column="0" Grid.Row="4" Padding="2" FontSize="18" Text="SeasonStartDate:"/>
+                <DatePicker x:Name="SeasonStartDate" Grid.Column="1" Grid.Row="4" Margin="10, 2" FontSize="16"
                             SelectedDateChanged="Dates_SelectedDateChanged"/>
-                <TextBlock Grid.Column="2" Grid.Row="6" Padding="2" FontSize="18" Text="SeasonEndDate:"/>
-                <DatePicker x:Name="SeasonEndDate" Grid.Column="3" Grid.Row="6" Margin="10, 2" FontSize="16"
+                <TextBlock Grid.Column="2" Grid.Row="4" Padding="2" FontSize="18" Text="SeasonEndDate:"/>
+                <DatePicker x:Name="SeasonEndDate" Grid.Column="3" Grid.Row="4" Margin="10, 2" FontSize="16"
                             SelectedDateChanged="Dates_SelectedDateChanged"/>
-                <TextBlock Grid.Column="0" Grid.Row="8" Padding="2" FontSize="18" Text="LocalUseOnly:"/>
-                <CheckBox x:Name="LocalUseOnly" Grid.Row="8" Grid.Column="1" Margin="10, 2" VerticalContentAlignment="Center"
+                <TextBlock Grid.Column="0" Grid.Row="6" Padding="2" FontSize="18" Text="Server:"/>
+                <TextBox x:Name="Server" Grid.Column="1" Grid.Row="6" Padding="2, 0" Margin="10, 2" FontSize="16"
+                         TextChanged="GenericText_TextChanged"/>
+                <TextBlock Grid.Column="2" Grid.Row="6" Padding="2" FontSize="18" Text="Database:"/>
+                <TextBox x:Name="Database" Grid.Column="3" Grid.Row="6" Padding="2, 0" Margin="10, 2" FontSize="16"
+                         TextChanged="GenericText_TextChanged"/>
+                <TextBlock Grid.Column="0" Grid.Row="7" Padding="2" FontSize="18" Text="UserName:"/>
+                <TextBox x:Name="UserName" Grid.Column="1" Grid.Row="7" Padding="2, 0" Margin="10, 2" FontSize="16"
+                         TextChanged="GenericText_TextChanged"/>
+                <TextBlock Grid.Column="2" Grid.Row="7" Padding="2" FontSize="18" Text="Password:"/>
+                <TextBox x:Name="Password" Grid.Column="3" Grid.Row="7" Padding="2, 0" Margin="10, 2" FontSize="16"
+                         TextChanged="GenericText_TextChanged"/>
+                <TextBlock Grid.Column="0" Grid.Row="9" Padding="2" FontSize="18" Text="LocalUseOnly:"/>
+                <CheckBox x:Name="LocalUseOnly" Grid.Row="9" Grid.Column="1" Margin="10, 2" VerticalContentAlignment="Center"
                           IsChecked="False" Checked="LocalUseOnly_OnChecked" />
-                <Button x:Name="Save" Grid.Row="8" Grid.Column="2" Height="30" Margin="10, 0" Content="Запиши"
+                <Button x:Name="Save" Grid.Row="9" Grid.Column="2" Height="30" Margin="10, 0" Content="Запиши"
                         VerticalAlignment="Bottom" Background="LightGreen" IsEnabled="False" Click="SaveButton_Click"/>
-                <Button x:Name="Cancel" Grid.Row="8" Grid.Column="3" Height="30" Margin="10, 0" Content="Отмени"
+                <Button x:Name="Cancel" Grid.Row="9" Grid.Column="3" Height="30" Margin="10, 0" Content="Отмени"
                         VerticalAlignment="Bottom" Background="IndianRed"
                         Click="CancelButton_Click"/>
             </Grid>

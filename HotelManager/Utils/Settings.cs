@@ -9,12 +9,15 @@ namespace HotelManager.Utils
         private static Settings thisInstance;
         public static Settings Instance => thisInstance ?? new Settings();
         public string WebAddress { get; set; }
-        public string WebAddressFull { get; set; }
         public string FtpAddress { get; set; }
         public string FtpUserName { get; set; }
         public string FtpPassword { get; set; }
         public DateTime SeasonStartDate = DateTime.Today;
         public DateTime SeasonEndDate = DateTime.Today.AddDays(365);
+        public string Server { get; set; }
+        public string Database { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
         public bool LocalUseOnly { get; set; }
 
         public Settings() => thisInstance = this;

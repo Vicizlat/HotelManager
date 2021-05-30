@@ -38,9 +38,9 @@ namespace HotelManager.Handlers
             }
         }
 
-        public static string[] ReadAllLines(string fileName)
+        public static string[] ReadAllLines(string importFilePath)
         {
-            return File.ReadAllLines(Path.Combine(Constants.LocalPath, fileName));
+            return File.ReadAllLines(importFilePath);
         }
 
         public static string ReadAllText(string fileName)
@@ -48,16 +48,16 @@ namespace HotelManager.Handlers
             return File.ReadAllText(Path.Combine(Constants.LocalPath, fileName));
         }
 
-        public static bool WriteAllLines(string fileName, IEnumerable<string> contents)
+        public static bool WriteAllLines(string filePath, IEnumerable<string> contents)
         {
             try
             {
-                File.WriteAllLines(Path.Combine(Constants.LocalPath, fileName), contents);
-                Logging.Instance.WriteLine($"Successfully saved \"{fileName}\"!");
+                File.WriteAllLines(filePath, contents);
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                Logging.Instance.WriteLine(e.Message);
                 return false;
             }
         }

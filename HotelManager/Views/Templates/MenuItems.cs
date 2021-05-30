@@ -1,36 +1,39 @@
-﻿using System;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using HotelManager.Controller;
+using HotelManager.Data.Models.Enums;
 using HotelManager.Views.Templates.Commands;
 
 namespace HotelManager.Views.Templates
 {
     public static class MenuItems
     {
-        public static MenuItem AddReservation(int room, DateTime startDate, IController controller)
+        public static MenuItem AddEditReservation(ReservationInfo resInfo, MainController controller)
         {
-            return new MenuItem
-            {
-                Header = "Добави резервация",
-                Command = new AddReservation(room, startDate, controller)
-            };
+            if (resInfo.StateInt < 0) return new MenuItem
+                {
+                    Header = "Добави резервация",
+                    CommandParameter = new CommandParameter(resInfo.Room, resInfo.StartDate, controller),
+                    Command = new AddEditReservation(),
+                    FontSize = 16
+                };
+            else return new MenuItem
+                {
+                    Header = "Редактирай резервация",
+                    CommandParameter = new CommandParameter(resInfo.Room, resInfo.StartDate, controller),
+                    Command = new AddEditReservation(),
+                    FontSize = 16
+                };
         }
 
-        public static MenuItem EditReservation(int room, DateTime startDate, IController controller)
+        public static MenuItem CheckInReservation(ReservationInfo resInfo, MainController controller)
         {
-            return new MenuItem
-            {
-                Header = "Редактирай резервация",
-                Command = new EditReservation(room, startDate, controller)
-            };
-        }
-
-        public static MenuItem CheckInReservation(int room, DateTime startDate, IController controller)
-        {
+            bool canExecute = resInfo.StateInt == (int)State.Active;
             return new MenuItem
             {
                 Header = "Настани резервация",
-                Command = new CheckInReservation(room, startDate, controller)
+                CommandParameter = new CommandParameter(resInfo.Room, resInfo.StartDate, controller, canExecute),
+                Command = new CheckInReservation(),
+                FontSize = 16
             };
         }
     }

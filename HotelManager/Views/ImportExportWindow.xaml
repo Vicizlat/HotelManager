@@ -1,0 +1,71 @@
+﻿<Window x:Class="HotelManager.Views.ImportExportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HotelManager.Views"
+        xmlns:utils="clr-namespace:HotelManager.Utils"
+        mc:Ignorable="d"
+        Title="ImportExportWindow" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" Height="170" Width="800">
+    <TabControl Background="WhiteSmoke" FontSize="18">
+        <TabItem x:Name="ImportTab" Header="Import" Width="398">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="34"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Text="Import"/>
+                <ComboBox x:Name="ImportCollection" Grid.Row="0" Grid.Column="1" Padding="2" Margin="10, 0" VerticalAlignment="Top"
+                          ItemsSource="{Binding Source={x:Static utils:Constants.ImportExportSources}, Mode=OneWay}"
+                          SelectionChanged="ImportCollection_OnSelectionChanged"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="from"/>
+                <TextBox x:Name="ImportFilePath" Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" FontSize="14" Padding="2"
+                         VerticalContentAlignment="Bottom" Margin="10, 0, 22, 0"/>
+                <Button x:Name="ImportBrowseButton" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right" Padding="4"
+                        Content="..." Click="ImportBrowseButton_OnClick"/>
+                <Button x:Name="Import" Grid.Row="2" Grid.Column="3" Margin="10, 0" IsEnabled="False"
+                        Background="LightGreen" Content="Import" Click="ImportExport_Click"/>
+                <Button x:Name="ImportCancel" Grid.Row="2" Grid.Column="4" Margin="10, 0"
+                        Background="IndianRed" Content="Cancel" Click="Cancel_Click"/>
+            </Grid>
+        </TabItem>
+        <TabItem x:Name="ExportTab" Header="Export" Width="398">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="34"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Text="Export"/>
+                <ComboBox x:Name="ExportCollection" Grid.Row="0" Grid.Column="1" Padding="2" Margin="10, 0" VerticalAlignment="Top"
+                          ItemsSource="{Binding Source={x:Static utils:Constants.ImportExportSources}, Mode=OneWay}"
+                          SelectionChanged="ExportCollection_OnSelectionChanged"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="to"/>
+                <TextBox x:Name="ExportFilePath" Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" FontSize="14" Padding="2"
+                         VerticalContentAlignment="Bottom" Margin="10, 0, 22, 0"/>
+                <Button x:Name="ExportBrowseButton" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right" Padding="4"
+                        Content="..." Click="ExportBrowseButton_OnClick"/>
+                <Button x:Name="Export" Grid.Row="2" Grid.Column="3" Margin="10, 0" IsEnabled="False"
+                        Background="LightGreen" Content="Export" Click="ImportExport_Click"/>
+                <Button x:Name="ExportCancel" Grid.Row="2" Grid.Column="4" Margin="10, 0"
+                        Background="IndianRed" Content="Cancel" Click="Cancel_Click"/>
+            </Grid>
+        </TabItem>
+    </TabControl>
+</Window>

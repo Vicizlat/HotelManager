@@ -1,4 +1,7 @@
-﻿namespace HotelManager.Models
+﻿using HotelManager.Data.Models.Enums;
+using HotelManager.Views.Templates;
+
+namespace HotelManager.Models
 {
     public class Reservation
     {
@@ -7,13 +10,12 @@
         public Source Source { get; set; }
         public int Room { get; set; }
         public string GuestName { get; set; }
-        //public Guest Guest { get; set; }
         public Period Period { get; set; }
         public Sums Sums { get; set; }
         public int GuestsInRoom { get; set; }
         public string Notes { get; set; }
 
-        public Reservation() {        }
+        public Reservation() { }
 
         public Reservation(Reservation reservation)
         {
@@ -22,7 +24,6 @@
             Source = reservation.Source;
             Room = reservation.Room;
             GuestName = reservation.GuestName;
-            //Guest = reservation.Guest;
             Period = reservation.Period;
             GuestsInRoom = reservation.GuestsInRoom;
             Sums = reservation.Sums;
@@ -42,9 +43,19 @@
             Notes = notes;
         }
 
-        public bool IsMatchingRoomAndPeriod(int room, Period period)
+        public Reservation(ReservationInfo resInfo)
         {
-            return State != State.Canceled && Room == room && period.ContainsDate(Period.StartDate);
+            Period period = new Period(resInfo.StartDate, resInfo.EndDate);
+            Sums sums = new Sums(resInfo.TotalSum, resInfo.PaidSum);
+            Id = resInfo.Id;
+            State = (State)resInfo.StateInt;
+            Source = (Source)resInfo.SourceInt;
+            Room = resInfo.Room;
+            GuestName = resInfo.GuestName;
+            Period = period;
+            GuestsInRoom = resInfo.NumberOfGuests;
+            Sums = sums;
+            Notes = resInfo.Notes;
         }
 
         public override string ToString()

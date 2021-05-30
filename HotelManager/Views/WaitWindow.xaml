@@ -1,0 +1,14 @@
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HotelManager.Views.WaitWindow"
+        Width="500" Height="100" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="None" Topmost="True"
+        WindowStartupLocation="CenterScreen" BorderBrush="Black" BorderThickness="1">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" FontSize="30" HorizontalAlignment="Center" Text="Моля изчакайте..."/>
+        <TextBlock x:Name="TextBlock" Grid.Row="1" HorizontalAlignment="Center"/>
+    </Grid>
+</Window>

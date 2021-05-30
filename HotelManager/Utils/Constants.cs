@@ -9,6 +9,7 @@ namespace HotelManager.Utils
         public static readonly string LocalPath = Directory.CreateDirectory(Path.Combine(AppDataPath, "HotelManager")).FullName;
         public static readonly string LogsPath = Directory.CreateDirectory(Path.Combine(LocalPath, "Logs")).FullName;
         public static string LogFileName = $"Log-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}.txt";
+        public static string LocalConnection = @"Server=.\SQLEXPRESS;Database=HotelManager;Integrated Security=True";
 
         public const string ReservationsFileName = "Reservations.json";
         public const string SettingsFilename = "Settings.xml";
@@ -31,6 +32,28 @@ namespace HotelManager.Utils
             "Начална дата в периода",
             "Крайна дата в периода",
             "Изцяло в периода"
+        };
+        public static readonly string[] ReservationStates =
+        {
+            "Активна",
+            "Настанена",
+            "Отменена"
+        };
+        public static readonly string[] ReservationSources =
+        {
+            "По телефон",
+            "По имейл",
+            "Booking.com",
+            "На място"
+        };
+        public static readonly string[] ImportExportSources =
+        {
+            "Guests",
+            "Reservations",
+            "Transactions",
+            "Buildings",
+            "Floors",
+            "Rooms"
         };
     }
 }

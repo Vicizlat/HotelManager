@@ -2,7 +2,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using HotelManager.Models;
 
 namespace HotelManager.Handlers
 {
@@ -17,32 +16,33 @@ namespace HotelManager.Handlers
             }
         }
 
-        public static IEnumerable<Reservation> GetReservationsFromFile(string fileName)
+        public static IEnumerable<T> GetFromFile<T>(string fileName)
         {
             foreach (string line in FileHandler.ReadAllLines(fileName))
             {
                 if (string.IsNullOrWhiteSpace(line)) continue;
-                yield return DeserializeFromJson(line);
+                yield return DeserializeFromJson<T>(line);
             }
         }
 
-        private static string SerializeToJson(object entity)
+        public static string SerializeToJson(object entity)
         {
             JsonSerializerOptions options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 Converters = { new JsonStringEnumConverter() }
             };
-            return JsonSerializer.Serialize(entity, options);
+            string result = JsonSerializer.Serialize(entity, options);
+            return result;
         }
 
-        private static Reservation DeserializeFromJson(string line)
+        private static T DeserializeFromJson<T>(string line)
         {
             JsonSerializerOptions options = new JsonSerializerOptions
             {
                 Converters = { new JsonStringEnumConverter() }
             };
-            return JsonSerializer.Deserialize<Reservation>(line, options);
+            return JsonSerializer.Deserialize<T>(line, options);
         }
     }
 }

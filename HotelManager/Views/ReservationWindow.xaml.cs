@@ -1,145 +1,177 @@
 ﻿using System;
-using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using HotelManager.Controller;
 using HotelManager.Utils;
+using HotelManager.Views.Templates;
 
 namespace HotelManager.Views
 {
     public partial class ReservationWindow
     {
-        private readonly IController controller;
-        private decimal totalPrice;
-        private decimal paidSum;
+        private readonly MainController controller;
+        private readonly int id;
 
-        public ReservationWindow(int room, DateTime startDate, IController controller)
+        public ReservationWindow(MainController controller, int stateInt, int sourceInt, int room, DateTime startDate)
         {
             InitializeComponent();
             this.controller = controller;
-            Id.Text = $"{controller.Reservations.NextReservationId}";
-            State.SelectedIndex = 0;
-            Source.SelectedIndex = 0;
-            Room.SelectedIndex = controller.Rooms.GetRoomIndex(room);
+            State.SelectedIndex = stateInt;
+            Source.SelectedIndex = sourceInt;
+            Room.SelectedIndex = controller.Context.Rooms.FirstOrDefault(r => r.FullRoomNumber == room)?.Id ?? 0;
             StartDate.SelectedDate = startDate;
-            EndDate.DisplayDateStart = startDate.AddDays(1);
-            EndDate.DisplayDateEnd = controller.Reservations.GetLastFreeDate(room, startDate) ?? Settings.Instance.SeasonEndDate;
+            List<string[]> guests = controller.Context.Guests.Select(x => new[]
+            {
+                $"{x.FirstName} {x.LastName}".Trim(),
+                x.Phone,
+                x.Email,
+                $"{x.Reservations.Count}"
+            }).ToList();
+            GuestName.AutoSuggestionList = guests;
+            GuestName.AutoTextBox.TextChanged += GuestName_TextChanged;
+            GuestReferrer.AutoSuggestionList = guests;
+            GuestReferrer.AutoTextBox.TextChanged += GuestName_TextChanged;
+            EndDate.DisplayDateStart = StartDate.SelectedDate?.AddDays(1);
+            EndDate.DisplayDateEnd = controller.NextReservationStartDate(room, startDate);
         }
 
-        public ReservationWindow(int id, IController controller)
+        public ReservationWindow(int room, DateTime startDate, MainController controller)
+            : this(controller, 0, 0, room, startDate)
         {
-            InitializeComponent();
-            this.controller = controller;
-            Id.Text = $"{id}";
-            State.SelectedIndex = (int)controller.Reservations.GetReservation(id).State;
-            Source.SelectedIndex = (int)controller.Reservations.GetReservation(id).Source;
-            Room.SelectedIndex = controller.Rooms.GetRoomIndex(controller.Reservations.GetReservation(id).Room);
-            GuestName.Text = controller.Reservations.GetReservation(id).GuestName;
-            StartDate.SelectedDate = controller.Reservations.GetReservation(id).Period.StartDate;
-            EndDate.SelectedDate = controller.Reservations.GetReservation(id).Period.EndDate;
-            Nights.Text = $"{controller.Reservations.GetReservation(id).Period.Nights}";
-            GuestsInRoom.Text = $"{controller.Reservations.GetReservation(id).GuestsInRoom}";
-            TotalPrice.Text = $"{controller.Reservations.GetReservation(id).Sums.Total}";
-            PaidSum.Text = $"{controller.Reservations.GetReservation(id).Sums.Paid}";
-            RemainingSum.Text = $"{controller.Reservations.GetReservation(id).Sums.Remaining}";
-            Notes.Text = controller.Reservations.GetReservation(id).Notes == "Няма"
-                ? string.Empty
-                : controller.Reservations.GetReservation(id).Notes;
+            id = controller.Context.Reservations.Count() + 1;
+            Title = $"Добавяне на резервация номер: {id}";
+            PaidSum.DecimalBox.Text = "0";
+        }
+
+        public ReservationWindow(ReservationInfo resInfo, MainController controller)
+            : this(controller, resInfo.StateInt, resInfo.SourceInt, resInfo.Room, resInfo.StartDate)
+        {
+            id = resInfo.Id;
+            Title = $"Редактиране на резервация номер: {id}";
+            GuestName.AutoTextBox.Text = resInfo.GuestName;
+            GuestReferrer.AutoTextBox.Text = resInfo.GuestReferrer;
+            EndDate.SelectedDate = resInfo.EndDate;
+            Nights.IntBox.Text = $"{(resInfo.EndDate - resInfo.StartDate).Days}";
+            GuestsInRoom.IntBox.Text = $"{resInfo.NumberOfGuests}";
+            TotalPrice.DecimalBox.Text = $"{resInfo.TotalSum}";
+            PaidSum.DecimalBox.Text = $"{resInfo.PaidSum}";
+            RemainingSum.DecimalBox.Text = $"{resInfo.TotalSum - resInfo.PaidSum}";
+            Notes.Text = resInfo.Notes;
+        }
+
+        private void TransactionImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            new TransactionsWindow(controller, id, this).ShowDialog();
         }
 
         private void Room_SelectionChanged(object sender, SelectionChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
 
-        private void GenericText_TextChanged(object sender, TextChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
+        private void GuestsInRoom_TextChanged(object sender, TextChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
+
+        private void GuestName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (GuestName.Validate())
+            {
+                string[] guestInfo = GuestName.AutoSuggestionList.FirstOrDefault(g => g[0] == GuestName.AutoTextBox.Text);
+                Phone.Text = guestInfo?[1] ?? string.Empty;
+                Email.Text = guestInfo?[2] ?? string.Empty;
+                ResCount.Text = guestInfo?[3] ?? "0";
+            }
+            if (GuestReferrer.AutoTextBox.Text == GuestName.AutoTextBox.Text)
+            {
+                Save.IsEnabled = false;
+                GuestReferrer.AutoTextBox.Background = new SolidColorBrush(Colors.Bisque);
+                return;
+            }
+            GuestReferrer.AutoTextBox.Background = new SolidColorBrush(Colors.White);
+            Save.IsEnabled = IsSaveEnabled();
+        }
 
         private void Dates_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
             if (StartDate.SelectedDate != null && EndDate.SelectedDate != null)
             {
-                Nights.Text = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days.ToString();
+                Nights.IntBox.Text = $"{(EndDate.SelectedDate - StartDate.SelectedDate).Value.Days}";
             }
-            Save.IsEnabled = IsSaveEnabled();
         }
 
         private void Nights_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (Nights.Text.Length > 0 && int.TryParse(Nights.Text, out int result))
+            if (Nights.Validate())
             {
-                EndDate.SelectedDate = StartDate.SelectedDate?.AddDays(result);
+                EndDate.SelectedDate = StartDate.SelectedDate?.AddDays(Nights.IntValue);
             }
             Save.IsEnabled = IsSaveEnabled();
         }
 
         private void Price_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (sender is TextBox textSender)
+            if (TotalPrice.Validate() && PaidSum.Validate())
             {
-                textSender.Text = textSender.Text.Replace(',', '.');
-                if (textSender == TotalPrice) totalPrice = ParseDecimal(textSender.Text);
-                if (textSender == PaidSum) paidSum = ParseDecimal(textSender.Text);
-                RemainingSum.Text = $"{(totalPrice - paidSum):f2}";
+                decimal remainingSum = TotalPrice.DecimalValue - PaidSum.DecimalValue;
+                RemainingSum.DecimalBox.Text = $"{remainingSum:f2}";
             }
             Save.IsEnabled = IsSaveEnabled();
         }
 
-        private decimal ParseDecimal(string text)
-        {
-            return decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result) ? result : 0;
-        }
-
         private void Room_Loaded(object sender, RoutedEventArgs e)
         {
-            Room.ItemsSource = controller.Rooms;
+            List<string> rooms = new List<string> { Constants.NoRoomSelected };
+            rooms.AddRange(controller.Context.Rooms.ToList().Select(r => r.ToString()));
+            Room.ItemsSource = rooms;
         }
 
-        private void State_Loaded(object sender, RoutedEventArgs e)
+        public bool IsSaveEnabled()
         {
-            State.ItemsSource = new[] { "Активна", "Настанена", "Отменена" };
-        }
-
-        private void Source_Loaded(object sender, RoutedEventArgs e)
-        {
-            Source.ItemsSource = new[] { "По телефон", "По имейл", "Booking.com", "На място" };
-        }
-
-        private void Numbers_OnKeyDown(object sender, KeyEventArgs e)
-        {
-            TextBox textBox = sender as TextBox;
-            if (e.Key != Key.D0 && e.Key != Key.D1 && e.Key != Key.D2 && e.Key != Key.D3 && e.Key != Key.D4 &&
-                e.Key != Key.D5 && e.Key != Key.D6 && e.Key != Key.D7 && e.Key != Key.D8 && e.Key != Key.D9 &&
-                e.Key != Key.NumPad0 && e.Key != Key.NumPad1 && e.Key != Key.NumPad2 && e.Key != Key.NumPad3 &&
-                e.Key != Key.NumPad4 && e.Key != Key.NumPad5 && e.Key != Key.NumPad6 && e.Key != Key.NumPad7 &&
-                e.Key != Key.NumPad8 && e.Key != Key.NumPad9) e.Handled = true;
-            if (textBox == GuestsInRoom || textBox == Nights) return;
-            if (e.Key != Key.OemPeriod && e.Key != Key.OemComma && e.Key != Key.Decimal) return;
-            e.Handled = true;
-            if (textBox == null || textBox.Text.Contains('.')) return;
-            int caretPosition = textBox.SelectionStart;
-            textBox.Text = textBox.Text.Insert(caretPosition, ".");
-            textBox.SelectionStart = caretPosition + 1;
-        }
-
-        private bool IsSaveEnabled()
-        {
-            if (string.IsNullOrEmpty(GuestName.Text) || string.IsNullOrEmpty(GuestsInRoom.Text) || string.IsNullOrEmpty(Nights.Text) ||
-                string.IsNullOrEmpty(TotalPrice.Text) || string.IsNullOrEmpty(RemainingSum.Text)) return false;
-            if (!decimal.TryParse(RemainingSum.Text, out decimal remainingSum)) return false;
-            return Room.SelectedIndex > 0 && int.Parse(GuestsInRoom.Text) > 0 && int.Parse(Nights.Text) > 0 && remainingSum >= 0;
+            bool validRoom = Room.SelectedIndex > 0;
+            bool validGuest = GuestName.Validate();
+            bool validGuests = GuestsInRoom.Validate();
+            bool validNights = Nights.Validate();
+            bool validTotal = TotalPrice.Validate();
+            bool validPaid = PaidSum.Validate();
+            bool validRemaining = RemainingSum.Validate();
+            return validRoom && validGuest && validGuests && validNights && validTotal && validPaid && validRemaining;
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            int id = int.Parse(Id.Text);
-            int state = State.SelectedIndex;
-            int source = Source.SelectedIndex;
-            int room = controller.Rooms[Room.SelectedIndex].FullRoomNumber;
-            string guestName = GuestName.Text;
-            DateTime startDate = StartDate.SelectedDate.GetValueOrDefault();
-            int nights = int.Parse(Nights.Text);
-            int guestsInRoom = int.Parse(GuestsInRoom.Text);
-            string notes = string.IsNullOrEmpty(Notes.Text) ? "Няма" : Notes.Text;
-            controller.SaveReservation(id, state, source, room, guestName, startDate, nights, guestsInRoom, totalPrice, paidSum, notes);
+            SaveReservation();
             Close();
+        }
+
+        public void SaveReservation()
+        {
+            if (GuestsInRoom.IntValue > controller.Context.Rooms.First(r => r.Id == Room.SelectedIndex).MaxGuests)
+            {
+                if (MessageBox.Show("Броя гости е повече от капацитета на стаята.\r\nДа продължа ли със записа?",
+                    "Превишен капацитет на стаята", MessageBoxButton.YesNo) == MessageBoxResult.No) return;
+            }
+            controller.SaveReservation(GetResInfo());
+        }
+
+        public ReservationInfo GetResInfo()
+        {
+            return new ReservationInfo
+            {
+                Id = id,
+                StateInt = State.SelectedIndex,
+                SourceInt = Source.SelectedIndex,
+                Room = controller.Context.Rooms.First(r => r.Id == Room.SelectedIndex).FullRoomNumber,
+                GuestName = GuestName.AutoTextBox.Text,
+                GuestReferrer = GuestReferrer.AutoTextBox.Text,
+                Email = Email.Text,
+                Phone = Phone.Text,
+                StartDate = StartDate.SelectedDate.GetValueOrDefault(),
+                EndDate = EndDate.SelectedDate.GetValueOrDefault(),
+                NumberOfGuests = GuestsInRoom.IntValue,
+                TotalSum = TotalPrice.DecimalValue,
+                PaidSum = PaidSum.DecimalValue,
+                Notes = Notes.Text
+            };
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => Close();

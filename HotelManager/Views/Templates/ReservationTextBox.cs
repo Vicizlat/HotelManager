@@ -10,56 +10,44 @@ namespace HotelManager.Views.Templates
 {
     public class ReservationTextBox : TextBox
     {
-        private readonly IController controller;
-        private readonly int room;
-        private readonly int? id;
-        private readonly DateTime startDate;
-
-        public ReservationTextBox(IController controller, int row, DateTime startDate)
+        public ReservationTextBox(MainController controller, ReservationInfo resInfo, bool lastOnFloor)
         {
-            this.controller = controller;
-            room = controller.Rooms.TopFloorFirst[row].FullRoomNumber;
-            this.startDate = startDate;
             IsReadOnly = true;
             FontSize = 18;
             VerticalContentAlignment = VerticalAlignment.Center;
-            Margin = new Thickness(0, 0, 0, controller.Rooms.TopFloorFirst[row].LastOnFloor ? 20 : 0);
+            Margin = new Thickness(0, 0, 0, lastOnFloor ? 20 : 0);
             Cursor = Cursors.Hand;
             BorderThickness = new Thickness(1.5);
-            if (controller.GetReservationInfo(room, startDate, out string guestName, out int guestsNum, out decimal remainingSum))
+            if (!string.IsNullOrEmpty(resInfo.GuestName))
             {
-                Text = string.Format(Constants.ReservationText, guestName, guestsNum, remainingSum);
-                ToolTip = controller.GetTooltipText(room, startDate);
-                DateTime resEndDate = controller.ReservationEndDate(room, startDate);
-                bool isCheckedIn = controller.IsReservationCheckedIn(room, startDate);
-                bool isOverlapping = controller.IsReservationOverlapping(room, resEndDate);
-                Background = new SolidColorBrush(isOverlapping ? Colors.Red : isCheckedIn ? Colors.DarkBlue : Colors.AntiqueWhite);
-                Foreground = new SolidColorBrush(isCheckedIn ? Colors.AntiqueWhite : Colors.DarkBlue);
+                decimal remainingSum = resInfo.TotalSum - resInfo.PaidSum;
+                Text = string.Format(Constants.ReservationText, resInfo.GuestName, resInfo.NumberOfGuests,
+                    remainingSum);
+                ToolTip = resInfo.ToString();
+                bool isCheckedIn = resInfo.IsCheckedIn;
+                bool isOverlapping = controller.NextReservationStartDate(resInfo.Room, resInfo.StartDate) <
+                                     resInfo.EndDate;
+                Color bgColor = isOverlapping ? Colors.Red : isCheckedIn ? Colors.DarkBlue : Colors.AntiqueWhite;
+                Background = new SolidColorBrush(bgColor);
+                Color fgColor = isCheckedIn ? Colors.AntiqueWhite : Colors.DarkBlue;
+                Foreground = new SolidColorBrush(fgColor);
             }
 
             ContextMenu = new ContextMenu();
-            ContextMenu.Items.Add(MenuItems.AddReservation(room, startDate, controller));
-            ContextMenu.Items.Add(MenuItems.EditReservation(room, startDate, controller));
-            ContextMenu.Items.Add(MenuItems.CheckInReservation(room, startDate, controller));
-            MouseDoubleClick += ReservationTextBox_MouseDoubleClick;
+            ContextMenu.Items.Add(MenuItems.AddEditReservation(resInfo, controller));
+            ContextMenu.Items.Add(MenuItems.CheckInReservation(resInfo, controller));
+            MouseDoubleClick += delegate { controller.RequestReservationWindow(resInfo.Room, resInfo.StartDate); };
         }
 
-        public ReservationTextBox(IController controller, int id)
+        public ReservationTextBox(MainController controller, int id, string reservationString)
         {
-            this.controller = controller;
-            this.id = id;
             IsReadOnly = true;
             FontSize = 14;
             VerticalContentAlignment = VerticalAlignment.Center;
             Cursor = Cursors.Hand;
-            Text = $"{controller.Reservations[id - 1]}";
-            ToolTip = $"{controller.Reservations[id - 1].ToString().Replace("|", Environment.NewLine)}";
-            MouseDoubleClick += ReservationTextBox_MouseDoubleClick;
-        }
-
-        private void ReservationTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            controller.RequestReservationWindow(room, startDate, id);
+            Text = reservationString;
+            ToolTip = Text.Replace("|", Environment.NewLine);
+            MouseDoubleClick += delegate { controller.RequestReservationWindow(id); };
         }
     }
 }

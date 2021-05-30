@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows;
+using HotelManager.Controller;
 using HotelManager.Handlers;
 using HotelManager.Utils;
 using HotelManager.Views;
@@ -10,19 +12,27 @@ namespace HotelManager
 {
     public partial class App
     {
+        private MainController controller;
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             Logging.Instance.WriteLine("Logging started");
             ManageLogFiles(Constants.LogsPath);
-            Settings.OnSettingsChanged += WriteSettingsFile;
-            if(!ReadSettingsFile() || !TryUpdateFile(Constants.ReservationsFileName))
+            if (!ReadSettingsFile() || !TryUpdateFile(Constants.ReservationsFileName))
             {
                 CallShutDown(this, EventArgs.Empty);
                 return;
             }
-            MainWindow = new MainWindow(new Controller.Controller());
-            MainWindow.Show();
-            MainWindow.Closed += CallShutDown;
+            Settings.OnSettingsChanged += WriteSettingsFile;
+            controller = new MainController();
+            if (!controller.Initialize())
+            {
+                ShowFailMessage("Can't connect to database!");
+                CallShutDown(this, EventArgs.Empty);
+                return;
+            }
+            MainWindow mainWindow = new MainWindow(controller);
+            mainWindow.Show();
+            mainWindow.Closed += CallShutDown;
         }
 
         private void ManageLogFiles(string logsPath)
@@ -78,8 +88,36 @@ namespace HotelManager
             return response;
         }
 
+        private bool ExportCollectionsToJson(string filePath, IEnumerable<object> collection)
+        {
+            if (FileHandler.WriteAllLines(filePath, JsonHandler.GetJsonStrings(collection)))
+            {
+                string messageText = $"Successfully exported Reservations to \"{filePath}\"!";
+                Logging.Instance.WriteLine(messageText);
+                MessageBox.Show(messageText, "Export success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                return true;
+            }
+            else
+            {
+                string messageText = $"Failed to export Reservations to \"{filePath}\"!";
+                Logging.Instance.WriteLine(messageText);
+                MessageBox.Show(messageText, "Export fail!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+        }
+
         private void CallShutDown(object sender, EventArgs e)
         {
+            //if (!FtpHandler.TryUploadBackupFile(Constants.ReservationsFileName))
+            //{
+            //    ShowFailMessage(string.Format(Constants.ErrorRemoteFileUpload, Constants.ReservationsFileName));
+            //}
+            //string filePath = Path.Combine(Constants.LocalPath, Constants.ReservationsFileName);
+            //if (!ExportCollectionsToJson(filePath, controller.Reservations)) return;
+            //if (!FtpHandler.TryUploadFileByName(Constants.ReservationsFileName))
+            //{
+            //    ShowFailMessage(string.Format(Constants.ErrorRemoteFileUpload, Constants.ReservationsFileName));
+            //}
             Logging.Instance.Close();
             Shutdown();
         }

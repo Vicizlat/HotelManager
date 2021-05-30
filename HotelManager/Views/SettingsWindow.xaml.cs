@@ -11,12 +11,15 @@ namespace HotelManager.Views
         {
             InitializeComponent();
             WebAddress.Text = Settings.Instance.WebAddress;
-            WebAddressFull.Text = Settings.Instance.WebAddressFull;
             FtpAddress.Text = Settings.Instance.FtpAddress;
             FtpUserName.Text = Settings.Instance.FtpUserName;
             FtpPassword.Text = Settings.Instance.FtpPassword;
             SeasonStartDate.SelectedDate = Settings.Instance.SeasonStartDate;
             SeasonEndDate.SelectedDate = Settings.Instance.SeasonEndDate;
+            Server.Text = Settings.Instance.Server;
+            Database.Text = Settings.Instance.Database;
+            UserName.Text = Settings.Instance.UserName;
+            Password.Text = Settings.Instance.Password;
             LocalUseOnly.IsChecked = Settings.Instance.LocalUseOnly;
         }
 
@@ -39,20 +42,22 @@ namespace HotelManager.Views
         {
             bool hasDates = SeasonStartDate.SelectedDate.HasValue && SeasonEndDate.SelectedDate.HasValue;
             if (LocalUseOnly.IsChecked.GetValueOrDefault()) return hasDates;
-            return !string.IsNullOrEmpty(WebAddress.Text) && !string.IsNullOrEmpty(WebAddressFull.Text) &&
-                   !string.IsNullOrEmpty(FtpAddress.Text) && !string.IsNullOrEmpty(FtpUserName.Text) &&
-                   !string.IsNullOrEmpty(FtpPassword.Text) && hasDates;
+            return !string.IsNullOrEmpty(WebAddress.Text) && !string.IsNullOrEmpty(FtpAddress.Text) &&
+                   !string.IsNullOrEmpty(FtpUserName.Text) && !string.IsNullOrEmpty(FtpPassword.Text) && hasDates;
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             Settings.Instance.WebAddress = WebAddress.Text;
-            Settings.Instance.WebAddressFull = WebAddressFull.Text;
             Settings.Instance.FtpAddress = FtpAddress.Text;
             Settings.Instance.FtpUserName = FtpUserName.Text;
             Settings.Instance.FtpPassword = FtpPassword.Text;
             Settings.Instance.SeasonStartDate = SeasonStartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
             Settings.Instance.SeasonEndDate = SeasonEndDate.SelectedDate.GetValueOrDefault(DateTime.Today.AddDays(365));
+            Settings.Instance.Server = Server.Text;
+            Settings.Instance.Database = Database.Text;
+            Settings.Instance.UserName = UserName.Text;
+            Settings.Instance.Password = Password.Text;
             Settings.Instance.LocalUseOnly = LocalUseOnly.IsChecked.GetValueOrDefault();
             CloseWindow(Settings.InvokeSettingsChanged());
         }

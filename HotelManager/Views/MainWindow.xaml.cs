@@ -6,80 +6,147 @@ using HotelManager.Controller;
 using HotelManager.Views.Templates;
 using HotelManager.Utils;
 using System.Linq;
+using HotelManager.Handlers;
+using HotelManager.Views.Images;
 
 namespace HotelManager.Views
 {
     public partial class MainWindow
     {
         internal int DaysToShow;
-        private readonly IController controller;
+        private readonly MainController controller;
+        private Dictionary<int, bool> rooms;
+        private DateTime?[] selectedDates = Array.Empty<DateTime?>();
 
-        public MainWindow(IController controller)
+        public MainWindow(MainController controller)
         {
+            Logging.Instance.WriteLine("Start initializing MainWindow...");
             InitializeComponent();
             this.controller = controller;
-            IconsDockPanel.Children.Add(new SettingsImage());
-            CreateRoomRows();
-            StartDate.SelectedDate = DateTime.Now;
+            ImportExportImage.MouseLeftButtonDown += delegate { new ImportExportWindow(controller).ShowDialog(); };
+            HotelImage.MouseLeftButtonDown += delegate { new HotelSetupWindow(controller).ShowDialog(); };
+            CreateRoomRows(this, EventArgs.Empty);
+            //StartDate.SelectedDate = new DateTime(2020, 8, 12);
+            StartDate.SelectedDate = DateTime.Today;
             StartDate.DisplayDateStart = Settings.Instance.SeasonStartDate;
             StartDate.DisplayDateEnd = Settings.Instance.SeasonEndDate;
-            EndDate.SelectedDate = DateTime.Now.AddDays(13);
+            EndDate.SelectedDate = StartDate.SelectedDate.Value.AddDays(13);
             EndDate.DisplayDateStart = Settings.Instance.SeasonStartDate;
             EndDate.DisplayDateEnd = Settings.Instance.SeasonEndDate;
-            SearchIn.SelectedIndex = 0;
             controller.OnReservationsChanged += CreateReservationsTable;
+            controller.OnRoomsChanged += CreateRoomRows;
             controller.OnReservationAdd += ReservationWindowRequested;
             controller.OnReservationEdit += ReservationWindowRequested;
+            Logging.Instance.WriteLine("End initializing MainWindow...");
         }
 
-        internal void ReservationWindowRequested(object room, DateTime startDate)
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            new SearchWindow(controller).Show();
+        }
+
+        private void ReservationWindowRequested(object room, DateTime startDate)
         {
             new ReservationWindow((int)room, startDate, controller).ShowDialog();
         }
 
-        internal void ReservationWindowRequested(object sender, int id)
+        private void ReservationWindowRequested(object sender, int id)
         {
-            new ReservationWindow(id, controller).ShowDialog();
+            new ReservationWindow(controller.GetReservationInfo(id), controller).ShowDialog();
         }
 
-        public void CreateReservationsTable(object sender, string fileName)
+        public void CreateReservationsTable(object sender, EventArgs e)
         {
-            DateTime startDate = StartDate.SelectedDate.GetValueOrDefault(DateTime.Now);
+            Logging.Instance.WriteLine("Start adding Table cells...");
             Table.Children.Clear();
-            for (int row = 0; row < controller.Rooms.RealCount; row++)
+            DateTime startDate = StartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
+            for (int row = 0; row < rooms.Count; row++)
             {
-                int room = controller.Rooms.TopFloorFirst[row].FullRoomNumber;
+                int room = rooms.ElementAt(row).Key;
                 int skipColumns = 0;
                 for (int col = 0; col <= DaysToShow; col++)
                 {
+                    if (skipColumns-- > 0) continue;
                     DateTime nextDate = startDate.AddDays(col);
                     DockPanel dockPanel = new DockPanel();
-                    TextBox tableTextBox = new ReservationTextBox(controller, row, nextDate);
-                    int? id = controller.Reservations.GetReservation(room, nextDate)?.Id;
-                    if (id != null && controller.Reservations.IsFromBooking(id.Value))
+                    ReservationInfo resInfo = controller.GetReservationInfo(room, nextDate);
+                    if (resInfo != null)
                     {
-                        dockPanel.Children.Add(new BookingImage());
+                        if (resInfo.IsFromBooking) dockPanel.Children.Add(new BookingImage());
+                        int nights = (resInfo.EndDate - resInfo.StartDate).Days;
+                        Grid.SetColumnSpan(dockPanel, nights);
+                        skipColumns = nights <= 1 ? 0 : startDate < resInfo.StartDate
+                                ? nights - 1 : (resInfo.EndDate - startDate).Days - 1;
                     }
-                    dockPanel.Children.Add(tableTextBox);
-                    if (skipColumns-- > 0) continue;
+                    else resInfo = new ReservationInfo { Room = room, StartDate = nextDate, StateInt = -1 };
+                    dockPanel.Children.Add(new ReservationTextBox(controller, resInfo, rooms.ElementAt(row).Value));
                     Grid.SetRow(dockPanel, row);
                     Grid.SetColumn(dockPanel, col);
-                    int nights = controller.ReservationNights(room, nextDate);
-                    Grid.SetColumnSpan(dockPanel, nights);
-                    skipColumns = nights > 1 ? GetColumnsToSkip(room, startDate, nextDate, nights) : 0;
                     Table.Children.Add(dockPanel);
                 }
             }
+            selectedDates = new DateTime?[]
+            {
+                StartDate.SelectedDate,
+                EndDate.SelectedDate
+            };
+            Logging.Instance.WriteLine("End adding Table cells...");
         }
 
-        private int GetColumnsToSkip(int room, DateTime startDate, DateTime nextDate, int nights)
+        private void CreateRoomRows(object sender, EventArgs e)
         {
-            if (startDate < controller.ReservationStartDate(room, nextDate)) return nights - 1;
-            return (controller.ReservationEndDate(room, nextDate) - startDate).Days - 1;
+            Logging.Instance.WriteLine("Start adding Rooms...");
+            rooms = controller.Context.Rooms
+                .OrderByDescending(r => r.Floor.FloorNumber)
+                .ThenBy(r => r.RoomNumber)
+                .Select(x => new { x.FullRoomNumber, x.LastOnFloor })
+                .ToDictionary(key => key.FullRoomNumber, value => value.LastOnFloor);
+            Rooms.Children.Clear();
+            Rooms.RowDefinitions.Clear();
+            Table.RowDefinitions.Clear();
+            for (int row = 0; row < rooms.Count; row++)
+            {
+                int room = rooms.ElementAt(row).Key;
+                int rowHeight = rooms.ElementAt(row).Value ? 50 : 30;
+                Rooms.RowDefinitions.Add(new RowDefinition { Height = new GridLength(rowHeight), MinHeight = 30 });
+                Table.RowDefinitions.Add(new RowDefinition { Height = new GridLength(rowHeight), MinHeight = 30 });
+
+                TextBox roomTextBox = new RoomsTextBox(controller, room, rooms.ElementAt(row).Value);
+                Grid.SetRow(roomTextBox, row);
+                Rooms.Children.Add(roomTextBox);
+            }
+            Logging.Instance.WriteLine("End adding Rooms...");
         }
 
-        private void CreateDatesColumns(DateTime startDate)
+        private void CalendarButton_Click(object sender, RoutedEventArgs e)
         {
+            CalendarWindow calendarWindow = new CalendarWindow { Owner = this };
+            calendarWindow.ShowDialog();
+        }
+
+        private void SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (selectedDates.Length != 2)
+            {
+                selectedDates = new DateTime?[]
+                {
+                    StartDate.SelectedDate,
+                    EndDate.SelectedDate
+                };
+            }
+            if (selectedDates[0] == StartDate.SelectedDate && selectedDates[1] == EndDate.SelectedDate) return;
+            if (!StartDate.SelectedDate.HasValue || !EndDate.SelectedDate.HasValue) return;
+            if (StartDate.SelectedDate >= EndDate.SelectedDate) return;
+
+            DaysToShow = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days;
+            Logging.Instance.WriteLine($"SelectedDatesChanged: DaysToShow - {DaysToShow}");
+            CreateDatesColumns();
+            CreateReservationsTable(this, EventArgs.Empty);
+        }
+
+        private void CreateDatesColumns()
+        {
+            Logging.Instance.WriteLine("Start adding Dates...");
             Dates.Children.Clear();
             Dates.ColumnDefinitions.Clear();
             Table.ColumnDefinitions.Clear();
@@ -88,82 +155,23 @@ namespace HotelManager.Views
                 Dates.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150), MinWidth = 150 });
                 Table.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150), MinWidth = 150 });
 
-                TextBox dateTextBox = new DatesTextBox(startDate.AddDays(col));
+                TextBox dateTextBox = new DatesTextBox(StartDate.SelectedDate.GetValueOrDefault().AddDays(col));
                 Grid.SetColumn(dateTextBox, col);
                 Dates.Children.Add(dateTextBox);
             }
+            Logging.Instance.WriteLine("End adding Dates...");
         }
 
-        private void CreateRoomRows()
+        private void ScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            for (int row = 0; row < controller.Rooms.RealCount; row++)
+            if (Equals(sender, SvTable))
             {
-                int rowHeight = controller.Rooms.TopFloorFirst[row].LastOnFloor ? 50 : 30;
-                Rooms.RowDefinitions.Add(new RowDefinition { Height = new GridLength(rowHeight), MinHeight = 30 });
-                Table.RowDefinitions.Add(new RowDefinition { Height = new GridLength(rowHeight), MinHeight = 30 });
-
-                TextBox roomTextBox = new RoomsTextBox(controller, row);
-                Grid.SetRow(roomTextBox, row);
-                Rooms.Children.Add(roomTextBox);
+                SvRooms.ScrollToVerticalOffset(e.VerticalOffset);
+                SvDates.ScrollToHorizontalOffset(e.HorizontalOffset);
             }
-        }
-
-        private void CalendarButton_Click(object sender, RoutedEventArgs e) => new CalendarWindow(this).ShowDialog();
-
-        private void SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!StartDate.SelectedDate.HasValue || !EndDate.SelectedDate.HasValue) return;
-            if (StartDate.SelectedDate > EndDate.SelectedDate) return;
-            DaysToShow = (EndDate.SelectedDate - StartDate.SelectedDate).Value.Days;
-            CreateDatesColumns(StartDate.SelectedDate.Value);
-            CreateReservationsTable(this, string.Empty);
-        }
-
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            ResultsTable.Children.Clear();
-            ResultsTable.RowDefinitions.Clear();
-            string searchCriteria = SearchBox.Text;
-            bool excludeCanceled = !IncludeCanceled.IsChecked.HasValue || !IncludeCanceled.IsChecked.Value;
-            DateTime? searchStartDate = SearchStartDate.SelectedDate;
-            DateTime? searchEndDate = SearchEndDate.SelectedDate;
-            List<int> results = SearchIn.SelectedIndex switch
+            else if (Equals(sender, SvRooms))
             {
-                0 => controller.Reservations.SearchInGuestName(searchCriteria, excludeCanceled).ToList(),
-                1 => controller.Reservations.SearchInNotes(searchCriteria, excludeCanceled).ToList(),
-                2 => controller.Reservations.SearchInStartDateIncluded(searchStartDate, searchEndDate, excludeCanceled).ToList(),
-                3 => controller.Reservations.SearchInEndDateIncluded(searchStartDate, searchEndDate, excludeCanceled).ToList(),
-                4 => controller.Reservations.SearchInAllDatesIncluded(searchStartDate, searchEndDate, excludeCanceled).ToList(),
-                _ => new List<int>()
-            };
-            SearchResults.Text = $"Обща сума на резервациите: {controller.Reservations.SumOfReservationsWithIds(results)} | ";
-            SearchResults.Text += $"Намерени резултати: {results.Count}";
-            for (int i = 0; i < results.Count; i++)
-            {
-                ResultsTable.RowDefinitions.Add(new RowDefinition {Height = new GridLength(30), MinHeight = 30});
-                TextBox tableTextBox = new ReservationTextBox(controller, results[i]);
-                Grid.SetRow(tableTextBox, i);
-                ResultsTable.Children.Add(tableTextBox);
-            }
-        }
-
-        private void SearchIn_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (SearchIn.SelectedIndex == 0 || SearchIn.SelectedIndex == 1)
-            {
-                SearchBox.Visibility = Visibility.Visible;
-                SearchStartDateText.Visibility = Visibility.Hidden;
-                SearchStartDate.Visibility = Visibility.Hidden;
-                SearchEndDateText.Visibility = Visibility.Hidden;
-                SearchEndDate.Visibility = Visibility.Hidden;
-            }
-            else
-            {
-                SearchBox.Visibility = Visibility.Hidden;
-                SearchStartDateText.Visibility = Visibility.Visible;
-                SearchStartDate.Visibility = Visibility.Visible;
-                SearchEndDateText.Visibility = Visibility.Visible;
-                SearchEndDate.Visibility = Visibility.Visible;
+                SvTable.ScrollToVerticalOffset(e.VerticalOffset);
             }
         }
     }

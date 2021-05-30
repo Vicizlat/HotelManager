@@ -4,8 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:utils="clr-namespace:HotelManager.Utils"
         x:Class="HotelManager.Views.CalendarWindow" mc:Ignorable="d"
-        SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowState="Normal" WindowStartupLocation="CenterOwner" Topmost="True" >
+        SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" WindowState="Normal" WindowStartupLocation="CenterOwner" Topmost="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>

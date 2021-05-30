@@ -1,18 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <StartupObject>HotelManager.App</StartupObject>
     <ApplicationIcon>HotelManager.ico</ApplicationIcon>
     <Product>HotelManager</Product>
     <Authors>Victor Zlatarev</Authors>
-    <Copyright>Copyright ©  2020</Copyright>
+    <Copyright>Copyright © 2020</Copyright>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Views\settings-gear-icon-plain.png" />
-    <None Remove="Views\Templates\settings-gear-icon-plain.png" />
-    <None Remove="Views\Templates\settings-gear-icon.png" />
+    <None Remove="Views\Images\TransactionIconBW.png" />
+    <None Remove="Views\Images\TransactionIconC.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HotelManager.Data\HotelManager.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,7 +62,14 @@
 
   <ItemGroup>
     <Resource Include="HotelManager.ico" />
-    <Resource Include="Views\Templates\settings-gear-icon-plain.png" />
-    <Resource Include="Views\Templates\settings-gear-icon.png" />
+    <Resource Include="Views\Images\Booking.ico" />
+    <Resource Include="Views\Images\HotelIconBW.png" />
+    <Resource Include="Views\Images\HotelIconC.png" />
+    <Resource Include="Views\Images\ImportExportIconBW.png" />
+    <Resource Include="Views\Images\ImportExportIconC.png" />
+    <Resource Include="Views\Images\SettingsIconBW.png" />
+    <Resource Include="Views\Images\SettingsIconC.png" />
+    <Resource Include="Views\Images\TransactionIconBW.png" />
+    <Resource Include="Views\Images\TransactionIconC.png" />
   </ItemGroup>
 </Project>
