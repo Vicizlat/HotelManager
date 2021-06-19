@@ -25,6 +25,7 @@ namespace HotelManager.Controller
         public HotelManagerContext Context { get; set; }
         public List<Models.Reservation> Reservations { get; set; }
         public List<ReservationInfo> ReservationInfos { get; set; }
+        private readonly bool resetDb = true;
 
         public bool Initialize()
         {
@@ -32,17 +33,28 @@ namespace HotelManager.Controller
             //Context = DbContextGetter.GetContext(localConnection: localConnection);
             Context = DbContextGetter.GetContext(localConnection: false);
             if (!Context.Database.CanConnect()) return false;
-            //Context.Database.EnsureDeleted();
-            //Context.Database.EnsureCreated();
-            //JsonImport.ImportBuildings(this, Path.Combine(Constants.LocalPath, "Buildings.json"));
-            //JsonImport.ImportFloors(this, Path.Combine(Constants.LocalPath, "Floors.json"));
-            //JsonImport.ImportRooms(this, Path.Combine(Constants.LocalPath, "Rooms.json"));
+            if (resetDb) ResetDatabase();
             if (!Context.Buildings.Any() || !Context.Floors.Any() || !Context.Rooms.Any())
             {
                 new HotelSetupWindow(this).ShowDialog();
             }
-            //Reservations = JsonImport.ImportReservations(this, Path.Combine(Constants.LocalPath, Constants.ReservationsFileName));
+            Reservations = JsonImport.ImportReservations(this, Path.Combine(Constants.LocalPath, Constants.ReservationsFileName));
             //Reservations = GetReservations().ToList();
+            UpdateResInfos();
+            return true;
+        }
+
+        private void ResetDatabase()
+        {
+            Context.Database.EnsureDeleted();
+            Context.Database.EnsureCreated();
+            JsonImport.ImportBuildings(this, Path.Combine(Constants.LocalPath, "Buildings.json"));
+            JsonImport.ImportFloors(this, Path.Combine(Constants.LocalPath, "Floors.json"));
+            JsonImport.ImportRooms(this, Path.Combine(Constants.LocalPath, "Rooms.json"));
+        }
+
+        private void UpdateResInfos()
+        {
             WaitWindow waitWindow = new WaitWindow("Сваляне на резервации от сървъра...");
             ReservationInfos = new List<ReservationInfo>(Context.Reservations
                 .Include(r => r.Room)
@@ -50,7 +62,6 @@ namespace HotelManager.Controller
                 .Include(r => r.Transactions)
                 .Select(x => new ReservationInfo(x)));
             waitWindow.Close();
-            return true;
         }
 
         private IEnumerable<Models.Reservation> GetReservations()
@@ -123,12 +134,9 @@ namespace HotelManager.Controller
 
                 UpdateReservation(reservation, guest, resInfo);
             }
-            if (resInfo.PaidSum != reservation.Transactions.Sum(t => t.PaidSum))
-            {
-                AddNewTransaction(guest, reservation, resInfo.PaidSum);
-            }
             Logging.Instance.WriteLine($"New: {reservation}", true);
             Context.SaveChanges();
+            UpdateResInfos();
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -200,15 +208,16 @@ namespace HotelManager.Controller
             reservation.DateModified = DateTime.Now;
         }
 
-        public void AddNewTransaction(Guest guest, Reservation reservation, decimal paidSum)
+        public void AddNewTransaction(Guest guest, Reservation reservation, decimal paidSum, DateTime transDate, string tarnsMethod)
         {
-            Transaction transaction = new Transaction
+            reservation.Transactions.Add(new Transaction
             {
                 Guest = guest,
                 Reservation = reservation,
-                PaidSum = paidSum - reservation.Transactions.Sum(t => t.PaidSum)
-            };
-            reservation.Transactions.Add(transaction);
+                PaidSum = paidSum - reservation.Transactions.Sum(t => t.PaidSum),
+                PaymentDate = transDate,
+                PaymentMethod = tarnsMethod
+            });
         }
 
         public void CheckInReservation(int room, DateTime startDate)
@@ -228,6 +237,7 @@ namespace HotelManager.Controller
             reservation.DateModified = DateTime.Now;
             Logging.Instance.WriteLine($"New: {reservation}", true);
             Context.SaveChanges();
+            UpdateResInfos();
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 

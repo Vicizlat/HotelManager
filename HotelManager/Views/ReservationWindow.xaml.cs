@@ -40,7 +40,7 @@ namespace HotelManager.Views
         }
 
         public ReservationWindow(int room, DateTime startDate, MainController controller)
-            : this(controller, 0, 0, room, startDate)
+            : this(controller, 0, 2, room, startDate)
         {
             id = controller.Context.Reservations.Count() + 1;
             Title = $"Добавяне на резервация номер: {id}";
@@ -65,6 +65,18 @@ namespace HotelManager.Views
 
         private void TransactionImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            ReservationInfo oldReservationInfo = controller.GetReservationInfo(id);
+            ReservationInfo newReservationInfo = GetReservationInfo();
+            if (oldReservationInfo == null || !oldReservationInfo.Equals(newReservationInfo))
+            {
+                MessageBoxResult messageBoxResult = MessageBox.Show(
+                    "По тази резервация има незапазени промени.\r\n" +
+                    "За добавяне на плащане, резервацията трябва първо да бъде актуализирана.\r\n" +
+                    "\r\nДа запазя ли резервацията?",
+                    "Незапазени промени в резервацията",
+                    MessageBoxButton.YesNo);
+                if (messageBoxResult != MessageBoxResult.Yes) return;
+            }
             new TransactionsWindow(controller, id, this).ShowDialog();
         }
 
@@ -145,15 +157,26 @@ namespace HotelManager.Views
 
         public void SaveReservation()
         {
+            if (!IsSaveEnabled())
+            {
+                MessageBox.Show(
+                    "Резервацията има невалидни задължителни полета и не може да бъде запазена.\r\n" +
+                    "Моля попълнете всички задължителни полета преди да добавите плащане.",
+                    "Непълна информация за резервация");
+                return;
+            }
             if (GuestsInRoom.IntValue > controller.Context.Rooms.First(r => r.Id == Room.SelectedIndex).MaxGuests)
             {
-                if (MessageBox.Show("Броя гости е повече от капацитета на стаята.\r\nДа продължа ли със записа?",
-                    "Превишен капацитет на стаята", MessageBoxButton.YesNo) == MessageBoxResult.No) return;
+                if (MessageBox.Show(
+                    "Броя гости е повече от капацитета на стаята.\r\n" +
+                    "\r\nДа продължа ли със записа?",
+                    "Превишен капацитет на стаята",
+                    MessageBoxButton.YesNo) == MessageBoxResult.No) return;
             }
-            controller.SaveReservation(GetResInfo());
+            controller.SaveReservation(GetReservationInfo());
         }
 
-        public ReservationInfo GetResInfo()
+        public ReservationInfo GetReservationInfo()
         {
             return new ReservationInfo
             {
@@ -163,8 +186,8 @@ namespace HotelManager.Views
                 Room = controller.Context.Rooms.First(r => r.Id == Room.SelectedIndex).FullRoomNumber,
                 GuestName = GuestName.AutoTextBox.Text,
                 GuestReferrer = GuestReferrer.AutoTextBox.Text,
-                Email = Email.Text,
-                Phone = Phone.Text,
+                Email = string.IsNullOrEmpty(Email.Text) ? null : Email.Text,
+                Phone = string.IsNullOrEmpty(Phone.Text) ? null : Phone.Text,
                 StartDate = StartDate.SelectedDate.GetValueOrDefault(),
                 EndDate = EndDate.SelectedDate.GetValueOrDefault(),
                 NumberOfGuests = GuestsInRoom.IntValue,
@@ -175,5 +198,11 @@ namespace HotelManager.Views
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
+
+        private bool CompareReservations()
+        {
+            ReservationInfo oldReservationInfo = controller.GetReservationInfo(id);
+            return oldReservationInfo == null || !oldReservationInfo.Equals(GetReservationInfo());
+        }
     }
 }

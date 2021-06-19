@@ -10,7 +10,7 @@ namespace HotelManager.Data.Models
         public Guest Guest { get; set; }
         public int ReservationId { get; set; }
         public Reservation Reservation { get; set; }
-        [Column(TypeName = "decimal(5, 2)")]
+        [Column(TypeName = "decimal(6, 2)")]
         public decimal PaidSum { get; set; }
         public DateTime? PaymentDate { get; set; }
         public string PaymentMethod { get; set; }

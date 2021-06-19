@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HotelManager.Data.Models;
 using HotelManager.Handlers;
@@ -30,12 +31,13 @@ namespace HotelManager.Controller
                     EndDate = reservation.Period.EndDate,
                     TotalSum = reservation.Sums.Total,
                     NumberOfGuests = reservation.GuestsInRoom,
-                    Notes = reservation.Notes
+                    Notes = reservation.Notes,
+                    DateCreated = DateTime.Today
                 };
                 controller.Context.Reservations.Add(res);
                 if (reservation.Sums.Paid != 0)
                 {
-                    controller.AddNewTransaction(guest, res, reservation.Sums.Paid);
+                    controller.AddNewTransaction(guest, res, reservation.Sums.Paid, res.DateCreated, "Неизвестен");
                 }
                 controller.Context.SaveChanges();
             }

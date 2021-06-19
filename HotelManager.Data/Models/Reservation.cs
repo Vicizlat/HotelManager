@@ -21,7 +21,7 @@ namespace HotelManager.Data.Models
         public int NumberOfGuests { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        [Column(TypeName = "decimal(5, 2)")]
+        [Column(TypeName = "decimal(6, 2)")]
         public decimal TotalSum { get; set; }
         public string Notes { get; set; }
         public DateTime DateCreated { get; set; }

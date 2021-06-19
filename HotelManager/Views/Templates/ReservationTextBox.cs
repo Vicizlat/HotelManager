@@ -24,7 +24,7 @@ namespace HotelManager.Views.Templates
                 Text = string.Format(Constants.ReservationText, resInfo.GuestName, resInfo.NumberOfGuests,
                     remainingSum);
                 ToolTip = resInfo.ToString();
-                bool isCheckedIn = resInfo.IsCheckedIn;
+                bool isCheckedIn = resInfo.StateInt == 1;
                 bool isOverlapping = controller.NextReservationStartDate(resInfo.Room, resInfo.StartDate) <
                                      resInfo.EndDate;
                 Color bgColor = isOverlapping ? Colors.Red : isCheckedIn ? Colors.DarkBlue : Colors.AntiqueWhite;

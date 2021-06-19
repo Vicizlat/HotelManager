@@ -2,8 +2,8 @@
 {
     public enum State
     {
-        Active,
-        CheckedIn,
-        Canceled
+        Active = 0,
+        CheckedIn = 1,
+        Canceled = 2
     }
 }

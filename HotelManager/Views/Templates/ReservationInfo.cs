@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using HotelManager.Controller;
 using HotelManager.Data.Models;
-using HotelManager.Data.Models.Enums;
 
 namespace HotelManager.Views.Templates
 {
@@ -24,8 +23,6 @@ namespace HotelManager.Views.Templates
         public decimal PaidSum { get; set; }
         public string Notes { get; set; }
         public int ResCount { get; set; }
-        public bool IsCheckedIn => StateInt == (int)State.CheckedIn;
-        public bool IsFromBooking => SourceInt == (int)Source.Booking;
 
         public ReservationInfo() { }
 
@@ -68,6 +65,66 @@ namespace HotelManager.Views.Templates
                 .AppendLine($"Оставаща сума: {TotalSum - PaidSum}")
                 .Append($"Допълнителна информация: {Notes ?? "Няма"}");
             return sb.ToString();
+        }
+
+        //public override bool Equals(object obj)
+        //{
+        //    ReservationInfo resInfo = (ReservationInfo)obj;
+        //    return resInfo != null
+        //           && Id == resInfo.Id
+        //           && StateInt == resInfo.StateInt
+        //           && SourceInt == resInfo.SourceInt
+        //           && Room == resInfo.Room
+        //           && GuestName == resInfo.GuestName
+        //           && GuestReferrer == resInfo.GuestReferrer
+        //           && Email == resInfo.Email
+        //           && Phone == resInfo.Phone
+        //           && StartDate == resInfo.StartDate
+        //           && EndDate == resInfo.EndDate
+        //           && NumberOfGuests == resInfo.NumberOfGuests
+        //           && TotalSum == resInfo.TotalSum
+        //           && PaidSum == resInfo.PaidSum
+        //           && Notes == resInfo.Notes;
+        //}
+
+        public override bool Equals(object obj)
+        {
+            ReservationInfo other = (ReservationInfo)obj;
+            return other != null
+                   && Id == other.Id
+                   && StateInt == other.StateInt
+                   && SourceInt == other.SourceInt
+                   && Room == other.Room
+                   && GuestName == other.GuestName
+                   && GuestReferrer == other.GuestReferrer
+                   && Email == other.Email
+                   && Phone == other.Phone
+                   && StartDate.Equals(other.StartDate)
+                   && EndDate.Equals(other.EndDate)
+                   && NumberOfGuests == other.NumberOfGuests
+                   && TotalSum == other.TotalSum
+                   && PaidSum == other.PaidSum
+                   && Notes == other.Notes;
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hashCode = new HashCode();
+            hashCode.Add(Id);
+            hashCode.Add(StateInt);
+            hashCode.Add(SourceInt);
+            hashCode.Add(Room);
+            hashCode.Add(GuestName);
+            hashCode.Add(GuestReferrer);
+            hashCode.Add(Email);
+            hashCode.Add(Phone);
+            hashCode.Add(StartDate);
+            hashCode.Add(EndDate);
+            hashCode.Add(NumberOfGuests);
+            hashCode.Add(TotalSum);
+            hashCode.Add(PaidSum);
+            hashCode.Add(Notes);
+            return hashCode.ToHashCode();
         }
     }
 }

@@ -5,11 +5,11 @@ using System.Windows.Media.Imaging;
 
 namespace HotelManager.Views.Images
 {
-    public class BookingImage : Image
+    public class ReservationIcon : Image
     {
-        public BookingImage()
+        public ReservationIcon(string imageName)
         {
-            Uri imageUri = new Uri(@"Images\Booking.ico", UriKind.Relative);
+            Uri imageUri = new Uri(@$"Images\{imageName}.png", UriKind.Relative);
             Source = new BitmapImage(imageUri);
             VerticalAlignment = VerticalAlignment.Top;
             Height = 30;

@@ -44,7 +44,8 @@ namespace HotelManager.Utils
             "По телефон",
             "По имейл",
             "Booking.com",
-            "На място"
+            "На място",
+            "Познат/Приятел"
         };
         public static readonly string[] ImportExportSources =
         {

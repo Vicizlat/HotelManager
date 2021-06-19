@@ -72,7 +72,15 @@ namespace HotelManager.Views
                     ReservationInfo resInfo = controller.GetReservationInfo(room, nextDate);
                     if (resInfo != null)
                     {
-                        if (resInfo.IsFromBooking) dockPanel.Children.Add(new BookingImage());
+                        dockPanel.Children.Add(resInfo.SourceInt switch
+                        {
+                            0 => new ReservationIcon("Phone"),
+                            1 => new ReservationIcon("Mail"),
+                            2 => new ReservationIcon("Booking"),
+                            3 => new ReservationIcon("HotelIconC"),
+                            4 => new ReservationIcon("Friend"),
+                            _ => new ReservationIcon("Phone")
+                        });
                         int nights = (resInfo.EndDate - resInfo.StartDate).Days;
                         Grid.SetColumnSpan(dockPanel, nights);
                         skipColumns = nights <= 1 ? 0 : startDate < resInfo.StartDate

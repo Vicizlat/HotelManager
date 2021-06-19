@@ -10,6 +10,10 @@
     <Copyright>Copyright © 2020</Copyright>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Views\Images\Booking.png" />
+    <None Remove="Views\Images\Friend.png" />
+    <None Remove="Views\Images\Mail.png" />
+    <None Remove="Views\Images\Phone.png" />
     <None Remove="Views\Images\TransactionIconBW.png" />
     <None Remove="Views\Images\TransactionIconC.png" />
   </ItemGroup>
@@ -62,11 +66,14 @@
 
   <ItemGroup>
     <Resource Include="HotelManager.ico" />
-    <Resource Include="Views\Images\Booking.ico" />
+    <Resource Include="Views\Images\Booking.png" />
+    <Resource Include="Views\Images\Friend.png" />
     <Resource Include="Views\Images\HotelIconBW.png" />
     <Resource Include="Views\Images\HotelIconC.png" />
     <Resource Include="Views\Images\ImportExportIconBW.png" />
     <Resource Include="Views\Images\ImportExportIconC.png" />
+    <Resource Include="Views\Images\Mail.png" />
+    <Resource Include="Views\Images\Phone.png" />
     <Resource Include="Views\Images\SettingsIconBW.png" />
     <Resource Include="Views\Images\SettingsIconC.png" />
     <Resource Include="Views\Images\TransactionIconBW.png" />

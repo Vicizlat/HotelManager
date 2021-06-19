@@ -87,13 +87,9 @@ namespace HotelManager.Views
                     "\r\nДа запазя ли резервацията?", "Няма такава резервация", MessageBoxButton.YesNo);
                 if (messageBoxResult == MessageBoxResult.Yes)
                 {
-                    ReservationWindow reservationWindow = (ReservationWindow)Owner;
-                    if (reservationWindow.IsSaveEnabled()) reservationWindow.SaveReservation();
-                    else
+                    owner.SaveReservation();
+                    if (!owner.IsSaveEnabled())
                     {
-                        MessageBox.Show("Резервацията има невалидни задължителни полета и не може да бъде запазена.\r\n" +
-                            "Моля попълнете всички задължителни полета преди да добавите плащане.",
-                            "Непълна информация за резервация");
                         Close();
                         return;
                     }
@@ -112,6 +108,10 @@ namespace HotelManager.Views
                     PaymentDate = TransactionDate.SelectedDate
                 });
                 controller.Context.SaveChanges();
+                decimal sum = controller.Context.Transactions.Where(t => t.ReservationId == reservation.Id).Sum(t => t.PaidSum);
+                owner.PaidSum.DecimalBox.Text = $"{sum}";
+                RemainingSum.Text = $"{owner.RemainingSum.DecimalValue}";
+                owner.SaveReservation();
             }
             TransactionSum.DecimalBox.Text = "0";
             TransactionMethod.Text = string.Empty;
