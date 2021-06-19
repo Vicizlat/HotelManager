@@ -10,6 +10,7 @@ namespace HotelManager.Utils
         public static readonly string LogsPath = Directory.CreateDirectory(Path.Combine(LocalPath, "Logs")).FullName;
         public static string LogFileName = $"Log-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}.txt";
         public static string LocalConnection = @"Server=.\SQLEXPRESS;Database=HotelManager;Integrated Security=True";
+        public static string DoubleLine = Environment.NewLine + Environment.NewLine;
 
         public const string ReservationsFileName = "Reservations.json";
         public const string SettingsFilename = "Settings.xml";
@@ -25,6 +26,12 @@ namespace HotelManager.Utils
         public const string EndDateText = "Крайна дата: ";
         public const string ReservationText = "{0} - {1} гости - За плащане: {2} лв.";
         public const string NoRoomSelected = "Няма избрана стая";
+        public const string UnsavedChangesCaption = "Незапазени промени в резервацията";
+        public const string UnsavedChangesText = "По тази резервация има незапазени промени.";
+        public const string UnsavedChangesTextPayment = "За добавяне на плащане, резервацията трябва първо да бъде актуализирана.";
+        public const string OverCapacityCaption = "Превишен капацитет на стаята";
+        public const string OverCapacityText = "Броя гости е повече от капацитета на стаята.";
+        public const string ConfirmSaveChanges = "Да запазя ли резервацията?";
         public static readonly string[] SearchOptions =
         {
             "Име на госта",

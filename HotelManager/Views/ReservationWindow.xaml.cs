@@ -65,17 +65,11 @@ namespace HotelManager.Views
 
         private void TransactionImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            ReservationInfo oldReservationInfo = controller.GetReservationInfo(id);
-            ReservationInfo newReservationInfo = GetReservationInfo();
-            if (oldReservationInfo == null || !oldReservationInfo.Equals(newReservationInfo))
+            if (ReservationHasChanges())
             {
-                MessageBoxResult messageBoxResult = MessageBox.Show(
-                    "По тази резервация има незапазени промени.\r\n" +
-                    "За добавяне на плащане, резервацията трябва първо да бъде актуализирана.\r\n" +
-                    "\r\nДа запазя ли резервацията?",
-                    "Незапазени промени в резервацията",
-                    MessageBoxButton.YesNo);
-                if (messageBoxResult != MessageBoxResult.Yes) return;
+                string messageBoxText = Constants.UnsavedChangesText + Environment.NewLine + Constants.UnsavedChangesTextPayment +
+                                        Constants.DoubleLine + Constants.ConfirmSaveChanges;
+                if (!ConfirmationBox(messageBoxText, Constants.UnsavedChangesCaption) || !SaveReservation()) return;
             }
             new TransactionsWindow(controller, id, this).ShowDialog();
         }
@@ -155,25 +149,20 @@ namespace HotelManager.Views
             Close();
         }
 
-        public void SaveReservation()
+        public bool SaveReservation()
         {
             if (!IsSaveEnabled())
             {
-                MessageBox.Show(
-                    "Резервацията има невалидни задължителни полета и не може да бъде запазена.\r\n" +
-                    "Моля попълнете всички задължителни полета преди да добавите плащане.",
-                    "Непълна информация за резервация");
-                return;
+                MessageBox.Show("Резервацията има невалидни задължителни полета.", "Непълна информация за резервация");
+                return false;
             }
             if (GuestsInRoom.IntValue > controller.Context.Rooms.First(r => r.Id == Room.SelectedIndex).MaxGuests)
             {
-                if (MessageBox.Show(
-                    "Броя гости е повече от капацитета на стаята.\r\n" +
-                    "\r\nДа продължа ли със записа?",
-                    "Превишен капацитет на стаята",
-                    MessageBoxButton.YesNo) == MessageBoxResult.No) return;
+                string messageBoxText = Constants.OverCapacityText + Constants.DoubleLine + Constants.ConfirmSaveChanges;
+                if (!ConfirmationBox(messageBoxText, Constants.OverCapacityCaption)) return false;
             }
             controller.SaveReservation(GetReservationInfo());
+            return true;
         }
 
         public ReservationInfo GetReservationInfo()
@@ -197,12 +186,25 @@ namespace HotelManager.Views
             };
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsSaveEnabled() && ReservationHasChanges())
+            {
+                string messageBoxText = Constants.UnsavedChangesText + Constants.DoubleLine + Constants.ConfirmSaveChanges;
+                if (ConfirmationBox(messageBoxText, Constants.UnsavedChangesCaption) && !SaveReservation()) return;
+            }
+            Close();
+        }
 
-        private bool CompareReservations()
+        private bool ReservationHasChanges()
         {
             ReservationInfo oldReservationInfo = controller.GetReservationInfo(id);
             return oldReservationInfo == null || !oldReservationInfo.Equals(GetReservationInfo());
+        }
+
+        private static bool ConfirmationBox(string text, string caption)
+        {
+            return MessageBox.Show(text, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes;
         }
     }
 }

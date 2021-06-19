@@ -25,7 +25,7 @@ namespace HotelManager.Controller
         public HotelManagerContext Context { get; set; }
         public List<Models.Reservation> Reservations { get; set; }
         public List<ReservationInfo> ReservationInfos { get; set; }
-        private readonly bool resetDb = true;
+        private readonly bool resetDb = false;
 
         public bool Initialize()
         {
