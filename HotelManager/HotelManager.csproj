@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <StartupObject>HotelManager.App</StartupObject>
     <ApplicationIcon>HotelManager.ico</ApplicationIcon>
@@ -24,7 +24,7 @@
     <None Remove="Views\Images\TransactionIconC.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FreeSpire.PDF" Version="7.8.9" />
+    <PackageReference Include="FreeSpire.PDF" Version="8.2.0" />
   </ItemGroup>
 
   <ItemGroup>

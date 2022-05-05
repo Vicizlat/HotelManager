@@ -12,6 +12,7 @@ namespace HotelManager.Handlers
             string localFilePath = Path.Combine(Constants.LocalPath, fileName);
             try
             {
+                // #pragma warning disable SYSLIB0014
                 using WebClient webClient = new WebClient();
                 webClient.DownloadFile(remoteFilePath, localFilePath);
                 Logging.Instance.WriteLine($"Successfully downloaded \"{fileName}\"!");

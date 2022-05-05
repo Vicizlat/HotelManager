@@ -10,6 +10,7 @@ namespace HotelManager.Handlers
     {
         public static FtpWebRequest FtpRequest(string ftpPath, string method)
         {
+            // #pragma warning disable SYSLIB0014
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpPath);
             string ftpUserName = Settings.Instance.FtpUserName;
             string ftpPassword = Settings.Instance.FtpPassword;
