@@ -5,23 +5,24 @@ using System.Windows.Media.Imaging;
 
 namespace HotelManager.Views.Images
 {
-    public class HotelImage : Image
+    public class ButtonImage : Image
     {
-        public HotelImage()
+        public string FileName { get; set; }
+
+        public ButtonImage()
         {
-            ToolTip = "Hotel Setup (Buildings, Floors, Rooms)";
             MouseEnter += Image_MouseEnter;
             MouseLeave += Image_MouseLeave;
         }
 
         private void Image_MouseEnter(object sender, MouseEventArgs e)
         {
-            Source = ImageSource(@"Images\HotelIconC.png");
+            Source = ImageSource(@$"Images\{FileName}C.png");
         }
 
         private void Image_MouseLeave(object sender, MouseEventArgs e)
         {
-            Source = ImageSource(@"Images\HotelIconBW.png");
+            Source = ImageSource(@$"Images\{FileName}BW.png");
         }
 
         private static BitmapImage ImageSource(string uriString)

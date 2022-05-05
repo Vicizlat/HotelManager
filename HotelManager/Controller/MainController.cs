@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using HotelManager.Handlers;
 using HotelManager.Utils;
-using System.Windows;
 using HotelManager.Data;
 using HotelManager.Data.Models;
 using HotelManager.Data.Models.Enums;
@@ -25,6 +24,7 @@ namespace HotelManager.Controller
         public HotelManagerContext Context { get; set; }
         public List<Models.Reservation> Reservations { get; set; }
         public List<ReservationInfo> ReservationInfos { get; set; }
+        public static List<string> RoomsList = new List<string> { Constants.NoRoomSelected };
         private readonly bool resetDb = false;
 
         public bool Initialize()
@@ -38,9 +38,14 @@ namespace HotelManager.Controller
             {
                 new HotelSetupWindow(this).ShowDialog();
             }
-            Reservations = JsonImport.ImportReservations(this, Path.Combine(Constants.LocalPath, Constants.ReservationsFileName));
+            //RoomsArray = new List<string> { Constants.NoRoomSelected };
+            RoomsList.AddRange(Context.Rooms.ToList().Select(r => r.ToString()));
+
+            //WaitWindow waitWindow = new WaitWindow("Сваляне на резервации от сървъра...");
+            //Reservations = JsonImport.ImportReservations(this, Path.Combine(Constants.LocalPath, Constants.ReservationsFileName));
             //Reservations = GetReservations().ToList();
-            UpdateResInfos();
+            //UpdateResInfos(waitWindow);
+            //waitWindow.Close();
             return true;
         }
 
@@ -53,9 +58,8 @@ namespace HotelManager.Controller
             JsonImport.ImportRooms(this, Path.Combine(Constants.LocalPath, "Rooms.json"));
         }
 
-        private void UpdateResInfos()
+        private void UpdateResInfos(WaitWindow waitWindow)
         {
-            WaitWindow waitWindow = new WaitWindow("Сваляне на резервации от сървъра...");
             ReservationInfos = new List<ReservationInfo>(Context.Reservations
                 .Include(r => r.Room)
                 .Include(r => r.Guest)
@@ -84,7 +88,7 @@ namespace HotelManager.Controller
 
         public void ImportReservations(string importFilePath)
         {
-            Reservations = JsonImport.ImportReservations(this, importFilePath);
+            //Reservations = JsonImport.ImportReservations(this, importFilePath);
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -96,7 +100,7 @@ namespace HotelManager.Controller
 
         public void RequestReservationWindow(int id)
         {
-            if (id > 0 && id <= ReservationInfos.Count())
+            if (id > 0 && id <= Context.Reservations.Count())
             {
                 OnReservationEdit?.Invoke(this, id);
             }
@@ -120,7 +124,7 @@ namespace HotelManager.Controller
             Reservation reservation = GetReservation(resInfo.Id);
             if (reservation == null)
             {
-                Reservations.Add(new Models.Reservation(resInfo));
+                //Reservations.Add(new Models.Reservation(resInfo));
                 Logging.Instance.WriteLine("Add reservation:");
 
                 reservation = resInfo.ToReservation(this);
@@ -128,7 +132,7 @@ namespace HotelManager.Controller
             }
             else
             {
-                Reservations[resInfo.Id - 1] = new Models.Reservation(resInfo);
+                //Reservations[resInfo.Id - 1] = new Models.Reservation(resInfo);
                 Logging.Instance.WriteLine("Edit reservation:");
                 Logging.Instance.WriteLine($"Old: {reservation}", true);
 
@@ -136,7 +140,7 @@ namespace HotelManager.Controller
             }
             Logging.Instance.WriteLine($"New: {reservation}", true);
             Context.SaveChanges();
-            UpdateResInfos();
+            //UpdateResInfos(new WaitWindow("Обновяване на резервации..."));
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -160,12 +164,22 @@ namespace HotelManager.Controller
 
         public Reservation GetReservation(int id)
         {
-            Reservation reservation = Context.Reservations
+            return Context.Reservations
                 .Include(r => r.Guest)
                 .Include(r => r.Transactions)
                 .Include(r => r.Room)
                 .FirstOrDefault(r => r.Id == id);
-            return reservation;
+        }
+
+        public Reservation GetReservation(int room, DateTime startDate)
+        {
+            return Context.Reservations
+                .Include(r => r.Guest)
+                .Include(r => r.Transactions)
+                .Where(r => r.State != State.Canceled)
+                .Where(r => r.StartDate <= startDate)
+                .Where(r => startDate < r.EndDate)
+                .FirstOrDefault(r => r.Room.FullRoomNumber == room);
         }
 
         //TODO:Handle guests with the same name!
@@ -231,38 +245,55 @@ namespace HotelManager.Controller
             if (reservation == null) return;
             Logging.Instance.WriteLine("Edit reservation:");
             Logging.Instance.WriteLine($"Old: {reservation}", true);
-            Reservations[reservation.Id - 1].State = State.CheckedIn;
+            //Reservations[reservation.Id - 1].State = State.CheckedIn;
             reservation.LastVersionJson = JsonHandler.SerializeToJson(reservation);
             reservation.State = State.CheckedIn;
             reservation.DateModified = DateTime.Now;
             Logging.Instance.WriteLine($"New: {reservation}", true);
             Context.SaveChanges();
-            UpdateResInfos();
+            //UpdateResInfos(new WaitWindow("Обновяване на резервации..."));
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public ReservationInfo GetReservationInfo(int id)
         {
-            return ReservationInfos.FirstOrDefault(r => r.Id == id);
+            Reservation reservation = GetReservation(id);
+            return reservation == null ? null : new ReservationInfo(reservation);
         }
 
         public ReservationInfo GetReservationInfo(int room, DateTime date)
         {
-            return ReservationInfos
-                .Where(r => r.StateInt != (int)State.Canceled)
-                .Where(r => r.StartDate <= date)
-                .Where(r => date < r.EndDate)
-                .FirstOrDefault(r => r.Room == room);
+            Reservation reservation = GetReservation(room, date);
+            return reservation == null ? null : new ReservationInfo(reservation);
+        }
+
+        public List<ReservationInfo> GetReservationInfos(DateTime startDate, DateTime endDate)
+        {
+            return new List<ReservationInfo>(Context.Reservations
+                .Include(r => r.Room)
+                .Include(r => r.Guest)
+                .Include(r => r.Transactions)
+                .Where(r => r.EndDate >= startDate && r.StartDate <= endDate)
+                .Select(x => new ReservationInfo(x)));
         }
 
         public DateTime NextReservationStartDate(int room, DateTime startDate)
         {
-            return ReservationInfos
-                       .Where(r => r.Room == room)
+            return Context.Reservations
+                       .Where(r => r.Room.FullRoomNumber == room)
                        .Where(r => r.StartDate >= startDate.AddDays(1))
                        .OrderBy(r => r.StartDate)
-                       .FirstOrDefault(r => r.StateInt != (int)State.Canceled)?.StartDate
+                       .FirstOrDefault(r => r.State != State.Canceled)?.StartDate
                    ?? Settings.Instance.SeasonEndDate;
+        }
+
+        public Dictionary<int, bool> GetRoomsDictionary()
+        {
+            return Context.Rooms
+                .OrderByDescending(r => r.Floor.FloorNumber)
+                .ThenBy(r => r.RoomNumber)
+                .Select(x => new { x.FullRoomNumber, x.LastOnFloor })
+                .ToDictionary(key => key.FullRoomNumber, value => value.LastOnFloor);
         }
     }
 }

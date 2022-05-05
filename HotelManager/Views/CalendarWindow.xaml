@@ -8,12 +8,21 @@
         Background="Transparent" WindowState="Normal" WindowStartupLocation="CenterOwner" Topmost="True">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <Viewbox Grid.Row="0" Width="400">
-            <Calendar x:Name="Calendar" SelectionMode="SingleRange" SelectedDatesChanged="Calendar_SelectedDatesChanged"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Viewbox Grid.Row="0" Grid.Column="0" Width="400">
+            <Calendar x:Name="Calendar1" SelectionMode="SingleRange" DisplayMode="Month" BorderThickness="1,1,0,1"
+                      DisplayDateChanged="Calendar1_DisplayDateChanged" SelectedDatesChanged="Calendar_SelectedDatesChanged"/>
         </Viewbox>
-        <Button Grid.Row="1" Width="100" FontSize="18" HorizontalAlignment="Right" Content="Отмени" Click="Cancel_Click" Background="IndianRed"/>
+        <Viewbox Grid.Row="0" Grid.Column="1" Width="400">
+            <Calendar x:Name="Calendar2" SelectionMode="SingleRange" DisplayMode="Month" BorderThickness="0,1,1,1"
+                      DisplayDateChanged="Calendar2_DisplayDateChanged" SelectedDatesChanged="Calendar_SelectedDatesChanged"/>
+        </Viewbox>
+        <Button Grid.Row="1" Grid.ColumnSpan="2" Width="200" FontSize="20" HorizontalAlignment="Center" Content="Отмени" Click="Cancel_Click" Background="IndianRed"/>
     </Grid>
 </Window>

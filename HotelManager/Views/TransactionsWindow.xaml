@@ -4,12 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelManager.Views"
-        xmlns:uc="clr-namespace:HotelManager.Views.UserControls"
+        xmlns:uc="clr-namespace:HotelManager.Views.UserControls" xmlns:images="clr-namespace:HotelManager.Views.Images"
         mc:Ignorable="d"
-        Title="TransactionsWindow" Height="400" Width="600">
+        Title="TransactionsWindow" WindowStartupLocation="CenterScreen" Height="400" Width="600" MinHeight="400" MinWidth="600">
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
             <RowDefinition Height="20"/>
@@ -21,26 +22,60 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <uc:IntTextBox x:Name="ReservationId" Grid.Row="0" Grid.Column="0" Margin="10, 0"
-                       Label="Номер на резерввация:" TextChanged="TextBox_TextChanged"/>
-        <Button Grid.Row="0" Grid.Column="1" Margin="10" Padding="2" FontSize="18" Content="Search" Click="Search_Click"/>
-        <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="10" VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="Transactions"/>
+        <uc:IntTextBox x:Name="ReservationId" Grid.Row="0" Grid.Column="0" Margin="10,0,53,0" Label="Номер на резерввация:"
+                       TextChanged="TextBox_TextChanged"/>
+        <images:ButtonImage Grid.Row="0" Grid.Column="0" Margin="10,5" Cursor="Hand" FileName="SearchIcon" ToolTip="Search"
+                            HorizontalAlignment="Right" Source="Images\SearchIconBW.png" MouseLeftButtonUp="SearchImage_MouseLeftButtonUp"/>
+        <Button x:Name="OpenReservation" Grid.Row="0" Grid.Column="1" Margin="10" Padding="2" FontSize="18" Content="Отваряне на резервация"
+                IsEnabled="False" Click="OpenReservation_Click"/>
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,10,10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="65"/>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="115"/>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition Width="55"/>
+                <ColumnDefinition Width="16.8"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" Text="No.:" Padding="2" Width="65"
+                     HorizontalContentAlignment="Center" IsReadOnly="True" Focusable="False" Cursor="Arrow"/>
+            <TextBox Grid.Column="1" Text="Резервация:" Padding="2" Width="80"
+                     HorizontalContentAlignment="Center" IsReadOnly="True" Focusable="False" Cursor="Arrow"/>
+            <TextBox Grid.Column="2" Text="Име на госта:" Padding="2"
+                     HorizontalContentAlignment="Center" IsReadOnly="True" Focusable="False" Cursor="Arrow"/>
+            <TextBox Grid.Column="3" Text="Начин на плащане:" Padding="2" Width="115"
+                     HorizontalContentAlignment="Center" IsReadOnly="True" Focusable="False" Cursor="Arrow"/>
+            <TextBox Grid.Column="4" Text="Дата:" Padding="2" Width="75"
+                     HorizontalContentAlignment="Center" IsReadOnly="True" Focusable="False" Cursor="Arrow"/>
+            <TextBox Grid.Column="5" Text="Сума:" Padding="2" Width="55"
+                     HorizontalContentAlignment="Center" IsReadOnly="True" Focusable="False" Cursor="Arrow"/>
+        </Grid>
+        <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,0,10,10" VerticalScrollBarVisibility="Visible">
+            <Grid x:Name="Transactions">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65"/>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="115"/>
+                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="55"/>
+                </Grid.ColumnDefinitions>
+            </Grid>
         </ScrollViewer>
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Оставаща сума по резервация:" Padding="2" Margin="10, 0"
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Оставаща сума по резервация:" Padding="2" Margin="10, 0"
                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
-        <TextBox x:Name="RemainingSum" Grid.Row="2" Grid.Column="1" Padding="2" Margin="10, 0"
-                 IsReadOnly="True" IsHitTestVisible="False" Focusable="False"
-                 VerticalAlignment="Center" TextChanged="TextBox_TextChanged"/>
-        <uc:DecimalTextBox x:Name="TransactionSum" Grid.Row="3" Grid.Column="0" Grid.RowSpan="2" Margin="10, 0"
+        <TextBox x:Name="RemainingSum" Grid.Row="3" Grid.Column="1" Padding="2" Margin="10, 0" Cursor="Arrow"
+                 IsReadOnly="True" Focusable="False" VerticalAlignment="Center" TextChanged="TextBox_TextChanged"/>
+        <uc:DecimalTextBox x:Name="TransactionSum" Grid.Row="4" Grid.Column="0" Grid.RowSpan="2" Margin="10, 0"
                            Label="Платена сума:" TextChanged="Sum_TextChanged"/>
-        <TextBlock Grid.Row="3" Grid.Column="1" Text="Transaction Method" Margin="10, 0" VerticalAlignment="Bottom"/>
-        <TextBox x:Name="TransactionMethod" Grid.Row="4" Grid.Column="1" Padding="2" Margin="10, 0" VerticalAlignment="Top"
+        <TextBlock Grid.Row="4" Grid.Column="1" Text="Начин на плащане:" Margin="10, 0" VerticalAlignment="Bottom"/>
+        <TextBox x:Name="TransactionMethod" Grid.Row="5" Grid.Column="1" Padding="2" Margin="10, 0" VerticalAlignment="Top"
                  TextChanged="TextBox_TextChanged"/>
-        <TextBlock Grid.Row="5" Grid.Column="0" Margin="10, 0" VerticalAlignment="Bottom" Text="Transaction Date"/>
-        <DatePicker x:Name="TransactionDate" Grid.Row="6" Grid.Column="0" Margin="10, 0" VerticalAlignment="Top"
+        <TextBlock Grid.Row="6" Grid.Column="0" Margin="10, 0" VerticalAlignment="Bottom" Text="Дата на плащане:"/>
+        <DatePicker x:Name="TransactionDate" Grid.Row="7" Grid.Column="0" Margin="10, 0" VerticalAlignment="Top"
                     SelectedDateChanged="Dates_SelectedDateChanged"/>
-        <Button x:Name="AddTransaction" Grid.Row="5" Grid.Column="1" Grid.RowSpan="2" Margin="10" Width="200"
-                Background="LightGreen" Content="Add Transaction" IsEnabled="False" Click="AddTransaction_Click"/>
+        <Button x:Name="AddTransaction" Grid.Row="6" Grid.Column="1" Grid.RowSpan="2" Margin="10" Width="200"
+                Background="LightGreen" Content="Добави плащане" IsEnabled="False" Click="AddTransaction_Click"/>
     </Grid>
 </Window>

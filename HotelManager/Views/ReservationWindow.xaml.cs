@@ -61,9 +61,10 @@ namespace HotelManager.Views
             PaidSum.DecimalBox.Text = $"{resInfo.PaidSum}";
             RemainingSum.DecimalBox.Text = $"{resInfo.TotalSum - resInfo.PaidSum}";
             Notes.Text = resInfo.Notes;
+            Save.IsEnabled = IsSaveEnabled();
         }
 
-        private void TransactionImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void TransactionImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (ReservationHasChanges())
             {
@@ -71,10 +72,13 @@ namespace HotelManager.Views
                                         Constants.DoubleLine + Constants.ConfirmSaveChanges;
                 if (!ConfirmationBox(messageBoxText, Constants.UnsavedChangesCaption) || !SaveReservation()) return;
             }
-            new TransactionsWindow(controller, id, this).ShowDialog();
+            new TransactionsWindow(controller, id).ShowDialog();
+            PaidSum.DecimalBox.Text = $"{controller.Context.Transactions.Where(t => t.ReservationId == id).Sum(t => t.PaidSum)}";
+            RemainingSum.DecimalBox.Text = $"{TotalPrice.DecimalValue - PaidSum.DecimalValue}";
+            if (ReservationHasChanges()) SaveReservation();
         }
 
-        private void Room_SelectionChanged(object sender, SelectionChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
 
         private void GuestsInRoom_TextChanged(object sender, TextChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
 
@@ -124,13 +128,6 @@ namespace HotelManager.Views
             Save.IsEnabled = IsSaveEnabled();
         }
 
-        private void Room_Loaded(object sender, RoutedEventArgs e)
-        {
-            List<string> rooms = new List<string> { Constants.NoRoomSelected };
-            rooms.AddRange(controller.Context.Rooms.ToList().Select(r => r.ToString()));
-            Room.ItemsSource = rooms;
-        }
-
         public bool IsSaveEnabled()
         {
             bool validRoom = Room.SelectedIndex > 0;
@@ -140,7 +137,7 @@ namespace HotelManager.Views
             bool validTotal = TotalPrice.Validate();
             bool validPaid = PaidSum.Validate();
             bool validRemaining = RemainingSum.Validate();
-            return validRoom && validGuest && validGuests && validNights && validTotal && validPaid && validRemaining;
+            return validRoom && validGuest && validGuests && validNights && validTotal && validPaid && validRemaining && ReservationHasChanges();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)

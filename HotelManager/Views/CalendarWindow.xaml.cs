@@ -3,43 +3,50 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using HotelManager.Handlers;
 using HotelManager.Utils;
 
 namespace HotelManager.Views
 {
     public partial class CalendarWindow
     {
-
         public CalendarWindow()
         {
             InitializeComponent();
-            Calendar.DisplayDateStart = Settings.Instance.SeasonStartDate;
-            Calendar.DisplayDateEnd = Settings.Instance.SeasonEndDate;
+            Calendar1.DisplayDateStart = Settings.Instance.SeasonStartDate;
+            Calendar1.DisplayDateEnd = Settings.Instance.SeasonEndDate.AddDays(-Settings.Instance.SeasonEndDate.Day);
+            Calendar2.DisplayDateStart = new DateTime(Settings.Instance.SeasonStartDate.Year, Settings.Instance.SeasonStartDate.Month + 1, 1);
+            Calendar2.DisplayDateEnd = Settings.Instance.SeasonEndDate;
+            Calendar2.DisplayDate = DateTime.Now.AddMonths(1);
         }
 
         private void Calendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
         {
-            List<DateTime> selectedDates = Calendar.SelectedDates.OrderBy(d => d).ToList();
+            List<DateTime> selectedDates = Calendar1.SelectedDates.ToList();
+            selectedDates.AddRange(Calendar2.SelectedDates);
+            selectedDates.OrderBy(d => d).ToList();
             if (selectedDates.Count > 1)
             {
-                MainWindow mainWindow = (MainWindow)Owner;
-                DateTime calendarSelectedStartDate = selectedDates.First();
-                if (calendarSelectedStartDate != mainWindow.StartDate.SelectedDate)
-                {
-                    mainWindow.StartDate.SelectedDate = calendarSelectedStartDate;
-                    Logging.Instance.WriteLine("StartDate changed from Calendar.");
-                }
-                DateTime calendarSelectedEndDate = selectedDates.Last();
-                if (calendarSelectedEndDate != mainWindow.EndDate.SelectedDate)
-                {
-                    mainWindow.EndDate.SelectedDate = calendarSelectedEndDate;
-                    Logging.Instance.WriteLine("EndDate changed from Calendar.");
-                }
+                ((MainWindow)Owner).CalendarSelectedStartDate = selectedDates.First();
+                ((MainWindow)Owner).CalendarSelectedEndDate = selectedDates.Last();
+                DialogResult = true;
                 Close();
             }
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
+
+        private void Calendar1_DisplayDateChanged(object sender, CalendarDateChangedEventArgs e)
+        {
+            Calendar2.DisplayDate = Calendar1.DisplayDate.AddMonths(1);
+        }
+
+        private void Calendar2_DisplayDateChanged(object sender, CalendarDateChangedEventArgs e)
+        {
+            Calendar1.DisplayDate = Calendar2.DisplayDate.AddMonths(-1);
+        }
     }
 }

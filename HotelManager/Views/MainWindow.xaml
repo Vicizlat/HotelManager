@@ -8,17 +8,14 @@
         Title="Hotel Manager" WindowState="Maximized" WindowStartupLocation="CenterScreen" Width="900" MinWidth="900">
     <Grid Background="WhiteSmoke">
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <DockPanel x:Name="IconsDockPanel" Grid.Row="0" Margin="10, 0, 10, 10" HorizontalAlignment="Right">
-            <Button Content="Search" Width="100" FontSize="20" Click="SearchButton_Click"/>
-            <images:ImportExportImage x:Name="ImportExportImage" Margin="10, 0" Cursor="Hand" Source="Images/ImportExportIconBW.png"/>
-            <images:HotelImage x:Name="HotelImage" Margin="10, 0" Cursor="Hand" Source="Images/HotelIconBW.png"/>
-            <images:SettingsImage Margin="10, 0" Cursor="Hand" Source="Images/SettingsIconBW.png"/>
-        </DockPanel>
-        <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="40"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,10,0,0" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="300"/>
@@ -27,25 +24,55 @@
                 <ColumnDefinition Width="134"/>
                 <ColumnDefinition Width="139"/>
                 <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="40"/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="1" Padding="5, 0" FontSize="20" HorizontalAlignment="Center"
                             Content="{Binding Source={x:Static utils:Constants.CalendarButtonText}, Mode=OneWay}"
                             Click="CalendarButton_Click"/>
             <TextBlock Grid.Column="2" Padding="2" FontSize="18" HorizontalAlignment="Right"
                                Text="{Binding Source={x:Static utils:Constants.StartDateText}, Mode=OneWay}"/>
-            <DatePicker x:Name="StartDate" Grid.Column="3" FontSize="18" SelectedDateChanged="SelectedDatesChanged"/>
+            <DatePicker x:Name="StartDate" Grid.Column="3" FontSize="18" SelectedDateChanged="SelectedDatesChanged"
+                        DisplayDateStart="{Binding Source={x:Static utils:Constants.SeasonStartDate}, Mode=OneWay}"
+                        DisplayDateEnd="{Binding Source={x:Static utils:Constants.SeasonEndDate}, Mode=OneWay}"/>
             <TextBlock Grid.Column="4" Padding="2" FontSize="18" HorizontalAlignment="Right"
                                Text="{Binding Source={x:Static utils:Constants.EndDateText}, Mode=OneWay}"/>
-            <DatePicker x:Name="EndDate" Grid.Column="5" FontSize="18" SelectedDateChanged="SelectedDatesChanged"/>
+            <DatePicker x:Name="EndDate" Grid.Column="5" FontSize="18" SelectedDateChanged="SelectedDatesChanged"
+                        DisplayDateStart="{Binding Source={x:Static utils:Constants.SeasonStartDate}, Mode=OneWay}"
+                        DisplayDateEnd="{Binding Source={x:Static utils:Constants.SeasonEndDate}, Mode=OneWay}"/>
+            <images:ButtonImage Grid.Column="7" Margin="0, -10, 0, 0" Cursor="Hand" FileName="SettingsIcon" ToolTip="Settings"
+                                Source="Images\SettingsIconBW.png" MouseLeftButtonUp="SettingsImage_MouseLeftButtonUp"/>
         </Grid>
-        <Grid Grid.Row="2" Margin="20">
+        <Grid x:Name="IconsDockPanel" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <images:ButtonImage Grid.Row="0" Margin="0, 10, 0, 0" Cursor="Hand" FileName="HotelIcon" ToolTip="Hotel Setup"
+                                Source="Images\HotelIconBW.png" MouseLeftButtonUp="HotelImage_MouseLeftButtonUp"/>
+            <images:ButtonImage Grid.Row="1" Margin="0, 10, 0, 0" Cursor="Hand" FileName="ImportExportIcon" ToolTip="Import/Export"
+                                Source="Images\ImportExportIconBW.png" MouseLeftButtonUp="ImportExportImage_MouseLeftButtonUp"/>
+            <images:ButtonImage Grid.Row="2" Margin="0, 10, 0, 0" Cursor="Hand" FileName="TransactionIcon" ToolTip="Manage transactions"
+                                Source="Images\TransactionIconBW.png" MouseLeftButtonUp="TransactionImage_MouseLeftButtonUp"/>
+            <images:ButtonImage Grid.Row="3" Margin="0, 10, 0, 0" Cursor="Hand" FileName="SearchIcon" ToolTip="Search"
+                                Source="Images\SearchIconBW.png" MouseLeftButtonUp="SearchImage_MouseLeftButtonUp"/>
+            <images:ButtonImage Grid.Row="4" Margin="0, 10, 0, 0" Cursor="Hand" FileName="SavePdfIcon" ToolTip="Save as PDF"
+                                Source="Images\SavePdfIconBW.png" MouseLeftButtonUp="SavePdfImage_MouseLeftButtonUp"/>
+            <images:ButtonImage Grid.Row="5" Margin="0, 10, 0, 0" Cursor="Hand" FileName="PrintIcon" ToolTip="Print"
+                                Source="Images\PrintIconBW.png" MouseLeftButtonUp="PrintImage_MouseLeftButtonUp"/>
+            <!--<Button  Grid.Row="5" Margin="0, 10, 0, 0" Padding="4" Content="Print" Click="PrintButton_Click"/>-->
+        </Grid>
+        <Grid x:Name="MainGrid" Grid.Row="1" Margin="20,20,10,20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
-                <RowDefinition Height="1*"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer x:Name="SvDates" Grid.Row="0" Grid.Column="1"
                           HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">

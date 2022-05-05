@@ -67,26 +67,6 @@ namespace HotelManager.Views.Templates
             return sb.ToString();
         }
 
-        //public override bool Equals(object obj)
-        //{
-        //    ReservationInfo resInfo = (ReservationInfo)obj;
-        //    return resInfo != null
-        //           && Id == resInfo.Id
-        //           && StateInt == resInfo.StateInt
-        //           && SourceInt == resInfo.SourceInt
-        //           && Room == resInfo.Room
-        //           && GuestName == resInfo.GuestName
-        //           && GuestReferrer == resInfo.GuestReferrer
-        //           && Email == resInfo.Email
-        //           && Phone == resInfo.Phone
-        //           && StartDate == resInfo.StartDate
-        //           && EndDate == resInfo.EndDate
-        //           && NumberOfGuests == resInfo.NumberOfGuests
-        //           && TotalSum == resInfo.TotalSum
-        //           && PaidSum == resInfo.PaidSum
-        //           && Notes == resInfo.Notes;
-        //}
-
         public override bool Equals(object obj)
         {
             ReservationInfo other = (ReservationInfo)obj;

@@ -17,6 +17,7 @@ namespace HotelManager.Views
             SeasonStartDate.SelectedDate = Settings.Instance.SeasonStartDate;
             SeasonEndDate.SelectedDate = Settings.Instance.SeasonEndDate;
             Server.Text = Settings.Instance.Server;
+            Port.Text = $"{Settings.Instance.Port}";
             Database.Text = Settings.Instance.Database;
             UserName.Text = Settings.Instance.UserName;
             Password.Text = Settings.Instance.Password;
@@ -55,6 +56,7 @@ namespace HotelManager.Views
             Settings.Instance.SeasonStartDate = SeasonStartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
             Settings.Instance.SeasonEndDate = SeasonEndDate.SelectedDate.GetValueOrDefault(DateTime.Today.AddDays(365));
             Settings.Instance.Server = Server.Text;
+            Settings.Instance.Port = int.TryParse(Server.Text, out int port) ? port : 3306;
             Settings.Instance.Database = Database.Text;
             Settings.Instance.UserName = UserName.Text;
             Settings.Instance.Password = Password.Text;

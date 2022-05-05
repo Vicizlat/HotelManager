@@ -11,6 +11,8 @@ namespace HotelManager.Utils
         public static string LogFileName = $"Log-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}.txt";
         public static string LocalConnection = @"Server=.\SQLEXPRESS;Database=HotelManager;Integrated Security=True";
         public static string DoubleLine = Environment.NewLine + Environment.NewLine;
+        public static DateTime SeasonStartDate = Settings.Instance.SeasonStartDate;
+        public static DateTime SeasonEndDate = Settings.Instance.SeasonEndDate;
 
         public const string ReservationsFileName = "Reservations.json";
         public const string SettingsFilename = "Settings.xml";

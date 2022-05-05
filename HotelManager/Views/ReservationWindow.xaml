@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:control="clr-namespace:HotelManager.Controller"
         xmlns:utils="clr-namespace:HotelManager.Utils"
         xmlns:uc="clr-namespace:HotelManager.Views.UserControls"
         xmlns:images="clr-namespace:HotelManager.Views.Images"
@@ -33,11 +34,14 @@
             <TextBlock Grid.Row="0" Grid.Column="1" Margin="10, 0" VerticalAlignment="Bottom" Text="Източник"/>
             <TextBlock Grid.Row="0" Grid.Column="2" Margin="10, 0" VerticalAlignment="Bottom" Text="Стая"/>
             <ComboBox x:Name="State" Grid.Row="1" Grid.Column="0" Padding="2" Margin="10, 0" VerticalAlignment="Top"
-                      ItemsSource="{Binding Source={x:Static utils:Constants.ReservationStates}, Mode=OneWay}"/>
+                      ItemsSource="{Binding Source={x:Static utils:Constants.ReservationStates}, Mode=OneWay}"
+                      SelectionChanged="ComboBox_SelectionChanged"/>
             <ComboBox x:Name="Source" Grid.Row="1" Grid.Column="1" Padding="2" Margin="10, 0" VerticalAlignment="Top"
-                      ItemsSource="{Binding Source={x:Static utils:Constants.ReservationSources}, Mode=OneWay}"/>
+                      ItemsSource="{Binding Source={x:Static utils:Constants.ReservationSources}, Mode=OneWay}"
+                      SelectionChanged="ComboBox_SelectionChanged"/>
             <ComboBox x:Name="Room" Grid.Row="1" Grid.Column="2" Padding="2" Margin="10, 0" VerticalAlignment="Top"
-                      Loaded="Room_Loaded" SelectionChanged="Room_SelectionChanged"/>
+                      ItemsSource="{Binding Source={x:Static control:MainController.RoomsList}, Mode=OneWay}"
+                      SelectionChanged="ComboBox_SelectionChanged"/>
             <uc:IntTextBox x:Name="GuestsInRoom" Grid.Row="0" Grid.Column="3" Grid.RowSpan="2" Margin="10, 0"
                            MaxLength="1" Label="Брой гости" TextChanged="GuestsInRoom_TextChanged"/>
             <TextBlock Grid.Row="2" Grid.Column="0" Margin="10, 0" VerticalAlignment="Bottom" Text="Име на госта"/>
@@ -77,9 +81,8 @@
                                ReadOnly="True" HitTestVisible="False" IsFocusable="False"
                                Label="Предплатена сума" TextChanged="Price_TextChanged"/>
             <DockPanel Grid.Row="7" Grid.Column="2" Margin="-2, 7" HorizontalAlignment="Left">
-                <images:TransactionImage x:Name="TransactionImage" Cursor="Hand"
-                                         MouseLeftButtonDown="TransactionImage_MouseLeftButtonDown"
-                                         Source="Images/TransactionIconBW.png"/>
+                <images:ButtonImage Cursor="Hand" FileName="TransactionIcon" ToolTip="Manage transactions"
+                                    Source="Images\TransactionIconBW.png" MouseLeftButtonUp="TransactionImage_MouseLeftButtonUp"/>
             </DockPanel>
             <uc:DecimalTextBox x:Name="RemainingSum" Grid.Row="7" Grid.Column="3" Margin="10, 0"
                                ReadOnly="True" HitTestVisible="False" IsFocusable="False"
@@ -91,7 +94,7 @@
             <Button x:Name="Save" Grid.Row="10" Grid.Column="2" Height="20" Margin="10, 0" VerticalAlignment="Bottom"
                     Background="LightGreen" Content="Запиши" IsEnabled="False" Click="Save_Click"/>
             <Button x:Name="Cancel" Grid.Row="10" Grid.Column="3" Height="20" Margin="10, 0" VerticalAlignment="Bottom"
-                    Background="IndianRed" Content="Отмени" Click="Cancel_Click"/>
+                    Background="IndianRed" Content="Затвори" Click="Cancel_Click"/>
         </Grid>
     </Border>
 </Window>

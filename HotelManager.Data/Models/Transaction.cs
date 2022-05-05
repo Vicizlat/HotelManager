@@ -18,7 +18,7 @@ namespace HotelManager.Data.Models
         public override string ToString()
         {
             return
-                $"{Id}-{ReservationId}-{Guest.FirstName} {Guest.LastName}-{PaymentMethod}-{PaymentDate:dd.MM.yyyy}-{PaidSum}";
+                $"{Id} | {ReservationId} | {Guest.FirstName} {Guest.LastName} | {PaymentMethod} | {PaymentDate:dd.MM.yyyy} | {PaidSum}";
         }
     }
 }

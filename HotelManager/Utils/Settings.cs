@@ -15,6 +15,7 @@ namespace HotelManager.Utils
         public DateTime SeasonStartDate = DateTime.Today;
         public DateTime SeasonEndDate = DateTime.Today.AddDays(365);
         public string Server { get; set; }
+        public int Port { get; set; }
         public string Database { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
@@ -26,6 +27,8 @@ namespace HotelManager.Utils
         {
             if (settings.GetType() != typeof(Settings)) return false;
             thisInstance = (Settings)settings;
+            Constants.SeasonStartDate = thisInstance.SeasonStartDate;
+            Constants.SeasonEndDate = thisInstance.SeasonEndDate;
             return InvokeSettingsChanged();
         }
 
