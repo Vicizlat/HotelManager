@@ -12,17 +12,13 @@ namespace HotelManager.Views.Templates
         public int StateInt { get; set; }
         public int SourceInt { get; set; }
         public int Room { get; set; }
-        public string GuestName { get; set; }
-        public string GuestReferrer { get; set; }
-        public string Email { get; set; }
-        public string Phone { get; set; }
+        public GuestInfo Guest { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int NumberOfGuests { get; set; }
         public decimal TotalSum { get; set; }
         public decimal PaidSum { get; set; }
         public string Notes { get; set; }
-        public int ResCount { get; set; }
 
         public ReservationInfo() { }
 
@@ -32,32 +28,26 @@ namespace HotelManager.Views.Templates
             StateInt = (int)reservation.State;
             SourceInt = (int)reservation.Source;
             Room = reservation.Room.FullRoomNumber;
-            GuestName = $"{reservation.Guest.FirstName} {reservation.Guest.LastName}".Trim();
-            string guestReferrer = $"{reservation.Guest.GuestReferrer?.FirstName} {reservation.Guest.GuestReferrer?.LastName}";
-            GuestReferrer = guestReferrer.Trim();
-            Email = reservation.Guest.Email;
-            Phone = reservation.Guest.Phone;
+            Guest = new GuestInfo(reservation.Guest);
             StartDate = reservation.StartDate;
             EndDate = reservation.EndDate;
             NumberOfGuests = reservation.NumberOfGuests;
             TotalSum = reservation.TotalSum;
             PaidSum = reservation.Transactions.Sum(t => t.PaidSum);
             Notes = reservation.Notes;
-            ResCount = reservation.Guest.Reservations.Count;
         }
 
         public Reservation ToReservation(MainController controller)
         {
-            Guest guest = controller.GetGuest(this);
             Reservation reservation = controller.GetReservation(Id) ?? new Reservation();
-            controller.UpdateReservation(reservation, guest, this);
+            controller.UpdateReservation(reservation, Guest.ToGuest(controller), this);
             return reservation;
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder()
-                .AppendLine($"Име: {GuestName}")
+                .AppendLine($"Гост: {Guest.GetName()}")
                 .AppendLine($"Брой гости: {NumberOfGuests}")
                 .AppendLine($"Период: {StartDate:dd.MM.yyyy} - {EndDate:dd.MM.yyyy}")
                 .AppendLine($"Обща цена: {TotalSum}")
@@ -75,10 +65,7 @@ namespace HotelManager.Views.Templates
                    && StateInt == other.StateInt
                    && SourceInt == other.SourceInt
                    && Room == other.Room
-                   && GuestName == other.GuestName
-                   && GuestReferrer == other.GuestReferrer
-                   && Email == other.Email
-                   && Phone == other.Phone
+                   && Guest.Equals(other.Guest)
                    && StartDate.Equals(other.StartDate)
                    && EndDate.Equals(other.EndDate)
                    && NumberOfGuests == other.NumberOfGuests
@@ -94,10 +81,7 @@ namespace HotelManager.Views.Templates
             hashCode.Add(StateInt);
             hashCode.Add(SourceInt);
             hashCode.Add(Room);
-            hashCode.Add(GuestName);
-            hashCode.Add(GuestReferrer);
-            hashCode.Add(Email);
-            hashCode.Add(Phone);
+            hashCode.Add(Guest.GetHashCode());
             hashCode.Add(StartDate);
             hashCode.Add(EndDate);
             hashCode.Add(NumberOfGuests);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -17,7 +16,7 @@ namespace HotelManager
         {
             Logging.Instance.WriteLine("Logging started");
             ManageLogFiles(Constants.LogsPath);
-            if (!ReadSettingsFile() || !TryUpdateFile(Constants.ReservationsFileName))
+            if (!ReadSettingsFile())
             {
                 CallShutDown(this, EventArgs.Empty);
                 return;
@@ -32,7 +31,7 @@ namespace HotelManager
             }
             MainWindow mainWindow = new MainWindow(controller);
             mainWindow.Show();
-            mainWindow.Closed += CallShutDown;
+            mainWindow.Closing += CallShutDown;
         }
 
         private void ManageLogFiles(string logsPath)
@@ -88,36 +87,13 @@ namespace HotelManager
             return response;
         }
 
-        private bool ExportCollectionsToJson(string filePath, IEnumerable<object> collection)
-        {
-            if (FileHandler.WriteAllLines(filePath, JsonHandler.GetJsonStrings(collection)))
-            {
-                string messageText = $"Successfully exported Reservations to \"{filePath}\"!";
-                Logging.Instance.WriteLine(messageText);
-                MessageBox.Show(messageText, "Export success!", MessageBoxButton.OK, MessageBoxImage.Information);
-                return true;
-            }
-            else
-            {
-                string messageText = $"Failed to export Reservations to \"{filePath}\"!";
-                Logging.Instance.WriteLine(messageText);
-                MessageBox.Show(messageText, "Export fail!", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-        }
-
         private void CallShutDown(object sender, EventArgs e)
         {
-            //if (!FtpHandler.TryUploadBackupFile(Constants.ReservationsFileName))
-            //{
-            //    ShowFailMessage(string.Format(Constants.ErrorRemoteFileUpload, Constants.ReservationsFileName));
-            //}
-            //string filePath = Path.Combine(Constants.LocalPath, Constants.ReservationsFileName);
-            //if (!ExportCollectionsToJson(filePath, controller.Reservations)) return;
-            //if (!FtpHandler.TryUploadFileByName(Constants.ReservationsFileName))
-            //{
-            //    ShowFailMessage(string.Format(Constants.ErrorRemoteFileUpload, Constants.ReservationsFileName));
-            //}
+            foreach (string item in Constants.ImportExportSources)
+            {
+                string path = Path.Combine(Constants.LocalPath, $"{item}.json");
+                controller.ExportCollectionToJson(path, controller.GetCollectionByName(item), item, false);
+            }
             Logging.Instance.Close();
             Shutdown();
         }

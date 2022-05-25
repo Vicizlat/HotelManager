@@ -51,7 +51,7 @@ namespace HotelManager.Models
             State = (State)resInfo.StateInt;
             Source = (Source)resInfo.SourceInt;
             Room = resInfo.Room;
-            GuestName = resInfo.GuestName;
+            GuestName = resInfo.Guest.GetName();
             Period = period;
             GuestsInRoom = resInfo.NumberOfGuests;
             Sums = sums;

@@ -42,15 +42,20 @@ namespace HotelManager.Views
             Logging.Instance.WriteLine("End initializing MainWindow...");
         }
 
-        private void SearchImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new SearchWindow(controller).Show();
-
-        private void TransactionImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new TransactionsWindow(controller).ShowDialog();
-
-        private void ImportExportImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new ImportExportWindow(controller).ShowDialog();
+        private void SettingsImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new SettingsWindow().ShowDialog();
 
         private void HotelImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new HotelSetupWindow(controller).ShowDialog();
 
-        private void SettingsImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new SettingsWindow().ShowDialog();
+        private void ImportExportImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new ImportExportWindow(controller).ShowDialog();
+
+        private void TransactionImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new TransactionsWindow(controller).ShowDialog();
+
+        private void PriceRangeImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            new PriceRangesWindow(controller).ShowDialog();
+        }
+
+        private void SearchImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new SearchWindow(controller).Show();
 
         private void SavePdfImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {

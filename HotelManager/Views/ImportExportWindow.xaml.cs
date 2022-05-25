@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using HotelManager.Controller;
-using HotelManager.Handlers;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 
 namespace HotelManager.Views
@@ -67,69 +64,36 @@ namespace HotelManager.Views
 
         private void ImportExport_Click(object sender, RoutedEventArgs e)
         {
-            int switchInt = ImportTab.IsSelected ? ImportCollection.SelectedIndex : ExportCollection.SelectedIndex;
-            switch (switchInt)
+            if (ImportTab.IsSelected)
             {
-                case 0:
-                    //Import Guests
-                    if (ImportTab.IsSelected)
-                    {
-                    }
-                    //Export Guests
-                    else ExportCollectionsToJson(ExportFilePath.Text, controller.Context.Guests);
-                    break;
-                case 1:
-                    //Import Reservations
-                    if (ImportTab.IsSelected) controller.ImportReservations(ImportFilePath.Text);
-                    //Export Reservations
-                    else ExportCollectionsToJson(ExportFilePath.Text, controller.Context.Reservations
-                        .Include(r => r.Room.Floor.Building).Include(r => r.Guest));
-                    break;
-                case 2:
-                    //Import Transactions
-                    if (ImportTab.IsSelected)
-                    {
-                    }
-                    //Export Transactions
-                    else ExportCollectionsToJson(ExportFilePath.Text, controller.Context.Transactions
-                        .Include(t => t.Guest).Include(t => t.Reservation));
-                    break;
-                case 3:
-                    //Import Buildings
-                    if (ImportTab.IsSelected) JsonImport.ImportBuildings(controller, ImportFilePath.Text);
-                    //Export Buildings
-                    else ExportCollectionsToJson(ExportFilePath.Text, controller.Context.Buildings);
-                    break;
-                case 4:
-                    //Import Floors
-                    if (ImportTab.IsSelected) JsonImport.ImportFloors(controller, ImportFilePath.Text);
-                    //Export Floors
-                    else ExportCollectionsToJson(ExportFilePath.Text, controller.Context.Floors.Include(f => f.Building));
-                    break;
-                case 5:
-                    //Import Rooms
-                    if (ImportTab.IsSelected) controller.ImportRooms(ImportFilePath.Text);
-                    //Export Rooms
-                    else ExportCollectionsToJson(ExportFilePath.Text, controller.Context.Rooms.Include(r => r.Floor.Building));
-                    break;
-            }
-            Close();
-        }
-
-        private void ExportCollectionsToJson(string filePath, IEnumerable<object> collection)
-        {
-            if (FileHandler.WriteAllLines(filePath, JsonHandler.GetJsonStrings(collection)))
-            {
-                string messageText = $"Successfully exported {ExportCollection.SelectedItem} to \"{filePath}\"!";
-                Logging.Instance.WriteLine(messageText);
-                MessageBox.Show(messageText, "Export success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                switch (ImportCollection.SelectedIndex)
+                {
+                    case 0:
+                        controller.ImportBuildings(ImportFilePath.Text);
+                        break;
+                    case 1:
+                        controller.ImportFloors(ImportFilePath.Text);
+                        break;
+                    case 2:
+                        controller.ImportRooms(ImportFilePath.Text);
+                        break;
+                    case 3:
+                        controller.ImportGuests(ImportFilePath.Text);
+                        break;
+                    case 4:
+                        controller.ImportReservations(ImportFilePath.Text);
+                        break;
+                    case 5:
+                        controller.ImportTransactions(ImportFilePath.Text);
+                        break;
+                }
             }
             else
             {
-                string messageText = $"Failed to export {ExportCollection.SelectedItem} to \"{filePath}\"!";
-                Logging.Instance.WriteLine(messageText);
-                MessageBox.Show(messageText, "Export fail!", MessageBoxButton.OK, MessageBoxImage.Error);
+                string selectedItemName = ExportCollection.SelectedItem.ToString();
+                controller.ExportCollectionToJson(ExportFilePath.Text, controller.GetCollectionByName(selectedItemName), selectedItemName);
             }
+            Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => Close();

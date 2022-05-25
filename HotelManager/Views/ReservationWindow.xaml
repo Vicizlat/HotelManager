@@ -76,7 +76,7 @@
             <uc:IntTextBox x:Name="Nights" Grid.Row="5" Grid.Column="3" Grid.RowSpan="2" Margin="10, 0"
                            MaxLength="2" Label="Брой нощувки" TextChanged="Nights_TextChanged"/>
             <uc:DecimalTextBox x:Name="TotalPrice" Grid.Row="7" Grid.Column="0" Margin="10, 0"
-                               Label="Обща цена" TextChanged="Price_TextChanged"/>
+                               Label="Обща цена" TextChanged="Price_TextChanged" KeyUp="TotalPrice_KeyUp"/>
             <uc:DecimalTextBox x:Name="PaidSum" Grid.Row="7" Grid.Column="1" Margin="10, 0"
                                ReadOnly="True" HitTestVisible="False" IsFocusable="False"
                                Label="Предплатена сума" TextChanged="Price_TextChanged"/>
@@ -85,8 +85,7 @@
                                     Source="Images\TransactionIconBW.png" MouseLeftButtonUp="TransactionImage_MouseLeftButtonUp"/>
             </DockPanel>
             <uc:DecimalTextBox x:Name="RemainingSum" Grid.Row="7" Grid.Column="3" Margin="10, 0"
-                               ReadOnly="True" HitTestVisible="False" IsFocusable="False"
-                               Label="Остатък за плащане"/>
+                               ReadOnly="True" HitTestVisible="False" IsFocusable="False" Label="Остатък за плащане"/>
             <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="4" Margin="10, 0" VerticalAlignment="Bottom"
                        Text="Допълнителна информация"/>
             <TextBox x:Name="Notes" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="4" Padding="2" Margin="10, 0"

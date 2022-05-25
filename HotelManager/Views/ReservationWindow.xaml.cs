@@ -15,6 +15,7 @@ namespace HotelManager.Views
     {
         private readonly MainController controller;
         private readonly int id;
+        private bool totalPriceManualMode;
 
         public ReservationWindow(MainController controller, int stateInt, int sourceInt, int room, DateTime startDate)
         {
@@ -52,8 +53,8 @@ namespace HotelManager.Views
         {
             id = resInfo.Id;
             Title = $"Редактиране на резервация номер: {id}";
-            GuestName.AutoTextBox.Text = resInfo.GuestName;
-            GuestReferrer.AutoTextBox.Text = resInfo.GuestReferrer;
+            GuestName.AutoTextBox.Text = resInfo.Guest.GetName();
+            GuestReferrer.AutoTextBox.Text = resInfo.Guest.Referrer;
             EndDate.SelectedDate = resInfo.EndDate;
             Nights.IntBox.Text = $"{(resInfo.EndDate - resInfo.StartDate).Days}";
             GuestsInRoom.IntBox.Text = $"{resInfo.NumberOfGuests}";
@@ -137,7 +138,35 @@ namespace HotelManager.Views
             bool validTotal = TotalPrice.Validate();
             bool validPaid = PaidSum.Validate();
             bool validRemaining = RemainingSum.Validate();
+            if (validGuests && validNights && !totalPriceManualMode)
+            {
+                CalculateTotalPrice(StartDate.SelectedDate.Value, EndDate.SelectedDate.Value, GuestsInRoom.IntValue);
+            }
             return validRoom && validGuest && validGuests && validNights && validTotal && validPaid && validRemaining && ReservationHasChanges();
+        }
+
+        private void CalculateTotalPrice(DateTime startDate, DateTime endDate, int guests)
+        {
+            decimal[] prices = controller.GetBasePriceForDate(startDate, out int baseGuests, out DateTime[] prDates);
+            if (prices[0] == 0 || prices[1] == 0)
+            {
+                totalPriceManualMode = true;
+                TotalPrice.ReadOnly = false;
+                return;
+            }
+            decimal totalPrice;
+            if (prDates[1] < endDate)
+            {
+                decimal[] prices2 = controller.GetBasePriceForDate(endDate, out int baseGuests2, out DateTime[] prDates2);
+                decimal firstPrice = (prices[0] + ((guests - baseGuests) * prices[1])) * (prDates[1] - startDate).Days;
+                decimal secondPrice = (prices2[0] + ((guests - baseGuests2) * prices2[1])) * (endDate - prDates2[1]).Days;
+                totalPrice = firstPrice + secondPrice;
+            }
+            else
+            {
+                totalPrice = (prices[0] + ((guests - baseGuests) * prices[1])) * (endDate - startDate).Days;
+            }
+            TotalPrice.DecimalBox.Text = $"{totalPrice}";
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -164,16 +193,13 @@ namespace HotelManager.Views
 
         public ReservationInfo GetReservationInfo()
         {
-            return new ReservationInfo
+            ReservationInfo reservationInfo = new ReservationInfo
             {
                 Id = id,
                 StateInt = State.SelectedIndex,
                 SourceInt = Source.SelectedIndex,
                 Room = controller.Context.Rooms.First(r => r.Id == Room.SelectedIndex).FullRoomNumber,
-                GuestName = GuestName.AutoTextBox.Text,
-                GuestReferrer = GuestReferrer.AutoTextBox.Text,
-                Email = string.IsNullOrEmpty(Email.Text) ? null : Email.Text,
-                Phone = string.IsNullOrEmpty(Phone.Text) ? null : Phone.Text,
+                Guest = new GuestInfo(controller.FindGuest(GuestName.AutoTextBox.Text, Phone.Text, Email.Text)),
                 StartDate = StartDate.SelectedDate.GetValueOrDefault(),
                 EndDate = EndDate.SelectedDate.GetValueOrDefault(),
                 NumberOfGuests = GuestsInRoom.IntValue,
@@ -181,6 +207,7 @@ namespace HotelManager.Views
                 PaidSum = PaidSum.DecimalValue,
                 Notes = Notes.Text
             };
+            return reservationInfo;
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -202,6 +229,11 @@ namespace HotelManager.Views
         private static bool ConfirmationBox(string text, string caption)
         {
             return MessageBox.Show(text, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+        }
+
+        private void TotalPrice_KeyUp(object sender, KeyEventArgs e)
+        {
+            totalPriceManualMode = true;
         }
     }
 }

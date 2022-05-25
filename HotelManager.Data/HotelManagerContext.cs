@@ -12,6 +12,7 @@ namespace HotelManager.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Guest> Guests { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<PriceRange> PriceRanges { get; set; }
         public string ConnectionString { get; set; }
 
         public HotelManagerContext(string connectionString)

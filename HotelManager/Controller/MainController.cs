@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using HotelManager.Handlers;
 using HotelManager.Utils;
 using HotelManager.Data;
 using HotelManager.Data.Models;
 using HotelManager.Data.Models.Enums;
-using HotelManager.Models;
 using HotelManager.Views;
 using HotelManager.Views.Templates;
 using Microsoft.EntityFrameworkCore;
-using Reservation = HotelManager.Data.Models.Reservation;
+using System.Windows;
+using Microsoft.Win32;
+using System.IO;
 
 namespace HotelManager.Controller
 {
@@ -22,8 +22,8 @@ namespace HotelManager.Controller
         public event EventHandler<DateTime> OnReservationAdd;
         public event EventHandler<int> OnReservationEdit;
         public HotelManagerContext Context { get; set; }
-        public List<Models.Reservation> Reservations { get; set; }
         public List<ReservationInfo> ReservationInfos { get; set; }
+        public List<GuestInfo> GuestInfos { get; set; }
         public static List<string> RoomsList = new List<string> { Constants.NoRoomSelected };
         private readonly bool resetDb = false;
 
@@ -38,14 +38,7 @@ namespace HotelManager.Controller
             {
                 new HotelSetupWindow(this).ShowDialog();
             }
-            //RoomsArray = new List<string> { Constants.NoRoomSelected };
             RoomsList.AddRange(Context.Rooms.ToList().Select(r => r.ToString()));
-
-            //WaitWindow waitWindow = new WaitWindow("Сваляне на резервации от сървъра...");
-            //Reservations = JsonImport.ImportReservations(this, Path.Combine(Constants.LocalPath, Constants.ReservationsFileName));
-            //Reservations = GetReservations().ToList();
-            //UpdateResInfos(waitWindow);
-            //waitWindow.Close();
             return true;
         }
 
@@ -53,49 +46,102 @@ namespace HotelManager.Controller
         {
             Context.Database.EnsureDeleted();
             Context.Database.EnsureCreated();
-            JsonImport.ImportBuildings(this, Path.Combine(Constants.LocalPath, "Buildings.json"));
-            JsonImport.ImportFloors(this, Path.Combine(Constants.LocalPath, "Floors.json"));
-            JsonImport.ImportRooms(this, Path.Combine(Constants.LocalPath, "Rooms.json"));
-        }
-
-        private void UpdateResInfos(WaitWindow waitWindow)
-        {
-            ReservationInfos = new List<ReservationInfo>(Context.Reservations
-                .Include(r => r.Room)
-                .Include(r => r.Guest)
-                .Include(r => r.Transactions)
-                .Select(x => new ReservationInfo(x)));
-            waitWindow.Close();
-        }
-
-        private IEnumerable<Models.Reservation> GetReservations()
-        {
-            for (int i = 1; i <= Context.Reservations.Count(); i++)
+            MessageBox.Show("Database has been reset successfully!", "Database reset successful!", MessageBoxButton.OK, MessageBoxImage.Information);
+            var result = MessageBox.Show("Do you want to import from backups?", "Import backup?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
             {
-                yield return Context.Reservations.Where(r => r.Id == i).Select(x =>
-                new Models.Reservation(
-                    x.Id,
-                    x.State,
-                    x.Source,
-                    x.Room.FullRoomNumber,
-                    $"{x.Guest.FirstName} {x.Guest.LastName}",
-                    new Period(x.StartDate, x.EndDate), x.NumberOfGuests,
-                    new Sums(x.TotalSum, x.Transactions.Sum(t => t.PaidSum)),
-                    x.Notes
-                )).FirstOrDefault();
+                List<string> filePaths = new List<string>();
+                foreach (string backup in Constants.ImportExportSources)
+                {
+                    OpenFileDialog dlg = new OpenFileDialog
+                    {
+                        Title = $"Load backup file for {backup}",
+                        DefaultExt = ".json",
+                        Filter = "JSON Files (*.json)|*.json"
+                    };
+                    if (dlg.ShowDialog() == true) filePaths.Add(dlg.FileName);
+                }
+                ImportBuildings(filePaths[0]);
+                ImportFloors(filePaths[1]);
+                ImportRooms(filePaths[2]);
+                ImportGuests(filePaths[3]);
+                ImportReservations(filePaths[4]);
+                ImportTransactions(filePaths[5]);
+                //JsonImport.ImportOldReservations(this, Path.Combine(Constants.LocalPath, "oldReservations.json"));
             }
         }
 
-        public void ImportReservations(string importFilePath)
+        public void ImportBuildings(string importFilePath)
         {
-            //Reservations = JsonImport.ImportReservations(this, importFilePath);
-            OnReservationsChanged?.Invoke(this, EventArgs.Empty);
+            JsonImport.ImportBuildings(this, importFilePath);
+            OnRoomsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void ImportFloors(string importFilePath)
+        {
+            JsonImport.ImportFloors(this, importFilePath);
+            OnRoomsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void ImportRooms(string importFilePath)
         {
             JsonImport.ImportRooms(this, importFilePath);
             OnRoomsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void ImportGuests(string importFilePath)
+        {
+            JsonImport.ImportGuests(this, importFilePath);
+            OnReservationsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void ImportReservations(string importFilePath)
+        {
+            JsonImport.ImportReservations(this, importFilePath);
+            OnReservationsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void ImportTransactions(string importFilePath)
+        {
+            JsonImport.ImportTransactions(this, importFilePath);
+            OnReservationsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void ExportCollectionToJson(string filePath, IEnumerable<object> collection, string collectionName, bool showSuccessMessage = true)
+        {
+            if (FileHandler.WriteAllLines(filePath, JsonHandler.GetJsonStrings(collection)))
+            {
+                string messageText = $"Successfully exported {collectionName} to \"{filePath}\"!";
+                Logging.Instance.WriteLine(messageText);
+                if (showSuccessMessage) MessageBox.Show(messageText, "Export success!", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                string messageText = $"Failed to export {collectionName} to \"{filePath}\"!";
+                Logging.Instance.WriteLine(messageText);
+                MessageBox.Show(messageText, "Export fail!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public IEnumerable<object> GetCollectionByName(string name)
+        {
+            switch (name)
+            {
+                case "Buildings":
+                    return Context.Buildings.OrderBy(b => b.Id);
+                case "Floors":
+                    return Context.Floors.Include(f => f.Building).OrderBy(f => f.Id);
+                case "Rooms":
+                    return Context.Rooms.Include(r => r.Floor.Building).OrderBy(r => r.Id);
+                case "Guests":
+                    return Context.Guests.OrderBy(g => g.Id);
+                case "Reservations":
+                    return Context.Reservations.Include(r => r.Room.Floor.Building).Include(r => r.Guest).OrderBy(r => r.Id);
+                case "Transactions":
+                    return Context.Transactions.Include(t => t.Guest).Include(t => t.Reservation).OrderBy(t => t.Id);
+                default:
+                    return new List<object>();
+            }
         }
 
         public void RequestReservationWindow(int id)
@@ -120,46 +166,27 @@ namespace HotelManager.Controller
 
         public void SaveReservation(ReservationInfo resInfo)
         {
-            Guest guest = GetGuest(resInfo);
             Reservation reservation = GetReservation(resInfo.Id);
             if (reservation == null)
             {
-                //Reservations.Add(new Models.Reservation(resInfo));
                 Logging.Instance.WriteLine("Add reservation:");
-
                 reservation = resInfo.ToReservation(this);
                 Context.Reservations.Add(reservation);
             }
             else
             {
-                //Reservations[resInfo.Id - 1] = new Models.Reservation(resInfo);
                 Logging.Instance.WriteLine("Edit reservation:");
                 Logging.Instance.WriteLine($"Old: {reservation}", true);
-
-                UpdateReservation(reservation, guest, resInfo);
+                UpdateReservation(reservation, resInfo.Guest.ToGuest(this), resInfo);
             }
             Logging.Instance.WriteLine($"New: {reservation}", true);
             Context.SaveChanges();
-            //UpdateResInfos(new WaitWindow("Обновяване на резервации..."));
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public Guest GetGuest(ReservationInfo resInfo)
+        public Guest GetGuest(int id)
         {
-            Guest[] guests = FindGuestsByNames(resInfo.GuestName, out string guestFirstName, out string guestLastName);
-            Guest guest = guests.Length switch
-            {
-                0 => AddNewGuest(guestFirstName, guestLastName),
-                1 => guests[0],
-                _ => null
-            };
-            if (guest == null) return null;
-            guest.Email = resInfo.Email;
-            guest.Phone = resInfo.Phone;
-            if (string.IsNullOrEmpty(resInfo.GuestReferrer)) return guest;
-            Guest[] guestRefs = FindGuestsByNames(resInfo.GuestReferrer, out string _, out string _);
-            guest.GuestReferrer = guestRefs.Length == 1 ? guestRefs[0] : null;
-            return guest;
+            return Context.Guests.Include(g => g.GuestReferrer).FirstOrDefault(g => g.Id == id);
         }
 
         public Reservation GetReservation(int id)
@@ -182,29 +209,18 @@ namespace HotelManager.Controller
                 .FirstOrDefault(r => r.Room.FullRoomNumber == room);
         }
 
-        //TODO:Handle guests with the same name!
-        public Guest[] FindGuestsByNames(string guestName, out string guestFirstName, out string guestLastName)
+        public Guest FindGuest(string name, string phone, string email)
         {
-            string[] guestNames = guestName.Split();
-            guestFirstName = guestNames[0];
-            guestLastName = string.Join(" ", guestNames.Skip(1));
-            string firstName = guestFirstName;
-            string lastName = guestLastName;
-            Guest[] guests = Context.Guests
-                .Where(g => g.FirstName == firstName)
-                .Where(g => g.LastName == lastName).ToArray();
-            return guests;
-        }
-
-        public Guest AddNewGuest(string guestFirstName, string guestLastName)
-        {
-            Guest guest = new Guest
-            {
-                FirstName = guestFirstName,
-                LastName = guestLastName
-            };
-            Context.Guests.Add(guest);
-            return guest;
+            string[] guestNames = name.Split();
+            string firstName = guestNames[0];
+            string lastName = string.Join(" ", guestNames.Skip(1));
+            if (string.IsNullOrEmpty(phone)) phone = null;
+            if (string.IsNullOrEmpty(email)) email = null;
+            return Context.Guests
+                .Include(g => g.GuestReferrer)
+                .Where(g => g.Phone == phone)
+                .Where(g => g.Email == email)
+                .FirstOrDefault(g => g.FirstName == firstName && g.LastName == lastName);
         }
 
         public void UpdateReservation(Reservation reservation, Guest guest, ReservationInfo resInfo)
@@ -222,18 +238,6 @@ namespace HotelManager.Controller
             reservation.DateModified = DateTime.Now;
         }
 
-        public void AddNewTransaction(Guest guest, Reservation reservation, decimal paidSum, DateTime transDate, string tarnsMethod)
-        {
-            reservation.Transactions.Add(new Transaction
-            {
-                Guest = guest,
-                Reservation = reservation,
-                PaidSum = paidSum - reservation.Transactions.Sum(t => t.PaidSum),
-                PaymentDate = transDate,
-                PaymentMethod = tarnsMethod
-            });
-        }
-
         public void CheckInReservation(int room, DateTime startDate)
         {
             Reservation reservation = Context.Reservations
@@ -245,13 +249,11 @@ namespace HotelManager.Controller
             if (reservation == null) return;
             Logging.Instance.WriteLine("Edit reservation:");
             Logging.Instance.WriteLine($"Old: {reservation}", true);
-            //Reservations[reservation.Id - 1].State = State.CheckedIn;
             reservation.LastVersionJson = JsonHandler.SerializeToJson(reservation);
             reservation.State = State.CheckedIn;
             reservation.DateModified = DateTime.Now;
             Logging.Instance.WriteLine($"New: {reservation}", true);
             Context.SaveChanges();
-            //UpdateResInfos(new WaitWindow("Обновяване на резервации..."));
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -294,6 +296,61 @@ namespace HotelManager.Controller
                 .ThenBy(r => r.RoomNumber)
                 .Select(x => new { x.FullRoomNumber, x.LastOnFloor })
                 .ToDictionary(key => key.FullRoomNumber, value => value.LastOnFloor);
+        }
+
+        public void AddPriceRange(DateTime startDate, DateTime endDate, decimal basePrice, int baseGuests, decimal priceChange)
+        {
+            Context.PriceRanges.Add(new PriceRange
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                BasePrice = basePrice,
+                BasePriceGuests = baseGuests,
+                PriceChangePerGuest = priceChange,
+                IsActive = true
+            });
+            Context.SaveChanges();
+        }
+
+        public void UpdatePriceRangeState(int id, bool newState)
+        {
+            Context.PriceRanges.FirstOrDefault(pr => pr.Id == id).IsActive = newState;
+            Context.SaveChanges();
+        }
+
+        public List<string> GetPriceRangeStrings()
+        {
+            return Context.PriceRanges.Select(pr => pr.ToString()).ToList();
+        }
+
+        public bool GetPriceRangeState(int id)
+        {
+            return Context.PriceRanges.FirstOrDefault(pr => pr.Id == id).IsActive;
+        }
+
+        public bool ValidatePriceRangeByDate(DateTime date)
+        {
+            return Context.PriceRanges.Where(pr => pr.IsActive).Any(pr => pr.StartDate <= date && date <= pr.EndDate);
+        }
+
+        public decimal[] GetBasePriceForDate(DateTime date, out int baseGuests, out DateTime[] priceRangeDates)
+        {
+            PriceRange pr = Context.PriceRanges.Where(pr => pr.IsActive).FirstOrDefault(pr => pr.StartDate <= date && date <= pr.EndDate);
+            if (pr == null)
+            {
+                baseGuests = 0;
+                priceRangeDates = new DateTime[] { date, date };
+                return new decimal[] { 0, 0 };
+            }
+            baseGuests = pr.BasePriceGuests;
+            priceRangeDates = new DateTime[] { pr.StartDate, pr.EndDate };
+            return new decimal[] { pr.BasePrice, pr.PriceChangePerGuest };
+        }
+
+        public bool ValidatePriceRangeById(int id)
+        {
+            PriceRange priceRange = Context.PriceRanges.FirstOrDefault(pr => pr.Id == id);
+            return !ValidatePriceRangeByDate(priceRange.StartDate) && !ValidatePriceRangeByDate(priceRange.EndDate);
         }
     }
 }

@@ -18,15 +18,13 @@ namespace HotelManager.Views.Templates
             Margin = new Thickness(0, 0, 0, lastOnFloor ? 20 : 0);
             Cursor = Cursors.Hand;
             BorderThickness = new Thickness(1.5);
-            if (!string.IsNullOrEmpty(resInfo.GuestName))
+            if (resInfo.Guest != null)
             {
                 decimal remainingSum = resInfo.TotalSum - resInfo.PaidSum;
-                Text = string.Format(Constants.ReservationText, resInfo.GuestName, resInfo.NumberOfGuests,
-                    remainingSum);
+                Text = string.Format(Constants.ReservationText, resInfo.Guest.GetName(), resInfo.NumberOfGuests, remainingSum);
                 ToolTip = resInfo.ToString();
                 bool isCheckedIn = resInfo.StateInt == 1;
-                bool isOverlapping = controller.NextReservationStartDate(resInfo.Room, resInfo.StartDate) <
-                                     resInfo.EndDate;
+                bool isOverlapping = controller.NextReservationStartDate(resInfo.Room, resInfo.StartDate) < resInfo.EndDate;
                 Color bgColor = isOverlapping ? Colors.Red : isCheckedIn ? Colors.DarkBlue : Colors.AntiqueWhite;
                 Background = new SolidColorBrush(bgColor);
                 Color fgColor = isCheckedIn ? Colors.AntiqueWhite : Colors.DarkBlue;

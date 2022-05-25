@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -13,6 +14,8 @@ namespace HotelManager.Views.Images
         {
             MouseEnter += Image_MouseEnter;
             MouseLeave += Image_MouseLeave;
+            Margin = new Thickness(0, 10, 0, 0);
+            Cursor = Cursors.Hand;
         }
 
         private void Image_MouseEnter(object sender, MouseEventArgs e)

@@ -14,7 +14,6 @@ namespace HotelManager.Utils
         public static DateTime SeasonStartDate = Settings.Instance.SeasonStartDate;
         public static DateTime SeasonEndDate = Settings.Instance.SeasonEndDate;
 
-        public const string ReservationsFileName = "Reservations.json";
         public const string SettingsFilename = "Settings.xml";
         public const string ErrorRemoteFileDownload = "Не успях да сваля \"{0}\"";
         public const string ErrorRemoteFileUpload = "Не успях да кача \"{0}\"";
@@ -58,12 +57,12 @@ namespace HotelManager.Utils
         };
         public static readonly string[] ImportExportSources =
         {
-            "Guests",
-            "Reservations",
-            "Transactions",
             "Buildings",
             "Floors",
-            "Rooms"
+            "Rooms",
+            "Guests",
+            "Reservations",
+            "Transactions"
         };
     }
 }

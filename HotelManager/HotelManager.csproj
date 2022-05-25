@@ -14,6 +14,8 @@
     <None Remove="Views\Images\Friend.png" />
     <None Remove="Views\Images\Mail.png" />
     <None Remove="Views\Images\Phone.png" />
+    <None Remove="Views\Images\PriceRangeIconBW.png" />
+    <None Remove="Views\Images\PriceRangeIconC.png" />
     <None Remove="Views\Images\PrintIconBW.png" />
     <None Remove="Views\Images\PrintIconC.png" />
     <None Remove="Views\Images\SavePdfIconBW.png" />
@@ -75,23 +77,65 @@
 
   <ItemGroup>
     <Resource Include="HotelManager.ico" />
-    <Resource Include="Views\Images\Booking.png" />
-    <Resource Include="Views\Images\Friend.png" />
-    <Resource Include="Views\Images\HotelIconBW.png" />
-    <Resource Include="Views\Images\HotelIconC.png" />
-    <Resource Include="Views\Images\ImportExportIconBW.png" />
-    <Resource Include="Views\Images\ImportExportIconC.png" />
-    <Resource Include="Views\Images\Mail.png" />
-    <Resource Include="Views\Images\Phone.png" />
-    <Resource Include="Views\Images\PrintIconBW.png" />
-    <Resource Include="Views\Images\PrintIconC.png" />
-    <Resource Include="Views\Images\SavePdfIconBW.png" />
-    <Resource Include="Views\Images\SavePdfIconC.png" />
-    <Resource Include="Views\Images\SearchIconBW.png" />
-    <Resource Include="Views\Images\SearchIconC.png" />
-    <Resource Include="Views\Images\SettingsIconBW.png" />
-    <Resource Include="Views\Images\SettingsIconC.png" />
-    <Resource Include="Views\Images\TransactionIconBW.png" />
-    <Resource Include="Views\Images\TransactionIconC.png" />
+    <Resource Include="Views\Images\Booking.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\Friend.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\HotelIconBW.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\HotelIconC.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\ImportExportIconBW.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\ImportExportIconC.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\Mail.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\Phone.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\PriceRangeIconBW.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\PriceRangeIconC.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\PrintIconBW.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\PrintIconC.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\SavePdfIconBW.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\SavePdfIconC.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\SearchIconBW.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\SearchIconC.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\SettingsIconBW.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\SettingsIconC.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\TransactionIconBW.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Views\Images\TransactionIconC.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 </Project>
