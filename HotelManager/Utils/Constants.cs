@@ -25,7 +25,7 @@ namespace HotelManager.Utils
         public const string CalendarButtonText = "Избор на период за показване";
         public const string StartDateText = "Начална дата: ";
         public const string EndDateText = "Крайна дата: ";
-        public const string ReservationText = "{0} - {1} гости - За плащане: {2} лв.";
+        public const string ReservationText = "{0} - {1} гости = {2} лв.";
         public const string NoRoomSelected = "Няма избрана стая";
         public const string UnsavedChangesCaption = "Незапазени промени в резервацията";
         public const string UnsavedChangesText = "По тази резервация има незапазени промени.";

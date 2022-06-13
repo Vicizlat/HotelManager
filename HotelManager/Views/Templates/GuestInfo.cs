@@ -37,7 +37,9 @@ namespace HotelManager.Views.Templates
 
         public string GetName()
         {
-            return $"{FirstName} {LastName}";
+            string pref = string.Empty;
+            if (ResCount > 1) pref = $"({ResCount})";
+            return $"{pref}{FirstName} {LastName}";
         }
 
         public override string ToString()
