@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using HotelManager.Controller;
 using HotelManager.Data.Models;
+using HotelManager.Controller;
 
 namespace HotelManager.Views.Templates
 {
@@ -40,7 +40,7 @@ namespace HotelManager.Views.Templates
         public Reservation ToReservation(MainController controller)
         {
             Reservation reservation = controller.GetReservation(Id) ?? new Reservation();
-            controller.UpdateReservation(reservation, Guest.ToGuest(controller), this);
+            controller.UpdateReservation(reservation, this);
             return reservation;
         }
 

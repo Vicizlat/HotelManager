@@ -7,7 +7,7 @@
              mc:Ignorable="d" d:DesignHeight="30" d:DesignWidth="200">
     <StackPanel Orientation="Vertical">
         <!-- Text Box -->
-        <TextBox x:Name="AutoTextBox" Padding="2" TextChanged="AutoTextBox_TextChanged"/>
+        <TextBox x:Name="AutoTextBox" IsReadOnly="{Binding ReadOnly}" Padding="2" TextChanged="AutoTextBox_TextChanged"/>
         <!-- Auto Suggestion box -->
         <Popup x:Name="AutoListPopup" Height="200" Visibility="Collapsed" StaysOpen="False" Placement="Bottom">
             <ListBox x:Name="AutoList" Height="200" SelectionChanged="AutoList_SelectionChanged"/>

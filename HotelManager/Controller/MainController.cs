@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using HotelManager.Handlers;
 using HotelManager.Utils;
 using HotelManager.Data;
@@ -9,9 +10,7 @@ using HotelManager.Data.Models.Enums;
 using HotelManager.Views;
 using HotelManager.Views.Templates;
 using Microsoft.EntityFrameworkCore;
-using System.Windows;
 using Microsoft.Win32;
-using System.IO;
 
 namespace HotelManager.Controller
 {
@@ -25,6 +24,7 @@ namespace HotelManager.Controller
         public List<ReservationInfo> ReservationInfos { get; set; }
         public List<GuestInfo> GuestInfos { get; set; }
         public static List<string> RoomsList = new List<string> { Constants.NoRoomSelected };
+        public bool ChangesMade = false;
         private readonly bool resetDb = false;
 
         public bool Initialize()
@@ -67,7 +67,6 @@ namespace HotelManager.Controller
                 ImportGuests(filePaths[3]);
                 ImportReservations(filePaths[4]);
                 ImportTransactions(filePaths[5]);
-                //JsonImport.ImportOldReservations(this, Path.Combine(Constants.LocalPath, "oldReservations.json"));
             }
         }
 
@@ -164,6 +163,25 @@ namespace HotelManager.Controller
             else RequestReservationWindow(resId.Value);
         }
 
+        public void SaveGuest(GuestInfo guestInfo)
+        {
+            Guest guest = GetGuest(guestInfo.Id);
+            if (guest == null)
+            {
+                Logging.Instance.WriteLine("Add guest:");
+                guest = guestInfo.ToGuest(this);
+                Context.Guests.Add(guest);
+            }
+            else
+            {
+                Logging.Instance.WriteLine("Edit guest:");
+                Logging.Instance.WriteLine($"Old: {guest}", true);
+                UpdateGuest(guest, guestInfo);
+            }
+            Logging.Instance.WriteLine($"New: {guest}", true);
+            Context.SaveChanges();
+        }
+
         public void SaveReservation(ReservationInfo resInfo)
         {
             Reservation reservation = GetReservation(resInfo.Id);
@@ -177,7 +195,7 @@ namespace HotelManager.Controller
             {
                 Logging.Instance.WriteLine("Edit reservation:");
                 Logging.Instance.WriteLine($"Old: {reservation}", true);
-                UpdateReservation(reservation, resInfo.Guest.ToGuest(this), resInfo);
+                UpdateReservation(reservation, resInfo);
             }
             Logging.Instance.WriteLine($"New: {reservation}", true);
             Context.SaveChanges();
@@ -186,7 +204,17 @@ namespace HotelManager.Controller
 
         public Guest GetGuest(int id)
         {
-            return Context.Guests.Include(g => g.GuestReferrer).FirstOrDefault(g => g.Id == id);
+            return Context.Guests.Include(g => g.Reservations).FirstOrDefault(g => g.Id == id);
+        }
+
+        public Guest GetGuest(string firstName, string lastName, string phone, string email)
+        {
+            if (string.IsNullOrEmpty(phone)) phone = null;
+            if (string.IsNullOrEmpty(email)) email = null;
+            return Context.Guests
+                .Where(g => g.Phone == phone)
+                .Where(g => g.Email == email)
+                .FirstOrDefault(g => g.FirstName == firstName && g.LastName == lastName);
         }
 
         public Reservation GetReservation(int id)
@@ -209,27 +237,25 @@ namespace HotelManager.Controller
                 .FirstOrDefault(r => r.Room.FullRoomNumber == room);
         }
 
-        public Guest FindGuest(string name, string phone, string email)
+        public void UpdateGuest(Guest guest, GuestInfo guestInfo)
         {
-            string[] guestNames = name.Split();
-            string firstName = guestNames[0];
-            string lastName = string.Join(" ", guestNames.Skip(1));
-            if (string.IsNullOrEmpty(phone)) phone = null;
-            if (string.IsNullOrEmpty(email)) email = null;
-            return Context.Guests
-                .Include(g => g.GuestReferrer)
-                .Where(g => g.Phone == phone)
-                .Where(g => g.Email == email)
-                .FirstOrDefault(g => g.FirstName == firstName && g.LastName == lastName);
+            guest.FirstName = guestInfo.FirstName;
+            guest.LastName = guestInfo.LastName;
+            guest.Phone = guestInfo.Phone;
+            guest.Email = guestInfo.Email;
         }
 
-        public void UpdateReservation(Reservation reservation, Guest guest, ReservationInfo resInfo)
+        public void UpdateReservation(Reservation reservation, ReservationInfo resInfo)
         {
             reservation.LastVersionJson = JsonHandler.SerializeToJson(reservation);
             reservation.State = (State)resInfo.StateInt;
             reservation.Source = (Source)resInfo.SourceInt;
             reservation.Room = Context.Rooms.FirstOrDefault(r => r.FullRoomNumber == resInfo.Room);
-            reservation.Guest = guest;
+            if (GetGuestInfo(resInfo.Guest.Id) == null)
+            {
+                SaveGuest(resInfo.Guest);
+            }
+            reservation.Guest = resInfo.Guest.ToGuest(this);
             reservation.StartDate = resInfo.StartDate;
             reservation.EndDate = resInfo.EndDate;
             reservation.TotalSum = resInfo.TotalSum;
@@ -257,6 +283,21 @@ namespace HotelManager.Controller
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        public GuestInfo GetGuestInfo(int id)
+        {
+            Guest guest = GetGuest(id);
+            return guest == null ? null : new GuestInfo(guest);
+        }
+
+        public GuestInfo GetGuestInfo(string name, string phone, string email)
+        {
+            string[] guestNames = name.Split();
+            string guestPhone = string.IsNullOrEmpty(phone) ? null : phone;
+            string guestEmail = string.IsNullOrEmpty(email) ? null : email;
+            Guest guest = GetGuest(guestNames[0], string.Join(" ", guestNames.Skip(1)), guestPhone, guestEmail);
+            return guest == null ? new GuestInfo(name, phone, email) : new GuestInfo(guest);
+        }
+
         public ReservationInfo GetReservationInfo(int id)
         {
             Reservation reservation = GetReservation(id);
@@ -271,12 +312,18 @@ namespace HotelManager.Controller
 
         public List<ReservationInfo> GetReservationInfos(DateTime startDate, DateTime endDate)
         {
-            return new List<ReservationInfo>(Context.Reservations
+            return Context.Reservations
                 .Include(r => r.Room)
                 .Include(r => r.Guest)
+                .Include(r => r.Guest.Reservations)
                 .Include(r => r.Transactions)
                 .Where(r => r.EndDate >= startDate && r.StartDate <= endDate)
-                .Select(x => new ReservationInfo(x)));
+                .Select(x => new ReservationInfo(x)).ToList();
+        }
+
+        public List<ReservationInfo> GetReservationInfos(GuestInfo guest)
+        {
+            return GetGuest(guest.Id).Reservations.Select(x => new ReservationInfo(x)).ToList();
         }
 
         public DateTime NextReservationStartDate(int room, DateTime startDate)
@@ -333,18 +380,11 @@ namespace HotelManager.Controller
             return Context.PriceRanges.Where(pr => pr.IsActive).Any(pr => pr.StartDate <= date && date <= pr.EndDate);
         }
 
-        public decimal[] GetBasePriceForDate(DateTime date, out int baseGuests, out DateTime[] priceRangeDates)
+        public decimal GetPriceForDate(DateTime date, int guests)
         {
-            PriceRange pr = Context.PriceRanges.Where(pr => pr.IsActive).FirstOrDefault(pr => pr.StartDate <= date && date <= pr.EndDate);
-            if (pr == null)
-            {
-                baseGuests = 0;
-                priceRangeDates = new DateTime[] { date, date };
-                return new decimal[] { 0, 0 };
-            }
-            baseGuests = pr.BasePriceGuests;
-            priceRangeDates = new DateTime[] { pr.StartDate, pr.EndDate };
-            return new decimal[] { pr.BasePrice, pr.PriceChangePerGuest };
+            if (guests < 2) guests = 2;
+            PriceRange pr = Context.PriceRanges.Where(pr => pr.IsActive).Where(pr => date >= pr.StartDate).FirstOrDefault(pr => date <= pr.EndDate);
+            return pr?.BasePrice + pr?.PriceChangePerGuest * (guests - pr?.BasePriceGuests) ?? 0;
         }
 
         public bool ValidatePriceRangeById(int id)

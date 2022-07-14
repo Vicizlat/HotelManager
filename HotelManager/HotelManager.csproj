@@ -1,141 +1,170 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <StartupObject>HotelManager.App</StartupObject>
-    <ApplicationIcon>HotelManager.ico</ApplicationIcon>
-    <Product>HotelManager</Product>
-    <Authors>Victor Zlatarev</Authors>
-    <Copyright>Copyright © 2020</Copyright>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Views\Images\Booking.png" />
-    <None Remove="Views\Images\Friend.png" />
-    <None Remove="Views\Images\Mail.png" />
-    <None Remove="Views\Images\Phone.png" />
-    <None Remove="Views\Images\PriceRangeIconBW.png" />
-    <None Remove="Views\Images\PriceRangeIconC.png" />
-    <None Remove="Views\Images\PrintIconBW.png" />
-    <None Remove="Views\Images\PrintIconC.png" />
-    <None Remove="Views\Images\SavePdfIconBW.png" />
-    <None Remove="Views\Images\SavePdfIconC.png" />
-    <None Remove="Views\Images\SearchIconBW.png" />
-    <None Remove="Views\Images\SearchIconC.png" />
-    <None Remove="Views\Images\TransactionIconBW.png" />
-    <None Remove="Views\Images\TransactionIconC.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="FreeSpire.PDF" Version="8.2.0" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<StartupObject>HotelManager.App</StartupObject>
+		<ApplicationIcon>HotelManager.ico</ApplicationIcon>
+		<Product>HotelManager</Product>
+		<Authors>Victor Zlatarev</Authors>
+		<Copyright>Copyright © 2020</Copyright>
+		<Version>1.0.0</Version>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\HotelManager.Data\HotelManager.Data.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="FreeSpire.PDF" Version="8.2.0" />
+		<PackageReference Include="NuGet.CommandLine" Version="6.2.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="squirrel.windows" Version="1.9.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ApplicationDefinition Update="App.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </ApplicationDefinition>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\HotelManager.Data\HotelManager.Data.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="App.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\CalendarWindow.xaml.cs">
-      <DependentUpon>CalendarWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\SettingsWindow.xaml.cs">
-      <DependentUpon>SettingsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\MainWindow.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\ReservationWindow.xaml.cs">
-      <DependentUpon>ReservationWindow.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<ApplicationDefinition Update="App.xaml">
+			<SubType>Designer</SubType>
+			<Generator>MSBuild:Compile</Generator>
+		</ApplicationDefinition>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Page Update="Views\CalendarWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Views\SettingsWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Views\MainWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Views\ReservationWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="App.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>App.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\CalendarWindow.xaml.cs">
+			<DependentUpon>CalendarWindow.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\SettingsWindow.xaml.cs">
+			<DependentUpon>SettingsWindow.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\MainWindow.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>MainWindow.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\ReservationWindow.xaml.cs">
+			<DependentUpon>ReservationWindow.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\EditGuestWindow.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="HotelManager.ico" />
-    <Resource Include="Views\Images\Booking.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\Friend.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\HotelIconBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\HotelIconC.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\ImportExportIconBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\ImportExportIconC.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\Mail.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\Phone.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\PriceRangeIconBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\PriceRangeIconC.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\PrintIconBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\PrintIconC.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\SavePdfIconBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\SavePdfIconC.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\SearchIconBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\SearchIconC.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\SettingsIconBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\SettingsIconC.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\TransactionIconBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Views\Images\TransactionIconC.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\CalendarWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="Views\SettingsWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="Views\MainWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="Views\ReservationWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="Views\EditGuestWindow.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="HotelManager.ico" />
+		<Content Include="Views\Images\Booking.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Views\Images\Friend.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Resource Include="Views\Images\AddGuestIconBW.png" />
+		<Resource Include="Views\Images\AddGuestIconC.png" />
+		<Resource Include="Views\Images\EditGuestIconBW.png" />
+		<Resource Include="Views\Images\EditGuestIconC.png" />
+		<Resource Include="Views\Images\HotelIconBW.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Content Include="Views\Images\HotelIconC.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Resource Include="Views\Images\ImportExportIconBW.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\ImportExportIconC.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Content Include="Views\Images\Mail.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Views\Images\Phone.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Resource Include="Views\Images\PriceRangeIconBW.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\PriceRangeIconC.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\PrintIconBW.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\PrintIconC.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\SavePdfIconBW.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\SavePdfIconC.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\SearchIconBW.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\SearchIconC.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\SettingsIconBW.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\SettingsIconC.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\TransactionIconBW.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Views\Images\TransactionIconC.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Loading.gif">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<NugetTools>$(PkgNuGet_CommandLine)\tools</NugetTools>
+		<SquirrelTools>$(Pkgsquirrel_windows)\tools</SquirrelTools>
+		<NuspecFile>$(SolutionDir)HotelManager\ReleaseSpec.nuspec</NuspecFile>
+	</PropertyGroup>
+
+	<Target Name="GenerateRelease" AfterTargets="AfterBuild" Condition="$(Configuration) == Release">
+		<XmlPeek XmlInputPath="$(NuspecFile)" Query="/package/metadata/id/text()">
+			<Output TaskParameter="Result" ItemName="ID" />
+		</XmlPeek>
+
+		<Exec Command="$(NugetTools)\NuGet.exe pack $(NuspecFile) -Version $(Version) -Properties Configuration=Release -OutputDirectory $(SolutionDir)Deployment\GeneratedNugets" />
+		<Exec Command="$(SquirrelTools)\Squirrel.exe --releasify $(SolutionDir)Deployment\GeneratedNugets\@(ID).$(Version).nupkg -r $(SolutionDir)Deployment\Releases -g $(SolutionDir)Loading.gif --no-msi" />
+		<!--<Exec Command="start $(SolutionDir)git.bat $(Version) $(SolutionDir)Deployment\Releases HotelManager" />-->
+	</Target>
 </Project>

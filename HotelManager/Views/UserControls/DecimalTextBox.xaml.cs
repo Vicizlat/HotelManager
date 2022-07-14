@@ -61,6 +61,7 @@ namespace HotelManager.Views.UserControls
 
         private void DecimalBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
+            DecimalBox.Text = DecimalBox.Text.Replace(',', '.');
             TextChanged?.Invoke(sender, e);
         }
     }

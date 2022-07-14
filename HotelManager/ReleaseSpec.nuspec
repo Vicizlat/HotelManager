@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+	<metadata>
+		<id>HotelManager</id>
+		<version>0.0.0</version>
+		<title>Hotel Manager</title>
+		<authors>Victor Zlatarev</authors>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">MIT</license>
+		<projectUrl>https://github.com/Vicizlat/HotelManager</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/Vicizlat/HotelManager/main/HotelManager/icon.png</iconUrl>
+		<description>Description</description>
+		<copyright>Victor Zlatarev © 2020</copyright>
+	</metadata>
+
+	<files>
+		<file src="bin\Release\net6.0-windows\**" target="lib\net45" exclude="*.pdb;*.nupkg;*.vshost.*"/>
+	</files>
+</package>

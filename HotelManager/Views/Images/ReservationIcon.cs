@@ -7,10 +7,13 @@ namespace HotelManager.Views.Images
 {
     public class ReservationIcon : Image
     {
+        public string ImageUri;
+
         public ReservationIcon(int sourceInt)
         {
             string[] imageNames = new[] { "Phone", "Mail", "Booking", "HotelIconC", "Friend" };
-            Uri imageUri = new Uri(@$"Images\{imageNames[sourceInt]}.png", UriKind.Relative);
+            ImageUri = @$"Images\{imageNames[sourceInt]}.png";
+            Uri imageUri = new Uri(ImageUri, UriKind.Relative);
             Source = new BitmapImage(imageUri);
             VerticalAlignment = VerticalAlignment.Top;
             Height = 30;

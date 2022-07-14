@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using HotelManager.Controller;
 using HotelManager.Views.Templates;
 using HotelManager.Utils;
 using HotelManager.Handlers;
@@ -15,6 +14,7 @@ using Spire.Pdf;
 using Spire.Pdf.Graphics;
 using Spire.Pdf.Grid;
 using Microsoft.Win32;
+using HotelManager.Controller;
 
 namespace HotelManager.Views
 {
@@ -26,14 +26,15 @@ namespace HotelManager.Views
         private readonly MainController controller;
         private DateTime?[] selectedDates = Array.Empty<DateTime?>();
         private PdfDocument pdfDoc;
+        private static int pdfGridCellWidth = 78;
 
         public MainWindow(MainController controller)
         {
             Logging.Instance.WriteLine("Start initializing MainWindow...");
             InitializeComponent();
             this.controller = controller;
-            StartDate.SelectedDate = Constants.SeasonStartDate;
-            //StartDate.SelectedDate = DateTime.Today;
+            //StartDate.SelectedDate = Constants.SeasonStartDate;
+            StartDate.SelectedDate = DateTime.Today;
             EndDate.SelectedDate = StartDate.SelectedDate.Value.AddDays(13);
             controller.OnReservationsChanged += CreateReservationsTable;
             controller.OnRoomsChanged += CreateReservationsTable;
@@ -73,6 +74,10 @@ namespace HotelManager.Views
         }
 
         private void PrintImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => pdfDoc.Print();
+        private void AddGuest_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            new EditGuestWindow(null, controller, "", "", "").ShowDialog();
+        }
 
         private void ReservationWindowRequested(object room, DateTime startDate)
         {
@@ -101,24 +106,32 @@ namespace HotelManager.Views
             PdfPageBase page = pdfDoc.Pages.Add(PdfPageSize.A4, new PdfMargins(10), PdfPageRotateAngle.RotateAngle0, PdfPageOrientation.Landscape);
             page.Canvas.DrawString($"Резервации от {StartDate.SelectedDate:dd.MM.yyyy} до {EndDate.SelectedDate:dd.MM.yyyy}", font1, PdfBrushes.Black, 0, 0);
             PdfGrid mainPdfGrid = new PdfGrid();
-            mainPdfGrid.Style.BorderOverlapStyle = PdfBorderOverlapStyle.Inside;
+            mainPdfGrid.Style.CellPadding = new PdfPaddings(0, 0, 0, 0);
+            mainPdfGrid.Style.BorderOverlapStyle = PdfBorderOverlapStyle.Overlap;
             PdfGridRow datesRow = mainPdfGrid.Rows.Add();
             datesRow.Height = 15;
             PdfGridRow tableRow = mainPdfGrid.Rows.Add();
             tableRow.Height = 540;
             mainPdfGrid.Columns.Add(2);
-            mainPdfGrid.Columns[0].Width = 65;
-            mainPdfGrid.Columns[1].Width = (DaysToShow + 1) * 70;
+            mainPdfGrid.Columns[0].Format.Alignment = PdfTextAlignment.Left;
+            mainPdfGrid.Columns[0].Format.LineAlignment = PdfVerticalAlignment.Top;
+            mainPdfGrid.Columns[1].Format.Alignment = PdfTextAlignment.Left;
+            mainPdfGrid.Columns[1].Format.LineAlignment = PdfVerticalAlignment.Top;
+            mainPdfGrid.Columns[0].Width = 42;
+            mainPdfGrid.Columns[1].Width = (DaysToShow + 1) * pdfGridCellWidth;
             PdfGrid datesPdfGrid = new PdfGrid();
+            datesPdfGrid.Style.CellPadding = new PdfPaddings(0, 0, 0, 0);
             datesPdfGrid.Style.BorderOverlapStyle = PdfBorderOverlapStyle.Overlap;
             datesPdfGrid.Rows.Add();
             datesPdfGrid.Rows[0].Height = 15;
             datesPdfGrid.Columns.Add(DaysToShow + 1);
             PdfGrid roomsPdfGrid = new PdfGrid();
+            roomsPdfGrid.Style.CellPadding = new PdfPaddings(0, 0, 0, 0);
             roomsPdfGrid.Style.BorderOverlapStyle = PdfBorderOverlapStyle.Overlap;
             roomsPdfGrid.Columns.Add(1);
-            roomsPdfGrid.Columns[0].Width = 65;
+            roomsPdfGrid.Columns[0].Width = 42;
             PdfGrid tablePdfGrid = new PdfGrid();
+            tablePdfGrid.Style.CellPadding = new PdfPaddings(0, 0, 0, 0);
             tablePdfGrid.Style.BorderOverlapStyle = PdfBorderOverlapStyle.Overlap;
             tablePdfGrid.Rows.Add();
             tablePdfGrid.Columns.Add(DaysToShow + 1);
@@ -127,18 +140,15 @@ namespace HotelManager.Views
             {
                 Dates.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150), MinWidth = 150 });
                 Table.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150), MinWidth = 150 });
-                datesPdfGrid.Columns[col].Width = 70;
-                datesPdfGrid.Columns[col].Format.Alignment = PdfTextAlignment.Center;
-                datesPdfGrid.Columns[col].Format.LineAlignment = PdfVerticalAlignment.Middle;
-                tablePdfGrid.Columns[col].Width = 70;
-                tablePdfGrid.Columns[col].Format.Alignment = PdfTextAlignment.Left;
-                tablePdfGrid.Columns[col].Format.LineAlignment = PdfVerticalAlignment.Top;
+                datesPdfGrid.Columns[col].Width = pdfGridCellWidth;
+                tablePdfGrid.Columns[col].Width = pdfGridCellWidth;
                 tablePdfGrid.Columns[col].Format.LineLimit = false;
                 tablePdfGrid.Columns[col].Format.WordWrap = PdfWordWrapType.Character;
             }
             Dictionary<int, bool> rooms = controller.GetRoomsDictionary();
             DateTime startDate = StartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
             List<ReservationInfo> resInfos = controller.GetReservationInfos(startDate, startDate.AddDays(DaysToShow));
+            float pdfRowHeight = tableRow.Height / rooms.Count;
             for (int row = 0; row < rooms.Count; row++)
             {
                 int room = rooms.ElementAt(row).Key;
@@ -152,12 +162,12 @@ namespace HotelManager.Views
                 Rooms.Children.Add(roomTextBox);
 
                 roomsPdfGrid.Rows.Add();
-                roomsPdfGrid.Rows[row].Height = tableRow.Height / rooms.Count;
+                roomsPdfGrid.Rows[row].Height = pdfRowHeight;
                 roomsPdfGrid.Rows[row].Cells[0].Value = roomTextBox.Text;
                 roomsPdfGrid.Rows[row].Cells[0].Style.Font = font2;
                 roomsPdfGrid.Rows[row].Cells[0].StringFormat = new PdfStringFormat(PdfTextAlignment.Left, PdfVerticalAlignment.Middle);
-                tablePdfGrid.Rows.Add();
-                tablePdfGrid.Rows[row].Height = tableRow.Height / rooms.Count;
+                PdfGridRow currentRow = tablePdfGrid.Rows.Add();
+                currentRow.Height = tableRow.Height / rooms.Count;
 
                 for (int col = 0; col <= DaysToShow; col++)
                 {
@@ -167,6 +177,7 @@ namespace HotelManager.Views
 
                     datesPdfGrid.Rows[0].Cells[col].Value = dateTextBox.Text;
                     datesPdfGrid.Rows[0].Cells[col].Style.Font = font2;
+                    datesPdfGrid.Rows[0].Cells[col].StringFormat = new PdfStringFormat(PdfTextAlignment.Center, PdfVerticalAlignment.Middle);
 
                     if (skipColumns-- > 0) continue;
                     if (skipColumns < 0) skipColumns = 0;
@@ -174,10 +185,11 @@ namespace HotelManager.Views
                     DockPanel dockPanel = new DockPanel();
                     ReservationInfo resInfo = resInfos.Where(r => r.StartDate <= nextDate && nextDate < r.EndDate && r.Room == room)
                         .FirstOrDefault(r => r.StateInt != (int)State.Canceled);
-                    //ReservationInfo resInfo = controller.GetReservationInfo(room, nextDate);
+                    ReservationIcon image = null;
                     if (resInfo != null)
                     {
-                        dockPanel.Children.Add(new ReservationIcon(resInfo.SourceInt));
+                        image = new ReservationIcon(resInfo.SourceInt);
+                        dockPanel.Children.Add(image);
                         int nights = (resInfo.EndDate - resInfo.StartDate).Days;
                         Grid.SetColumnSpan(dockPanel, nights);
                         skipColumns = nights <= 1 ? 0 : startDate < resInfo.StartDate ? nights - 1 : (resInfo.EndDate - startDate).Days - 1;
@@ -190,12 +202,41 @@ namespace HotelManager.Views
                     Table.Children.Add(dockPanel);
 
                     int columnSpan = skipColumns + 1 < tablePdfGrid.Columns.Count - col ? skipColumns + 1 : tablePdfGrid.Columns.Count - col;
-                    tablePdfGrid.Rows[row].Cells[col].Value = reservationTextBox.Text;
-                    tablePdfGrid.Rows[row].Cells[col].ColumnSpan = columnSpan;
-                    tablePdfGrid.Rows[row].Cells[col].Style.Font = font2;
+                    currentRow.Cells[col].ColumnSpan = columnSpan;
+                    if (image != null)
+                    {
+                        PdfGrid cellPdfGrid = new PdfGrid();
+                        cellPdfGrid.Style.CellPadding = new PdfPaddings(0, 0, 0, 0);
+                        cellPdfGrid.Style.BorderOverlapStyle = PdfBorderOverlapStyle.Overlap;
+                        cellPdfGrid.Rows.Add();
+                        cellPdfGrid.Rows[0].Height = pdfRowHeight;
+                        cellPdfGrid.Columns.Add(2);
+                        cellPdfGrid.Columns[0].Width = pdfRowHeight / 1.3f;
+                        cellPdfGrid.Columns[1].Width = columnSpan * pdfGridCellWidth - cellPdfGrid.Columns[0].Width;
+                        cellPdfGrid.Columns[1].Format.Alignment = PdfTextAlignment.Left;
+                        cellPdfGrid.Columns[1].Format.LineAlignment = PdfVerticalAlignment.Top;
+                        cellPdfGrid.Columns[1].Format.LineLimit = false;
+                        cellPdfGrid.Columns[1].Format.WordWrap = PdfWordWrapType.Character;
+                        PdfGridCellContentList contentList = new PdfGridCellContentList();
+                        PdfGridCellContent imageContent = new PdfGridCellContent();
+                        PdfImage pdfImage = PdfImage.FromFile(@$"Views\{image.ImageUri}");
+                        imageContent.Image = pdfImage;
+                        imageContent.ImageSize = new SizeF(pdfRowHeight / 1.3f, pdfRowHeight);
+                        contentList.List.Add(imageContent);
+                        cellPdfGrid.Rows[0].Cells[0].Value = contentList;
+                        cellPdfGrid.Rows[0].Cells[1].Value = reservationTextBox.Text;
+                        cellPdfGrid.Rows[0].Cells[1].Style.Font = font2;
+                        currentRow.Cells[col].Value = cellPdfGrid;
+                        currentRow.Cells[col].StringFormat = new PdfStringFormat(PdfTextAlignment.Left, PdfVerticalAlignment.Top);
+                        currentRow.Cells[col].Style.BackgroundBrush = PdfBrushes.LightYellow;
+                    }
+                    else
+                    {
+                        currentRow.Cells[col].Value = reservationTextBox.Text;
+                    }
                     if (resInfo.StateInt == 1)
                     {
-                        tablePdfGrid.Rows[row].Cells[col].Style.BackgroundBrush = PdfBrushes.LightBlue;
+                        currentRow.Cells[col].Style.BackgroundBrush = PdfBrushes.LightBlue;
                     }
                 }
             }

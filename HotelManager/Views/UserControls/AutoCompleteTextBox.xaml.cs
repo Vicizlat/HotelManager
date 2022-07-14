@@ -9,16 +9,19 @@ namespace HotelManager.Views.UserControls
 {
     public partial class AutoCompleteTextBox
     {
-        public IEnumerable<string[]> AutoSuggestionList { get; set; }
+        public event EventHandler<string> OnSelectionChanged;
+        public List<string> AutoSuggestionList { get; set; }
+        public bool ReadOnly { get; set; }
+        public bool SelectionChanged = false;
 
         public AutoCompleteTextBox()
         {
             InitializeComponent();
+            DataContext = this;
         }
 
         private void AutoSuggestionPopup(bool openPopup)
         {
-            AutoListPopup.Width = ActualWidth;
             AutoListPopup.IsOpen = openPopup;
             AutoListPopup.Visibility = openPopup ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -42,12 +45,12 @@ namespace HotelManager.Views.UserControls
                 AutoSuggestionPopup(true);
                 string autoText = AutoTextBox.Text.ToLower();
                 AutoList.ItemsSource = AutoSuggestionList
-                    .Where(s => s[0].ToLower().Contains(autoText))
-                    .OrderBy(x => x[0]).Select(x => x[0]);
+                    .Where(s => s.ToLower().Contains(autoText))
+                    .OrderBy(x => x).Select(x => x);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Error in AutoTextBox_TextChanged", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -57,12 +60,13 @@ namespace HotelManager.Views.UserControls
             {
                 AutoSuggestionPopup(false);
                 if (AutoList.SelectedIndex < 0) return;
-                AutoTextBox.Text = $"{AutoList.SelectedItem}";
+                SelectionChanged = true;
+                OnSelectionChanged?.Invoke(this, $"{AutoList.SelectedItem}");
                 AutoList.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Error in AutoList_SelectionChanged", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

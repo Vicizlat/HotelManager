@@ -21,21 +21,14 @@ namespace HotelManager.Views
         {
             InitializeComponent();
             this.controller = controller;
+            List<string> guests = controller.Context.Guests.Select(x => $"{x.FirstName}|{x.LastName}|{x.Phone}|{x.Email}|{x.Reservations.Count}").ToList();
+            GuestName.AutoSuggestionList = guests;
+            GuestName.AutoTextBox.TextChanged += GuestInfo_TextChanged;
+            GuestName.OnSelectionChanged += AutoTextBox_OnSelectionChanged;
             State.SelectedIndex = stateInt;
             Source.SelectedIndex = sourceInt;
             Room.SelectedIndex = controller.Context.Rooms.FirstOrDefault(r => r.FullRoomNumber == room)?.Id ?? 0;
             StartDate.SelectedDate = startDate;
-            List<string[]> guests = controller.Context.Guests.Select(x => new[]
-            {
-                $"{x.FirstName} {x.LastName}".Trim(),
-                x.Phone,
-                x.Email,
-                $"{x.Reservations.Count}"
-            }).ToList();
-            GuestName.AutoSuggestionList = guests;
-            GuestName.AutoTextBox.TextChanged += GuestName_TextChanged;
-            GuestReferrer.AutoSuggestionList = guests;
-            GuestReferrer.AutoTextBox.TextChanged += GuestName_TextChanged;
             EndDate.DisplayDateStart = StartDate.SelectedDate?.AddDays(1);
             EndDate.DisplayDateEnd = controller.NextReservationStartDate(room, startDate);
         }
@@ -46,6 +39,11 @@ namespace HotelManager.Views
             id = controller.Context.Reservations.Count() + 1;
             Title = $"Добавяне на резервация номер: {id}";
             PaidSum.DecimalBox.Text = "0";
+            GuestName.AutoTextBox.IsReadOnly = false;
+            Email.IsReadOnly = false;
+            Phone.IsReadOnly = false;
+            EditGuestImage.IsEnabled = false;
+            EditGuestImage.Visibility = Visibility.Hidden;
         }
 
         public ReservationWindow(ReservationInfo resInfo, MainController controller)
@@ -53,8 +51,13 @@ namespace HotelManager.Views
         {
             id = resInfo.Id;
             Title = $"Редактиране на резервация номер: {id}";
+            totalPriceManualMode = true;
+            TotalPrice.ReadOnly = false;
             GuestName.AutoTextBox.Text = resInfo.Guest.GetName();
-            GuestReferrer.AutoTextBox.Text = resInfo.Guest.Referrer;
+            GuestName.AutoListPopup.IsOpen = false;
+            Email.Text = resInfo.Guest.Email;
+            Phone.Text = resInfo.Guest.Phone;
+            ResCount.Text = $"{resInfo.Guest.ResCount}";
             EndDate.SelectedDate = resInfo.EndDate;
             Nights.IntBox.Text = $"{(resInfo.EndDate - resInfo.StartDate).Days}";
             GuestsInRoom.IntBox.Text = $"{resInfo.NumberOfGuests}";
@@ -74,31 +77,36 @@ namespace HotelManager.Views
                 if (!ConfirmationBox(messageBoxText, Constants.UnsavedChangesCaption) || !SaveReservation()) return;
             }
             new TransactionsWindow(controller, id).ShowDialog();
-            PaidSum.DecimalBox.Text = $"{controller.Context.Transactions.Where(t => t.ReservationId == id).Sum(t => t.PaidSum)}";
+            decimal paidSum = controller.Context.Transactions.Where(t => t.ReservationId == id).Sum(t => t.PaidSum);
+            PaidSum.DecimalBox.Text = $"{paidSum}";
             RemainingSum.DecimalBox.Text = $"{TotalPrice.DecimalValue - PaidSum.DecimalValue}";
-            if (ReservationHasChanges()) SaveReservation();
+            Save.IsEnabled = IsSaveEnabled();
+            //if (ReservationHasChanges()) SaveReservation();
+        }
+
+        private void EditGuestImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            new EditGuestWindow(this, controller, GuestName.AutoTextBox.Text, Phone.Text, Email.Text).ShowDialog();
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
 
         private void GuestsInRoom_TextChanged(object sender, TextChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
 
-        private void GuestName_TextChanged(object sender, TextChangedEventArgs e)
+        private void GuestInfo_TextChanged(object sender, TextChangedEventArgs e) => Save.IsEnabled = IsSaveEnabled();
+
+        private void AutoTextBox_OnSelectionChanged(object sender, string text)
         {
-            if (GuestName.Validate())
-            {
-                string[] guestInfo = GuestName.AutoSuggestionList.FirstOrDefault(g => g[0] == GuestName.AutoTextBox.Text);
-                Phone.Text = guestInfo?[1] ?? string.Empty;
-                Email.Text = guestInfo?[2] ?? string.Empty;
-                ResCount.Text = guestInfo?[3] ?? "0";
-            }
-            if (GuestReferrer.AutoTextBox.Text == GuestName.AutoTextBox.Text)
-            {
-                Save.IsEnabled = false;
-                GuestReferrer.AutoTextBox.Background = new SolidColorBrush(Colors.Bisque);
-                return;
-            }
-            GuestReferrer.AutoTextBox.Background = new SolidColorBrush(Colors.White);
+            string[] selectedText = text.Split("|");
+            GuestName.AutoTextBox.Text = $"{selectedText[0]} {selectedText[1]}";
+            Phone.Text = selectedText[2];
+            Email.Text = selectedText[3];
+            ResCount.Text = selectedText[4];
+            GuestName.AutoTextBox.IsReadOnly = true;
+            Phone.IsReadOnly = true;
+            Email.IsReadOnly = true;
+            EditGuestImage.IsEnabled = true;
+            EditGuestImage.Visibility = Visibility.Visible;
             Save.IsEnabled = IsSaveEnabled();
         }
 
@@ -124,47 +132,52 @@ namespace HotelManager.Views
             if (TotalPrice.Validate() && PaidSum.Validate())
             {
                 decimal remainingSum = TotalPrice.DecimalValue - PaidSum.DecimalValue;
-                RemainingSum.DecimalBox.Text = $"{remainingSum:f2}";
+                RemainingSum.DecimalBox.Text = $"{remainingSum}";
             }
-            Save.IsEnabled = IsSaveEnabled();
+            if (totalPriceManualMode)
+            {
+                Save.IsEnabled = IsSaveEnabled();
+            }
         }
 
         public bool IsSaveEnabled()
         {
             bool validRoom = Room.SelectedIndex > 0;
-            bool validGuest = GuestName.Validate();
             bool validGuests = GuestsInRoom.Validate();
+            bool validGuest = GuestName.Validate();
+            bool validPhone = ValidateTextBox(Phone);
             bool validNights = Nights.Validate();
-            bool validTotal = TotalPrice.Validate();
-            bool validPaid = PaidSum.Validate();
-            bool validRemaining = RemainingSum.Validate();
-            if (validGuests && validNights && !totalPriceManualMode)
+            if (!totalPriceManualMode && validGuests && validNights)
             {
                 CalculateTotalPrice(StartDate.SelectedDate.Value, EndDate.SelectedDate.Value, GuestsInRoom.IntValue);
             }
-            return validRoom && validGuest && validGuests && validNights && validTotal && validPaid && validRemaining && ReservationHasChanges();
+            bool validTotal = TotalPrice.Validate();
+            bool validPaid = PaidSum.Validate();
+            bool reservationChanges = ReservationHasChanges();
+            return validRoom && validGuests && validGuest && validPhone && validNights && validTotal && validPaid && reservationChanges;
+        }
+
+        private bool ValidateTextBox(TextBox textBox)
+        {
+            bool isValid = !string.IsNullOrEmpty(textBox.Text);
+            textBox.Background = isValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Colors.Bisque);
+            textBox.Foreground = isValid ? new SolidColorBrush(Colors.Black) : new SolidColorBrush(Colors.Red);
+            return isValid;
         }
 
         private void CalculateTotalPrice(DateTime startDate, DateTime endDate, int guests)
         {
-            decimal[] prices = controller.GetBasePriceForDate(startDate, out int baseGuests, out DateTime[] prDates);
-            if (prices[0] == 0 || prices[1] == 0)
+            decimal totalPrice = 0;
+            for (int i = 0; i < Nights.IntValue; i++)
             {
-                totalPriceManualMode = true;
-                TotalPrice.ReadOnly = false;
-                return;
-            }
-            decimal totalPrice;
-            if (prDates[1] < endDate)
-            {
-                decimal[] prices2 = controller.GetBasePriceForDate(endDate, out int baseGuests2, out DateTime[] prDates2);
-                decimal firstPrice = (prices[0] + ((guests - baseGuests) * prices[1])) * (prDates[1] - startDate).Days;
-                decimal secondPrice = (prices2[0] + ((guests - baseGuests2) * prices2[1])) * (endDate - prDates2[1]).Days;
-                totalPrice = firstPrice + secondPrice;
-            }
-            else
-            {
-                totalPrice = (prices[0] + ((guests - baseGuests) * prices[1])) * (endDate - startDate).Days;
+                decimal priceForDay = controller.GetPriceForDate(startDate.AddDays(i), guests);
+                if (priceForDay == 0)
+                {
+                    totalPriceManualMode = true;
+                    TotalPrice.ReadOnly = false;
+                    return;
+                }
+                totalPrice += priceForDay;
             }
             TotalPrice.DecimalBox.Text = $"{totalPrice}";
         }
@@ -187,7 +200,10 @@ namespace HotelManager.Views
                 string messageBoxText = Constants.OverCapacityText + Constants.DoubleLine + Constants.ConfirmSaveChanges;
                 if (!ConfirmationBox(messageBoxText, Constants.OverCapacityCaption)) return false;
             }
-            controller.SaveReservation(GetReservationInfo());
+
+            ReservationInfo resInfo = GetReservationInfo();
+            controller.SaveReservation(resInfo);
+            controller.ChangesMade = true;
             return true;
         }
 
@@ -199,7 +215,7 @@ namespace HotelManager.Views
                 StateInt = State.SelectedIndex,
                 SourceInt = Source.SelectedIndex,
                 Room = controller.Context.Rooms.First(r => r.Id == Room.SelectedIndex).FullRoomNumber,
-                Guest = new GuestInfo(controller.FindGuest(GuestName.AutoTextBox.Text, Phone.Text, Email.Text)),
+                Guest = controller.GetGuestInfo(GuestName.AutoTextBox.Text, Phone.Text, Email.Text),
                 StartDate = StartDate.SelectedDate.GetValueOrDefault(),
                 EndDate = EndDate.SelectedDate.GetValueOrDefault(),
                 NumberOfGuests = GuestsInRoom.IntValue,
@@ -212,7 +228,7 @@ namespace HotelManager.Views
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            if (IsSaveEnabled() && ReservationHasChanges())
+            if (IsSaveEnabled())
             {
                 string messageBoxText = Constants.UnsavedChangesText + Constants.DoubleLine + Constants.ConfirmSaveChanges;
                 if (ConfirmationBox(messageBoxText, Constants.UnsavedChangesCaption) && !SaveReservation()) return;
@@ -223,7 +239,13 @@ namespace HotelManager.Views
         private bool ReservationHasChanges()
         {
             ReservationInfo oldReservationInfo = controller.GetReservationInfo(id);
-            return oldReservationInfo == null || !oldReservationInfo.Equals(GetReservationInfo());
+            bool equalReservations = true;
+            if (oldReservationInfo != null)
+            {
+                ReservationInfo newReservationInfo = GetReservationInfo();
+                equalReservations = oldReservationInfo.Equals(newReservationInfo);
+            }
+            return oldReservationInfo == null || !equalReservations;
         }
 
         private static bool ConfirmationBox(string text, string caption)

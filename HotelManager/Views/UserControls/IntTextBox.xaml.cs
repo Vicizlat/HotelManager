@@ -20,8 +20,7 @@ namespace HotelManager.Views.UserControls
 
         public bool Validate()
         {
-            bool isInt = !string.IsNullOrEmpty(IntBox.Text) && int.TryParse(IntBox.Text, out IntValue);
-            bool isValid = isInt && IntValue > 0;
+            bool isValid = !string.IsNullOrEmpty(IntBox.Text) && int.TryParse(IntBox.Text, out IntValue) && IntValue > 0;
             IntBox.Background = isValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Colors.Bisque);
             IntBox.Foreground = isValid ? new SolidColorBrush(Colors.Black) : new SolidColorBrush(Colors.Red);
             TextBlock.Foreground = isValid ? new SolidColorBrush(Colors.Black) : new SolidColorBrush(Colors.Red);

@@ -13,6 +13,7 @@ namespace HotelManager.Views.Templates
         public ReservationTextBox(MainController controller, ReservationInfo resInfo, bool lastOnFloor)
         {
             IsReadOnly = true;
+            Focusable = false;
             FontSize = 18;
             VerticalContentAlignment = VerticalAlignment.Center;
             Margin = new Thickness(0, 0, 0, lastOnFloor ? 20 : 0);
@@ -21,7 +22,9 @@ namespace HotelManager.Views.Templates
             if (resInfo.Guest != null)
             {
                 decimal remainingSum = resInfo.TotalSum - resInfo.PaidSum;
-                Text = string.Format(Constants.ReservationText, resInfo.Guest.GetName(), resInfo.NumberOfGuests, remainingSum);
+                string pref = string.Empty;
+                if (resInfo.Guest.ResCount > 1) pref = $"({resInfo.Guest.ResCount})";
+                Text = string.Format(Constants.ReservationText, pref + resInfo.Guest.GetName(), resInfo.NumberOfGuests, remainingSum);
                 ToolTip = resInfo.ToString();
                 bool isCheckedIn = resInfo.StateInt == 1;
                 bool isOverlapping = controller.NextReservationStartDate(resInfo.Room, resInfo.StartDate) < resInfo.EndDate;

@@ -5,7 +5,7 @@
         xmlns:utils="clr-namespace:HotelManager.Utils"
         xmlns:images="clr-namespace:HotelManager.Views.Images"
         x:Class="HotelManager.Views.MainWindow" mc:Ignorable="d"
-        Title="Hotel Manager" WindowState="Maximized" WindowStartupLocation="CenterScreen" Width="900" MinWidth="900">
+        Title="Hotel Manager" WindowState="Maximized" WindowStartupLocation="CenterScreen" Width="900" MinWidth="910">
     <Grid Background="WhiteSmoke">
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -51,6 +51,7 @@
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
             <images:ButtonImage Grid.Row="0" FileName="HotelIcon" ToolTip="Hotel Setup" Source="Images\HotelIconBW.png"
                                 MouseLeftButtonUp="HotelImage_MouseLeftButtonUp"/>
@@ -66,6 +67,8 @@
                                 MouseLeftButtonUp="SavePdfImage_MouseLeftButtonUp"/>
             <images:ButtonImage Grid.Row="6" FileName="PrintIcon" ToolTip="Print" Source="Images\PrintIconBW.png"
                                 MouseLeftButtonUp="PrintImage_MouseLeftButtonUp"/>
+            <images:ButtonImage Grid.Row="7" FileName="AddGuestIcon" ToolTip="Print" Source="Images\AddGuestIconBW.png"
+                                MouseLeftButtonUp="AddGuest_MouseLeftButtonUp"/>
         </Grid>
         <Grid x:Name="MainGrid" Grid.Row="1" Margin="20,20,10,20">
             <Grid.RowDefinitions>
@@ -73,7 +76,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer x:Name="SvDates" Grid.Row="0" Grid.Column="1"

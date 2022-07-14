@@ -1,20 +1,20 @@
 ﻿using System.IO;
-using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using HotelManager.Utils;
 
 namespace HotelManager.Handlers
 {
     public static class WebHandler
     {
-        public static bool TryGetFile(string fileName)
+        public static async Task<bool> TryGetFileAsync(string webAddress, string fileName)
         {
-            string remoteFilePath = Path.Combine(Settings.Instance.WebAddress, fileName);
+            string remoteFilePath = Path.Combine(webAddress, fileName);
             string localFilePath = Path.Combine(Constants.LocalPath, fileName);
             try
             {
-                // #pragma warning disable SYSLIB0014
-                using WebClient webClient = new WebClient();
-                webClient.DownloadFile(remoteFilePath, localFilePath);
+                using HttpClient client = new HttpClient();
+                await DownloadFileTaskAsync(client, remoteFilePath, localFilePath);
                 Logging.Instance.WriteLine($"Successfully downloaded \"{fileName}\"!");
                 return true;
             }
@@ -23,6 +23,13 @@ namespace HotelManager.Handlers
                 Logging.Instance.WriteLine($"Failed to download \"{fileName}\"!");
                 return false;
             }
+        }
+
+        public static async Task DownloadFileTaskAsync(HttpClient client, string uri, string FileName)
+        {
+            using Stream s = await client.GetStreamAsync(uri);
+            using FileStream fs = new FileStream(FileName, FileMode.CreateNew);
+            await s.CopyToAsync(fs);
         }
     }
 }

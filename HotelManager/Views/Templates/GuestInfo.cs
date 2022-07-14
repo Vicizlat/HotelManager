@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using HotelManager.Controller;
 using HotelManager.Data.Models;
@@ -12,11 +13,18 @@ namespace HotelManager.Views.Templates
         public string LastName { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-        public int? ReferrerId { get; set; }
-        public string Referrer { get; set; }
+        //public int? ReferrerId { get; set; }
+        //public string Referrer { get; set; }
         public int ResCount { get; set; }
 
-        public GuestInfo() { }
+        public GuestInfo(string name, string phone, string email)
+        {
+            string[] guestNames = name.Split();
+            FirstName = guestNames[0];
+            LastName = string.Join(" ", guestNames.Skip(1));
+            Phone = string.IsNullOrEmpty(phone) ? null : phone;
+            Email = string.IsNullOrEmpty(email) ? null : email;
+        }
 
         public GuestInfo(Guest guest)
         {
@@ -25,31 +33,28 @@ namespace HotelManager.Views.Templates
             LastName = guest.LastName;
             Phone = guest.Phone;
             Email = guest.Email;
-            ReferrerId = guest.GuestReferrerId;
-            if (Referrer != null) Referrer = $"{guest.GuestReferrer.FirstName} {guest.GuestReferrer.LastName}";
+            //ReferrerId = guest.GuestReferrerId;
+            //if (Referrer != null) Referrer = $"{guest.GuestReferrer.FirstName} {guest.GuestReferrer.LastName}";
             ResCount = guest.Reservations.Count;
         }
 
         public Guest ToGuest(MainController controller)
         {
-            return controller.GetGuest(Id);
+            Guest guest = controller.GetGuest(FirstName, LastName, Phone, Email) ?? new Guest();
+            controller.UpdateGuest(guest, this);
+            return guest;
         }
 
-        public string GetName()
-        {
-            string pref = string.Empty;
-            if (ResCount > 1) pref = $"({ResCount})";
-            return $"{pref}{FirstName} {LastName}";
-        }
+        public string GetName() => $"{FirstName} {LastName}";
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder()
                 .AppendLine($"Име: {FirstName} {LastName}")
                 .AppendLine($"Телефон: {Phone}")
-                .AppendLine($"Имейл: {Email}");
-            if (Referrer != null) sb.AppendLine($"Препоръчан от: {Referrer}");
-            sb.AppendLine($"Брой резервации: {ResCount}");
+                .AppendLine($"Имейл: {Email}")
+                .AppendLine($"Брой резервации: {ResCount}");
+            //if (Referrer != null) sb.AppendLine($"Препоръчан от: {Referrer}");
             return sb.ToString();
         }
 
@@ -61,10 +66,10 @@ namespace HotelManager.Views.Templates
                    && FirstName == other.FirstName
                    && LastName == other.LastName
                    && Phone == other.Phone
-                   && Email == other.Email
-                   && ReferrerId == other.ReferrerId
-                   && Referrer == other.Referrer
-                   && ResCount == other.ResCount;
+                   && Email == other.Email;
+                   //&& ReferrerId == other.ReferrerId
+                   //&& Referrer == other.Referrer
+                   //&& ResCount == other.ResCount;
         }
 
         public override int GetHashCode()
@@ -75,8 +80,8 @@ namespace HotelManager.Views.Templates
             hashCode.Add(LastName);
             hashCode.Add(Phone);
             hashCode.Add(Email);
-            hashCode.Add(Referrer);
-            hashCode.Add(ResCount);
+            //hashCode.Add(Referrer);
+            //hashCode.Add(ResCount);
             return hashCode.ToHashCode();
         }
     }

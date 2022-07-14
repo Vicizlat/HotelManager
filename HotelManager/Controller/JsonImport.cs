@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HotelManager.Data.Models;
 using HotelManager.Handlers;
@@ -8,50 +7,6 @@ namespace HotelManager.Controller
 {
     public static class JsonImport
     {
-        //Temporary method to import reservations from the old system.
-        public static void ImportOldReservations(MainController controller, string importFilePath)
-        {
-            List<Models.Reservation> reservations = JsonHandler.GetFromFile<Models.Reservation>(importFilePath).ToList();
-            foreach (Models.Reservation reservation in reservations)
-            {
-                if (controller.Context.Reservations.Any(r => r.Id == reservation.Id)) continue;
-                string[] guestNames = reservation.GuestName.Split();
-                string guestLastName = string.Join(" ", guestNames.Skip(1));
-                Guest guest = controller.Context.Guests.FirstOrDefault(g => g.FirstName == guestNames[0] && g.LastName == guestLastName);
-                if (guest == null)
-                {
-                    guest = new Guest { FirstName = guestNames[0], LastName = guestLastName };
-                    controller.Context.Guests.Add(guest);
-                }
-                Reservation res = new Reservation
-                {
-                    State = reservation.State,
-                    Source = reservation.Source,
-                    Room = controller.Context.Rooms.FirstOrDefault(r => r.FullRoomNumber == reservation.Room),
-                    Guest = guest,
-                    StartDate = reservation.Period.StartDate,
-                    EndDate = reservation.Period.EndDate,
-                    TotalSum = reservation.Sums.Total,
-                    NumberOfGuests = reservation.GuestsInRoom,
-                    Notes = reservation.Notes,
-                    DateCreated = DateTime.Today
-                };
-                controller.Context.Reservations.Add(res);
-                if (reservation.Sums.Paid != 0)
-                {
-                    res.Transactions.Add(new Transaction
-                    {
-                        Guest = guest,
-                        Reservation = res,
-                        PaidSum = reservation.Sums.Paid - res.Transactions.Sum(t => t.PaidSum),
-                        PaymentDate = res.DateCreated,
-                        PaymentMethod = "Неизвестен"
-                    });
-                }
-                controller.Context.SaveChanges();
-            }
-        }
-
         public static void ImportBuildings(MainController controller, string importFilePath)
         {
             IEnumerable<Building> buildingsImport = JsonHandler.GetFromFile<Building>(importFilePath);
@@ -92,6 +47,7 @@ namespace HotelManager.Controller
                     FirstOnFloor = room.FirstOnFloor,
                     LastOnFloor = room.LastOnFloor,
                     RoomType = room.RoomType,
+                    RoomTypeShort = room.RoomTypeShort,
                     Notes = room.Notes,
                     FullRoomNumber = room.FullRoomNumber
                 });
@@ -113,8 +69,8 @@ namespace HotelManager.Controller
                     Email = guest.Email,
                     GuestReferrer = controller.Context.Guests.FirstOrDefault(g => g.Id == guest.GuestReferrerId)
                 });
+                controller.Context.SaveChanges();
             }
-            controller.Context.SaveChanges();
         }
 
         public static void ImportReservations(MainController controller, string importFilePath)
@@ -137,8 +93,8 @@ namespace HotelManager.Controller
                     DateCreated = reservation.DateCreated,
                     DateModified = reservation.DateModified
                 });
+                controller.Context.SaveChanges();
             }
-            controller.Context.SaveChanges();
         }
 
         public static void ImportTransactions(MainController controller, string importFilePath)
@@ -155,8 +111,8 @@ namespace HotelManager.Controller
                     PaymentDate = transaction.PaymentDate,
                     PaymentMethod = transaction.PaymentMethod
                 });
+                controller.Context.SaveChanges();
             }
-            controller.Context.SaveChanges();
         }
     }
 }

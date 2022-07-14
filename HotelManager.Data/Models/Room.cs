@@ -11,6 +11,7 @@ namespace HotelManager.Data.Models
         public Floor Floor { get; set; }
         public int RoomNumber { get; set; }
         public string RoomType { get; set; }
+        public string RoomTypeShort { get; set; }
         public int MaxGuests { get; set; }
         public bool FirstOnFloor { get; set; }
         public bool LastOnFloor { get; set; }
@@ -26,7 +27,7 @@ namespace HotelManager.Data.Models
 
         public override string ToString()
         {
-            return $"{RoomType}{(RoomNumber == 0 ? string.Empty : $" {FullRoomNumber}")}";
+            return $"{RoomTypeShort}{(RoomNumber == 0 ? string.Empty : $" {FullRoomNumber}")}";
         }
     }
 }

@@ -2,23 +2,39 @@
 using System.IO;
 using System.Text;
 using System.Windows;
-using HotelManager.Controller;
 using HotelManager.Handlers;
+using HotelManager.Controller;
+using HotelManager.Program.Views;
 using HotelManager.Utils;
 using HotelManager.Views;
+using Squirrel;
 
 namespace HotelManager
 {
     public partial class App
     {
         private MainController controller;
-        private void Application_Startup(object sender, StartupEventArgs e)
+        private UpdateManager manager;
+        private UpdateInfo updateInfo;
+        private string installedVersion;
+
+        private async void Application_StartupAsync(object sender, StartupEventArgs e)
         {
             Logging.Instance.WriteLine("Logging started");
             ManageLogFiles(Constants.LogsPath);
+            manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Vicizlat/HotelManager");
+            installedVersion = manager.CurrentlyInstalledVersion().ToString();
+            updateInfo = await manager.CheckForUpdate();
+            string newVersion = updateInfo.FutureReleaseEntry.Version.ToString();
+            if (updateInfo.ReleasesToApply.Count > 0 && UpdateMessageResponse(newVersion))
+            {
+                await manager.UpdateApp();
+                Logging.Instance.WriteLine($"Succesfuly Updated from v.{installedVersion} to v.{newVersion}!");
+                UpdateManager.RestartApp("HotelManager.exe");
+            }
             if (!ReadSettingsFile())
             {
-                CallShutDown(this, EventArgs.Empty);
+                CallShutdown(this, null);
                 return;
             }
             Settings.OnSettingsChanged += WriteSettingsFile;
@@ -26,12 +42,12 @@ namespace HotelManager
             if (!controller.Initialize())
             {
                 ShowFailMessage("Can't connect to database!");
-                CallShutDown(this, EventArgs.Empty);
+                CallShutdown(this, null);
                 return;
             }
-            MainWindow mainWindow = new MainWindow(controller);
+            MainWindow mainWindow = new MainWindow(controller) { Title = $"Hotel Manager v.{installedVersion}" };
             mainWindow.Show();
-            mainWindow.Closing += CallShutDown;
+            mainWindow.Closing += CallShutdown;
         }
 
         private void ManageLogFiles(string logsPath)
@@ -48,7 +64,10 @@ namespace HotelManager
         {
             if (!FileHandler.FileExists(Constants.SettingsFilename))
             {
-                return new SettingsWindow().ShowDialog() ?? false;
+                if (new AskForWebsiteWindow().ShowDialog() == false)
+                {
+                    return new SettingsWindow().ShowDialog() ?? false;
+                }
             }
             StringReader reader = new StringReader(FileHandler.ReadAllText(Constants.SettingsFilename));
             return Settings.CreateSettings(XmlHandler.Serializer(Settings.Instance).Deserialize(reader));
@@ -61,38 +80,32 @@ namespace HotelManager
             FileHandler.WriteAllText(Constants.SettingsFilename, writer.ToString());
         }
 
-        private bool TryUpdateFile(string fileName)
-        {
-            if (Settings.Instance.LocalUseOnly) return true;
-            bool fileExists = FileHandler.FileExists(fileName);
-            bool localFileNewer = FileHandler.IsLocalFileNewer(fileName, out bool checkedRemoteFile);
-            if (fileExists && localFileNewer) return checkedRemoteFile || MessageResponse(fileName);
-            return WebHandler.TryGetFile(fileName) || ShowFailMessage(string.Format(Constants.ErrorRemoteFileDownload, fileName));
-        }
-
         private bool ShowFailMessage(string text)
         {
             Logging.Instance.WriteLine(text);
             return MessageBox.Show(text) == MessageBoxResult.None;
         }
 
-        private bool MessageResponse(string fileName)
+        private bool UpdateMessageResponse(string newVersion)
         {
-            StringBuilder sb = new StringBuilder(string.Format(Constants.ErrorRemoteFileCheck, fileName));
-            sb.AppendLine().AppendLine(Constants.ContinueLocal);
+            StringBuilder sb = new StringBuilder($"There is an update for this program (v.{newVersion}).");
+            sb.AppendLine($"The currently installed version is v.{installedVersion}.");
+            sb.AppendLine().AppendLine("Do you want to restart and update this program?");
             Logging.Instance.WriteLine(sb.ToString());
-            sb.AppendLine().AppendLine().AppendLine(Constants.WarningLoss);
-            bool response = MessageBox.Show(sb.ToString(), Constants.NetworkError, MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+            bool response = MessageBox.Show(sb.ToString(), "Update found...", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
             Logging.Instance.WriteLine($"Response: {(response ? "Yes" : "No")}");
             return response;
         }
 
-        private void CallShutDown(object sender, EventArgs e)
+        private void CallShutdown(object sender, EventArgs e)
         {
-            foreach (string item in Constants.ImportExportSources)
+            if (controller != null && controller.ChangesMade)
             {
-                string path = Path.Combine(Constants.LocalPath, $"{item}.json");
-                controller.ExportCollectionToJson(path, controller.GetCollectionByName(item), item, false);
+                foreach (string item in Constants.ImportExportSources)
+                {
+                    string path = Path.Combine(Constants.LocalPath, $"{item}.json");
+                    controller.ExportCollectionToJson(path, controller.GetCollectionByName(item), item, false);
+                }
             }
             Logging.Instance.Close();
             Shutdown();
@@ -100,7 +113,7 @@ namespace HotelManager
 
         private void Application_Exit(object sender, ExitEventArgs e)
         {
-            if (Settings.Instance.LocalUseOnly || FtpHandler.TryUploadFileByName(Constants.LogFileName, true)) return;
+            if (controller != null && FtpHandler.TryUploadFileByName(Constants.LogFileName, true)) return;
             string text = string.Format(Constants.ErrorRemoteFileUpload, Constants.LogFileName);
             new Logging().WriteLine(text);
             MessageBox.Show(text);
