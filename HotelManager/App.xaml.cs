@@ -8,6 +8,7 @@ using HotelManager.Program.Views;
 using HotelManager.Utils;
 using HotelManager.Views;
 using Squirrel;
+using System.Threading.Tasks;
 
 namespace HotelManager
 {
@@ -22,8 +23,25 @@ namespace HotelManager
         {
             Logging.Instance.WriteLine("Logging started");
             ManageLogFiles(Constants.LogsPath);
+            await CheckForUpdate();
+            controller = new MainController();
+            if (!ReadSettingsFile() || !controller.Initialize())
+            {
+                ShowFailMessage("Can't connect to database!");
+                CallShutdown();
+                return;
+            }
+            Settings.OnSettingsChanged += WriteSettingsFile;
+            MainWindow mainWindow = new MainWindow(controller) { Title = $"Hotel Manager v.{installedVersion}" };
+            mainWindow.Show();
+            mainWindow.Closing += delegate { CallShutdown(); };
+        }
+
+        private async Task CheckForUpdate()
+        {
             manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Vicizlat/HotelManager");
-            installedVersion = manager.CurrentlyInstalledVersion().ToString();
+            installedVersion = manager.CurrentlyInstalledVersion()?.ToString() ?? "Debug";
+            if (installedVersion == "Debug") return;
             updateInfo = await manager.CheckForUpdate();
             string newVersion = updateInfo.FutureReleaseEntry.Version.ToString();
             if (updateInfo.ReleasesToApply.Count > 0 && UpdateMessageResponse(newVersion))
@@ -32,22 +50,6 @@ namespace HotelManager
                 Logging.Instance.WriteLine($"Succesfuly Updated from v.{installedVersion} to v.{newVersion}!");
                 UpdateManager.RestartApp("HotelManager.exe");
             }
-            if (!ReadSettingsFile())
-            {
-                CallShutdown(this, null);
-                return;
-            }
-            Settings.OnSettingsChanged += WriteSettingsFile;
-            controller = new MainController();
-            if (!controller.Initialize())
-            {
-                ShowFailMessage("Can't connect to database!");
-                CallShutdown(this, null);
-                return;
-            }
-            MainWindow mainWindow = new MainWindow(controller) { Title = $"Hotel Manager v.{installedVersion}" };
-            mainWindow.Show();
-            mainWindow.Closing += CallShutdown;
         }
 
         private void ManageLogFiles(string logsPath)
@@ -97,7 +99,7 @@ namespace HotelManager
             return response;
         }
 
-        private void CallShutdown(object sender, EventArgs e)
+        private void CallShutdown()
         {
             if (controller != null && controller.ChangesMade)
             {

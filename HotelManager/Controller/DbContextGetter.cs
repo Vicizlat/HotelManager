@@ -9,7 +9,7 @@ namespace HotelManager.Controller
         {
             if (localConnection) return new HotelManagerContext(Constants.LocalConnection);
             string server = $"Server={Settings.Instance.Server};";
-            string port = $"port={Settings.Instance.Port};";
+            string port = $"Port={Settings.Instance.Port};";
             string database = $"Database={Settings.Instance.Database};";
             string user = $"User={Settings.Instance.UserName};";
             string password = $"Password={Settings.Instance.Password};";

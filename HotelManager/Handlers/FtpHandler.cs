@@ -19,24 +19,24 @@ namespace HotelManager.Handlers
             return request;
         }
 
-        public static DateTime? TryGetRemoteFileTime(string fileName)
-        {
-            try
-            {
-                string ftpFilePath = Path.Combine(Settings.Instance.FtpAddress, fileName);
-                FtpWebRequest request = FtpRequest(ftpFilePath, WebRequestMethods.Ftp.GetDateTimestamp);
-                using FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                DateTime? remoteFileLastWrite = response.LastModified;
-                Logging.Instance.WriteLine($"Remote {fileName} time: {remoteFileLastWrite:dd.MM.yyyy HH:mm:ss}");
-                return remoteFileLastWrite;
-            }
-            catch (Exception e)
-            {
-                Logging.Instance.WriteLine("Failed to get remote file time. Exception:");
-                Logging.Instance.WriteLine(e.Message + Environment.NewLine + e.StackTrace);
-                return null;
-            }
-        }
+        //public static DateTime? TryGetRemoteFileTime(string fileName)
+        //{
+        //    try
+        //    {
+        //        string ftpFilePath = Path.Combine(Settings.Instance.FtpAddress, fileName);
+        //        FtpWebRequest request = FtpRequest(ftpFilePath, WebRequestMethods.Ftp.GetDateTimestamp);
+        //        using FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+        //        DateTime? remoteFileLastWrite = response.LastModified;
+        //        Logging.Instance.WriteLine($"Remote {fileName} time: {remoteFileLastWrite:dd.MM.yyyy HH:mm:ss}");
+        //        return remoteFileLastWrite;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logging.Instance.WriteLine("Failed to get remote file time. Exception:");
+        //        Logging.Instance.WriteLine(e.Message + Environment.NewLine + e.StackTrace);
+        //        return null;
+        //    }
+        //}
 
         public static bool TryUploadFileByName(string fileName, bool isLogWriterClosed = false)
         {
@@ -49,15 +49,15 @@ namespace HotelManager.Handlers
             return TryUploadFile(fileName, ftpFilePath, localFilePath, isLogWriterClosed);
         }
 
-        public static bool TryUploadBackupFile(string fileName)
-        {
-            if (Settings.Instance.LocalUseOnly) return true;
-            if (!FtpMakeDir("Backups", out string ftpDirPath)) return false;
-            string backupFileName = fileName.Insert(fileName.Length - 5, $"-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}");
-            string ftpFilePath = Path.Combine(ftpDirPath, backupFileName);
-            string localFilePath = Path.Combine(Constants.LocalPath, fileName);
-            return TryUploadFile(backupFileName, ftpFilePath, localFilePath, false);
-        }
+        //public static bool TryUploadBackupFile(string fileName)
+        //{
+        //    if (Settings.Instance.LocalUseOnly) return true;
+        //    if (!FtpMakeDir("Backups", out string ftpDirPath)) return false;
+        //    string backupFileName = fileName.Insert(fileName.Length - 5, $"-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}");
+        //    string ftpFilePath = Path.Combine(ftpDirPath, backupFileName);
+        //    string localFilePath = Path.Combine(Constants.LocalPath, fileName);
+        //    return TryUploadFile(backupFileName, ftpFilePath, localFilePath, false);
+        //}
 
         private static bool TryUploadFile(string fileName, string ftpFilePath, string localFilePath, bool isLogWriterClosed)
         {
@@ -91,10 +91,12 @@ namespace HotelManager.Handlers
 
         private static bool FtpMakeDir(string dirName, out string ftpDirPath)
         {
-            ftpDirPath = Path.Combine(Settings.Instance.FtpAddress, dirName);
-            FtpWebRequest request = FtpRequest(ftpDirPath, WebRequestMethods.Ftp.MakeDirectory);
+            string ftpAddress = Settings.Instance.FtpAddress ?? string.Empty;
+            ftpDirPath = Path.Combine(ftpAddress, dirName);
+            if (string.IsNullOrEmpty(ftpAddress)) return false;
             try
             {
+                FtpWebRequest request = FtpRequest(ftpDirPath, WebRequestMethods.Ftp.MakeDirectory);
                 using FtpWebResponse response = (FtpWebResponse)request.GetResponse();
                 return response.ResponseUri.AbsoluteUri == ftpDirPath;
             }

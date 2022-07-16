@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -9,16 +8,16 @@ namespace HotelManager.Views.Templates
 {
     public class RoomsTextBox : TextBox
     {
-        public RoomsTextBox(MainController controller, int room, bool lastOnFloor)
+        public RoomsTextBox(MainController controller, Tuple<string, int, bool> room)
         {
-            Text = $"{controller.Context.Rooms.FirstOrDefault(r => r.FullRoomNumber == room)}";
+            Text = room.Item1;
             IsReadOnly = true;
             Focusable = false;
             FontSize = 20;
             VerticalContentAlignment = VerticalAlignment.Center;
-            Margin = new Thickness(0, 0, 0, lastOnFloor ? 20 : 0);
+            Margin = new Thickness(0, 0, 0, room.Item3 ? 20 : 0);
             Cursor = Cursors.Hand;
-            MouseDoubleClick += delegate { controller.RequestReservationWindow(room, DateTime.Now); };
+            MouseDoubleClick += delegate { controller.RequestReservationWindow(room.Item2, DateTime.Now); };
         }
     }
 }

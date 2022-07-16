@@ -8,7 +8,7 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">MIT</license>
 		<projectUrl>https://github.com/Vicizlat/HotelManager</projectUrl>
-		<iconUrl>https://raw.githubusercontent.com/Vicizlat/HotelManager/main/HotelManager/icon.png</iconUrl>
+		<iconUrl>https://raw.githubusercontent.com/Vicizlat/HotelManager/master/HotelManager/HotelManager.ico</iconUrl>
 		<description>Description</description>
 		<copyright>Victor Zlatarev © 2020</copyright>
 	</metadata>

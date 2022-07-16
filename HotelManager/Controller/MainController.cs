@@ -10,7 +10,6 @@ using HotelManager.Data.Models.Enums;
 using HotelManager.Views;
 using HotelManager.Views.Templates;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Win32;
 
 namespace HotelManager.Controller
 {
@@ -50,23 +49,19 @@ namespace HotelManager.Controller
             var result = MessageBox.Show("Do you want to import from backups?", "Import backup?", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
-                List<string> filePaths = new List<string>();
-                foreach (string backup in Constants.ImportExportSources)
-                {
-                    OpenFileDialog dlg = new OpenFileDialog
-                    {
-                        Title = $"Load backup file for {backup}",
-                        DefaultExt = ".json",
-                        Filter = "JSON Files (*.json)|*.json"
-                    };
-                    if (dlg.ShowDialog() == true) filePaths.Add(dlg.FileName);
-                }
-                ImportBuildings(filePaths[0]);
-                ImportFloors(filePaths[1]);
-                ImportRooms(filePaths[2]);
-                ImportGuests(filePaths[3]);
-                ImportReservations(filePaths[4]);
-                ImportTransactions(filePaths[5]);
+                string title = "Load backup file for ";
+                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[0], out string buildingsPath)) return;
+                ImportBuildings(buildingsPath);
+                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[1], out string floorsPath)) return;
+                ImportFloors(floorsPath);
+                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[2], out string roomsPath)) return;
+                ImportRooms(roomsPath);
+                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[3], out string guestsPath)) return;
+                ImportGuests(guestsPath);
+                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[4], out string reservationsPath)) return;
+                ImportReservations(reservationsPath);
+                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[5], out string transactionsPath)) return;
+                ImportTransactions(transactionsPath);
             }
         }
 
@@ -318,6 +313,7 @@ namespace HotelManager.Controller
                 .Include(r => r.Guest.Reservations)
                 .Include(r => r.Transactions)
                 .Where(r => r.EndDate >= startDate && r.StartDate <= endDate)
+                .Where(r => r.State != State.Canceled)
                 .Select(x => new ReservationInfo(x)).ToList();
         }
 
@@ -336,13 +332,13 @@ namespace HotelManager.Controller
                    ?? Settings.Instance.SeasonEndDate;
         }
 
-        public Dictionary<int, bool> GetRoomsDictionary()
+        public List<Tuple<string, int, bool>> GetRoomsDictionary()
         {
             return Context.Rooms
                 .OrderByDescending(r => r.Floor.FloorNumber)
                 .ThenBy(r => r.RoomNumber)
-                .Select(x => new { x.FullRoomNumber, x.LastOnFloor })
-                .ToDictionary(key => key.FullRoomNumber, value => value.LastOnFloor);
+                .Select(x => new Tuple<string, int, bool>(x.ToString(), x.FullRoomNumber, x.LastOnFloor)).ToList();
+            //.ToTuple(key => key.FullRoomNumber, value => value.LastOnFloor);
         }
 
         public void AddPriceRange(DateTime startDate, DateTime endDate, decimal basePrice, int baseGuests, decimal priceChange)

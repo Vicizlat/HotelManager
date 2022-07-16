@@ -10,7 +10,7 @@ namespace HotelManager.Views.Templates
     {
         public DatesTextBox(DateTime date)
         {
-            Text = $"{date.ToShortDateString()}";
+            Text = date.ToShortDateString();
             IsReadOnly = true;
             FontSize = 20;
             VerticalContentAlignment = VerticalAlignment.Center;
