@@ -3,8 +3,9 @@ using System.Linq;
 using System.Text;
 using HotelManager.Data.Models;
 using HotelManager.Controller;
+using HotelManager.Utils;
 
-namespace HotelManager.Views.Templates
+namespace HotelManager.Models
 {
     public class ReservationInfo
     {
@@ -12,6 +13,7 @@ namespace HotelManager.Views.Templates
         public int StateInt { get; set; }
         public int SourceInt { get; set; }
         public int Room { get; set; }
+        public string RoomShortName { get; set; }
         public GuestInfo Guest { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -28,6 +30,7 @@ namespace HotelManager.Views.Templates
             StateInt = (int)reservation.State;
             SourceInt = (int)reservation.Source;
             Room = reservation.Room.FullRoomNumber;
+            RoomShortName = reservation.Room.RoomTypeShort;
             Guest = new GuestInfo(reservation.Guest);
             StartDate = reservation.StartDate;
             EndDate = reservation.EndDate;
@@ -44,10 +47,25 @@ namespace HotelManager.Views.Templates
             return reservation;
         }
 
+        public string[] ToSearchArray()
+        {
+            return new string[]
+            {
+                $"{Id}",
+                Constants.ReservationStates[StateInt],
+                Constants.ReservationSources[SourceInt],
+                $"{RoomShortName} {Room}",
+                Guest.GetFullName(),
+                $"{StartDate:dd.MM.yyyy} - {EndDate:dd.MM.yyyy}",
+                $"{TotalSum} - {PaidSum} = {TotalSum - PaidSum}",
+                Notes
+            };
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder()
-                .AppendLine($"Гост: {Guest.GetName()}")
+                .AppendLine($"Гост: {Guest.GetFullName()}")
                 .AppendLine($"Брой гости: {NumberOfGuests}")
                 .AppendLine($"Период: {StartDate:dd.MM.yyyy} - {EndDate:dd.MM.yyyy}")
                 .AppendLine($"Обща цена: {TotalSum}")

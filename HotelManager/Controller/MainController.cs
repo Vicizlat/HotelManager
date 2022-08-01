@@ -8,8 +8,9 @@ using HotelManager.Data;
 using HotelManager.Data.Models;
 using HotelManager.Data.Models.Enums;
 using HotelManager.Views;
-using HotelManager.Views.Templates;
 using Microsoft.EntityFrameworkCore;
+using HotelManager.Models;
+using System.Threading.Tasks;
 
 namespace HotelManager.Controller
 {
@@ -19,6 +20,8 @@ namespace HotelManager.Controller
         public event EventHandler OnRoomsChanged;
         public event EventHandler<DateTime> OnReservationAdd;
         public event EventHandler<int> OnReservationEdit;
+
+        public WaitWindow WaitWindow { get; set; }
         public HotelManagerContext Context { get; set; }
         public List<ReservationInfo> ReservationInfos { get; set; }
         public List<GuestInfo> GuestInfos { get; set; }
@@ -305,6 +308,16 @@ namespace HotelManager.Controller
             return reservation == null ? null : new ReservationInfo(reservation);
         }
 
+        public async Task<List<ReservationInfo>> GetAllReservationInfos(bool includeCanceled)
+        {
+            return await Context.Reservations
+                .Include(r => r.Room)
+                .Include(r => r.Guest)
+                .Include(r => r.Transactions)
+                .Where(r => includeCanceled || r.State != State.Canceled)
+                .Select(x => new ReservationInfo(x)).ToListAsync();
+        }
+
         public List<ReservationInfo> GetReservationInfos(DateTime startDate, DateTime endDate)
         {
             return Context.Reservations
@@ -338,7 +351,6 @@ namespace HotelManager.Controller
                 .OrderByDescending(r => r.Floor.FloorNumber)
                 .ThenBy(r => r.RoomNumber)
                 .Select(x => new Tuple<string, int, bool>(x.ToString(), x.FullRoomNumber, x.LastOnFloor)).ToList();
-            //.ToTuple(key => key.FullRoomNumber, value => value.LastOnFloor);
         }
 
         public void AddPriceRange(DateTime startDate, DateTime endDate, decimal basePrice, int baseGuests, decimal priceChange)
@@ -387,6 +399,17 @@ namespace HotelManager.Controller
         {
             PriceRange priceRange = Context.PriceRanges.FirstOrDefault(pr => pr.Id == id);
             return !ValidatePriceRangeByDate(priceRange.StartDate) && !ValidatePriceRangeByDate(priceRange.EndDate);
+        }
+
+        public void ShowWaitWindow(string text = null)
+        {
+            WaitWindow = new WaitWindow("Обработвам търсенето...");
+            WaitWindow.Show();
+        }
+
+        public void CloseWaitWindow()
+        {
+            if (WaitWindow != null) WaitWindow.Close();
         }
     }
 }

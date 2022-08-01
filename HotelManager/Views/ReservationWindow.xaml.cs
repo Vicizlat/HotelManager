@@ -6,8 +6,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using HotelManager.Controller;
+using HotelManager.Models;
 using HotelManager.Utils;
-using HotelManager.Views.Templates;
 
 namespace HotelManager.Views
 {
@@ -53,7 +53,7 @@ namespace HotelManager.Views
             Title = $"Редактиране на резервация номер: {id}";
             totalPriceManualMode = true;
             TotalPrice.ReadOnly = false;
-            GuestName.AutoTextBox.Text = resInfo.Guest.GetName();
+            GuestName.AutoTextBox.Text = resInfo.Guest.GetFullName();
             GuestName.AutoListPopup.IsOpen = false;
             Email.Text = resInfo.Guest.Email;
             Phone.Text = resInfo.Guest.Phone;

@@ -9,6 +9,7 @@ using HotelManager.Utils;
 using HotelManager.Handlers;
 using HotelManager.Views.Images;
 using HotelManager.Controller;
+using HotelManager.Models;
 
 namespace HotelManager.Views
 {
@@ -20,7 +21,7 @@ namespace HotelManager.Views
         private readonly MainController controller;
         private DateTime[] selectedDates = Array.Empty<DateTime>();
         private readonly List<Tuple<string, int, bool>> rooms;
-        private List<List<Tuple<string[], DateTime[], bool>>> reservations;
+        private List<List<Tuple<string[], DateTime[], bool>>> dataForPdf;
 
         public MainWindow(MainController controller)
         {
@@ -58,14 +59,14 @@ namespace HotelManager.Views
             if (FileHandler.TryGetSaveFilePath(".pdf", out string filePath))
             {
                 List<string> roomsTexts = rooms.Select(x => x.Item1).ToList();
-                PdfController.GeneratePdf(selectedDates, roomsTexts, reservations).SaveToFile(filePath);
+                PdfController.GeneratePdf(selectedDates, roomsTexts, dataForPdf).SaveToFile(filePath);
             }
         }
 
         private void PrintImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             List<string> roomsTexts = rooms.Select(x => x.Item1).ToList();
-            PdfController.GeneratePdf(selectedDates, roomsTexts, reservations).Print();
+            PdfController.GeneratePdf(selectedDates, roomsTexts, dataForPdf).Print();
         }
 
         private void AddGuest_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -99,10 +100,10 @@ namespace HotelManager.Views
             }
             DateTime startDate = StartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
             List<ReservationInfo> resInfos = controller.GetReservationInfos(startDate, startDate.AddDays(DaysToShow - 1));
-            reservations = new List<List<Tuple<string[], DateTime[], bool>>>();
+            dataForPdf = new List<List<Tuple<string[], DateTime[], bool>>>();
             for (int row = 0; row < rooms.Count; row++)
             {
-                reservations.Add(new List<Tuple<string[], DateTime[], bool>>());
+                dataForPdf.Add(new List<Tuple<string[], DateTime[], bool>>());
                 int skipColumns = 0;
                 Rooms.RowDefinitions.Add(new RowDefinition { Height = new GridLength(rooms[row].Item3 ? 50 : 30), MinHeight = 30 });
                 Table.RowDefinitions.Add(new RowDefinition { Height = new GridLength(rooms[row].Item3 ? 50 : 30), MinHeight = 30 });
@@ -115,7 +116,7 @@ namespace HotelManager.Views
                     TextBox dateTextBox = new DatesTextBox(startDate.AddDays(col));
                     Grid.SetColumn(dateTextBox, col);
                     Dates.Children.Add(dateTextBox);
-                    reservations[row].Add(new Tuple<string[], DateTime[], bool>(Array.Empty<string>(), Array.Empty<DateTime>(), false));
+                    dataForPdf[row].Add(new Tuple<string[], DateTime[], bool>(Array.Empty<string>(), Array.Empty<DateTime>(), false));
                     if (skipColumns-- > 0) continue;
                     if (skipColumns < 0) skipColumns = 0;
                     DateTime nextDate = startDate.AddDays(col);
@@ -137,7 +138,7 @@ namespace HotelManager.Views
                     Grid.SetRow(dockPanel, row);
                     Grid.SetColumn(dockPanel, col);
                     Table.Children.Add(dockPanel);
-                    reservations[row][col] = new Tuple<string[], DateTime[], bool>
+                    dataForPdf[row][col] = new Tuple<string[], DateTime[], bool>
                     (
                         new string[] { resTextBox.Text, image?.ImageUri ?? string.Empty },
                         new DateTime[] { resInfo.StartDate, resInfo.EndDate },

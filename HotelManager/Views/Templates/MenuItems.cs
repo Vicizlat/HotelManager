@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 using HotelManager.Controller;
 using HotelManager.Data.Models.Enums;
+using HotelManager.Models;
 using HotelManager.Views.Templates.Commands;
 
 namespace HotelManager.Views.Templates

@@ -4,7 +4,7 @@ using System.Text;
 using HotelManager.Controller;
 using HotelManager.Data.Models;
 
-namespace HotelManager.Views.Templates
+namespace HotelManager.Models
 {
     public class GuestInfo
     {
@@ -45,7 +45,7 @@ namespace HotelManager.Views.Templates
             return guest;
         }
 
-        public string GetName() => $"{FirstName} {LastName}";
+        public string GetFullName() => $"{FirstName} {LastName}";
 
         public override string ToString()
         {
@@ -67,9 +67,9 @@ namespace HotelManager.Views.Templates
                    && LastName == other.LastName
                    && Phone == other.Phone
                    && Email == other.Email;
-                   //&& ReferrerId == other.ReferrerId
-                   //&& Referrer == other.Referrer
-                   //&& ResCount == other.ResCount;
+            //&& ReferrerId == other.ReferrerId
+            //&& Referrer == other.Referrer
+            //&& ResCount == other.ResCount;
         }
 
         public override int GetHashCode()

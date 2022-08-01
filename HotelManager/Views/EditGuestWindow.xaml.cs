@@ -5,8 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using HotelManager.Controller;
+using HotelManager.Models;
 using HotelManager.Utils;
-using HotelManager.Views.Templates;
 
 namespace HotelManager.Views
 {
