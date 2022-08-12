@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using HotelManager.Handlers;
-using HotelManager.Utils;
 using HotelManager.Data;
 using HotelManager.Data.Models;
 using HotelManager.Data.Models.Enums;
+using HotelManager.Models;
+using HotelManager.Utils;
 using HotelManager.Views;
 using Microsoft.EntityFrameworkCore;
-using HotelManager.Models;
 using System.Threading.Tasks;
 
 namespace HotelManager.Controller
@@ -25,7 +25,7 @@ namespace HotelManager.Controller
         public HotelManagerContext Context { get; set; }
         public List<ReservationInfo> ReservationInfos { get; set; }
         public List<GuestInfo> GuestInfos { get; set; }
-        public static List<string> RoomsList = new List<string> { Constants.NoRoomSelected };
+        public static List<RoomInfo> RoomInfos { get; set; }
         public bool ChangesMade = false;
         private readonly bool resetDb = false;
 
@@ -40,7 +40,7 @@ namespace HotelManager.Controller
             {
                 new HotelSetupWindow(this).ShowDialog();
             }
-            RoomsList.AddRange(Context.Rooms.ToList().Select(r => r.ToString()));
+            RoomInfos = GetRoomInfos();
             return true;
         }
 
@@ -48,8 +48,8 @@ namespace HotelManager.Controller
         {
             Context.Database.EnsureDeleted();
             Context.Database.EnsureCreated();
-            MessageBox.Show("Database has been reset successfully!", "Database reset successful!", MessageBoxButton.OK, MessageBoxImage.Information);
-            var result = MessageBox.Show("Do you want to import from backups?", "Import backup?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            string messageText = "Database has been reset successfully! Do you want to import from backups?";
+            MessageBoxResult result = MessageBox.Show(messageText, "Database reset", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 string title = "Load backup file for ";
@@ -308,6 +308,13 @@ namespace HotelManager.Controller
             return reservation == null ? null : new ReservationInfo(reservation);
         }
 
+        private List<RoomInfo> GetRoomInfos()
+        {
+            List<RoomInfo> roomInfos = new List<RoomInfo> { new RoomInfo() };
+            roomInfos.AddRange(Context.Rooms.Select(r => new RoomInfo(r)));
+            return roomInfos;
+        }
+
         public async Task<List<ReservationInfo>> GetAllReservationInfos(bool includeCanceled)
         {
             return await Context.Reservations
@@ -343,14 +350,6 @@ namespace HotelManager.Controller
                        .OrderBy(r => r.StartDate)
                        .FirstOrDefault(r => r.State != State.Canceled)?.StartDate
                    ?? Settings.Instance.SeasonEndDate;
-        }
-
-        public List<Tuple<string, int, bool>> GetRoomsDictionary()
-        {
-            return Context.Rooms
-                .OrderByDescending(r => r.Floor.FloorNumber)
-                .ThenBy(r => r.RoomNumber)
-                .Select(x => new Tuple<string, int, bool>(x.ToString(), x.FullRoomNumber, x.LastOnFloor)).ToList();
         }
 
         public void AddPriceRange(DateTime startDate, DateTime endDate, decimal basePrice, int baseGuests, decimal priceChange)
@@ -403,7 +402,7 @@ namespace HotelManager.Controller
 
         public void ShowWaitWindow(string text = null)
         {
-            WaitWindow = new WaitWindow("Обработвам търсенето...");
+            WaitWindow = new WaitWindow(text);
             WaitWindow.Show();
         }
 

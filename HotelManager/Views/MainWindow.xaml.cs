@@ -20,7 +20,6 @@ namespace HotelManager.Views
         internal int DaysToShow;
         private readonly MainController controller;
         private DateTime[] selectedDates = Array.Empty<DateTime>();
-        private readonly List<Tuple<string, int, bool>> rooms;
         private List<List<Tuple<string[], DateTime[], bool>>> dataForPdf;
 
         public MainWindow(MainController controller)
@@ -28,7 +27,6 @@ namespace HotelManager.Views
             Logging.Instance.WriteLine("Start initializing MainWindow...");
             InitializeComponent();
             this.controller = controller;
-            rooms = controller.GetRoomsDictionary();
             //StartDate.SelectedDate = Constants.SeasonStartDate;
             StartDate.SelectedDate = DateTime.Today;
             EndDate.SelectedDate = StartDate.SelectedDate.Value.AddDays(13);
@@ -47,10 +45,7 @@ namespace HotelManager.Views
 
         private void TransactionImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new TransactionsWindow(controller).ShowDialog();
 
-        private void PriceRangeImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            new PriceRangesWindow(controller).ShowDialog();
-        }
+        private void PriceRangeImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new PriceRangesWindow(controller).ShowDialog();
 
         private void SearchImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => new SearchWindow(controller).Show();
 
@@ -58,14 +53,14 @@ namespace HotelManager.Views
         {
             if (FileHandler.TryGetSaveFilePath(".pdf", out string filePath))
             {
-                List<string> roomsTexts = rooms.Select(x => x.Item1).ToList();
+                List<string> roomsTexts = MainController.RoomInfos.Select(r => r.DisplayName).ToList();
                 PdfController.GeneratePdf(selectedDates, roomsTexts, dataForPdf).SaveToFile(filePath);
             }
         }
 
         private void PrintImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            List<string> roomsTexts = rooms.Select(x => x.Item1).ToList();
+            List<string> roomsTexts = MainController.RoomInfos.Select(r => r.DisplayName).ToList();
             PdfController.GeneratePdf(selectedDates, roomsTexts, dataForPdf).Print();
         }
 
@@ -101,13 +96,14 @@ namespace HotelManager.Views
             DateTime startDate = StartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
             List<ReservationInfo> resInfos = controller.GetReservationInfos(startDate, startDate.AddDays(DaysToShow - 1));
             dataForPdf = new List<List<Tuple<string[], DateTime[], bool>>>();
-            for (int row = 0; row < rooms.Count; row++)
+            for (int row = 0; row < MainController.RoomInfos.Count; row++)
             {
                 dataForPdf.Add(new List<Tuple<string[], DateTime[], bool>>());
                 int skipColumns = 0;
-                Rooms.RowDefinitions.Add(new RowDefinition { Height = new GridLength(rooms[row].Item3 ? 50 : 30), MinHeight = 30 });
-                Table.RowDefinitions.Add(new RowDefinition { Height = new GridLength(rooms[row].Item3 ? 50 : 30), MinHeight = 30 });
-                TextBox roomTextBox = new RoomsTextBox(controller, rooms[row]);
+                RoomInfo roomInfo = MainController.RoomInfos[row];
+                Rooms.RowDefinitions.Add(new RowDefinition { Height = new GridLength(roomInfo.LastOnFloor ? 50 : 30), MinHeight = 30 });
+                Table.RowDefinitions.Add(new RowDefinition { Height = new GridLength(roomInfo.LastOnFloor ? 50 : 30), MinHeight = 30 });
+                TextBox roomTextBox = new RoomsTextBox(controller, roomInfo);
                 Grid.SetRow(roomTextBox, row);
                 Rooms.Children.Add(roomTextBox);
                 for (int col = 0; col < DaysToShow; col++)
@@ -122,7 +118,7 @@ namespace HotelManager.Views
                     DateTime nextDate = startDate.AddDays(col);
                     DockPanel dockPanel = new DockPanel();
                     ReservationInfo resInfo = resInfos.Where(r => r.StartDate <= nextDate && nextDate < r.EndDate)
-                        .FirstOrDefault(r => r.Room == rooms[row].Item2);
+                        .FirstOrDefault(r => r.Room == roomInfo.FullRoomNumber);
                     ReservationIcon image = null;
                     if (resInfo != null)
                     {
@@ -132,8 +128,8 @@ namespace HotelManager.Views
                         Grid.SetColumnSpan(dockPanel, nights);
                         skipColumns = nights <= 1 ? 0 : startDate < resInfo.StartDate ? nights - 1 : (resInfo.EndDate - startDate).Days - 1;
                     }
-                    else resInfo = new ReservationInfo { Room = rooms[row].Item2, StartDate = nextDate, StateInt = -1 };
-                    ReservationTextBox resTextBox = new ReservationTextBox(controller, resInfo, rooms[row].Item3);
+                    else resInfo = new ReservationInfo { Room = roomInfo.FullRoomNumber, StartDate = nextDate, StateInt = -1 };
+                    ReservationTextBox resTextBox = new ReservationTextBox(controller, resInfo, roomInfo.LastOnFloor);
                     dockPanel.Children.Add(resTextBox);
                     Grid.SetRow(dockPanel, row);
                     Grid.SetColumn(dockPanel, col);
