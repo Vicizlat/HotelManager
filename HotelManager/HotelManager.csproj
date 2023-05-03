@@ -8,7 +8,7 @@
 		<Product>HotelManager</Product>
 		<Authors>Victor Zlatarev</Authors>
 		<Copyright>Copyright © 2020</Copyright>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -160,6 +160,5 @@
 
 		<Exec Command="$(NugetTools)\NuGet.exe pack $(NuspecFile) -Version $(Version) -Properties Configuration=Release -OutputDirectory $(SolutionDir)Deployment\GeneratedNugets" />
 		<Exec Command="$(SquirrelTools)\Squirrel.exe --releasify $(SolutionDir)Deployment\GeneratedNugets\@(ID).$(Version).nupkg -r $(SolutionDir)Deployment\Releases -g $(SolutionDir)Loading.gif --no-msi" />
-		<!--<Exec Command="start $(SolutionDir)git.bat $(Version) $(SolutionDir)Deployment\Releases HotelManager" />-->
 	</Target>
 </Project>

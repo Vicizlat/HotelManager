@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using HotelManager.Views.Templates;
-using HotelManager.Utils;
 using HotelManager.Handlers;
 using HotelManager.Views.Images;
 using HotelManager.Controller;
@@ -27,9 +26,8 @@ namespace HotelManager.Views
             Logging.Instance.WriteLine("Start initializing MainWindow...");
             InitializeComponent();
             this.controller = controller;
-            //StartDate.SelectedDate = Constants.SeasonStartDate;
             StartDate.SelectedDate = DateTime.Today;
-            EndDate.SelectedDate = StartDate.SelectedDate.Value.AddDays(13);
+            EndDate.SelectedDate = StartDate.SelectedDate.Value.AddDays(12);
             controller.OnReservationsChanged += delegate { CreateReservationsTable(); };
             controller.OnRoomsChanged += delegate { CreateReservationsTable(); };
             controller.OnReservationAdd += ReservationWindowRequested;
@@ -53,14 +51,14 @@ namespace HotelManager.Views
         {
             if (FileHandler.TryGetSaveFilePath(".pdf", out string filePath))
             {
-                List<string> roomsTexts = MainController.RoomInfos.Select(r => r.DisplayName).ToList();
+                List<string> roomsTexts = MainController.RoomInfos.Skip(1).Select(r => r.DisplayName).ToList();
                 PdfController.GeneratePdf(selectedDates, roomsTexts, dataForPdf).SaveToFile(filePath);
             }
         }
 
         private void PrintImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            List<string> roomsTexts = MainController.RoomInfos.Select(r => r.DisplayName).ToList();
+            List<string> roomsTexts = MainController.RoomInfos.Skip(1).Select(r => r.DisplayName).ToList();
             PdfController.GeneratePdf(selectedDates, roomsTexts, dataForPdf).Print();
         }
 
@@ -96,11 +94,11 @@ namespace HotelManager.Views
             DateTime startDate = StartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
             List<ReservationInfo> resInfos = controller.GetReservationInfos(startDate, startDate.AddDays(DaysToShow - 1));
             dataForPdf = new List<List<Tuple<string[], DateTime[], bool>>>();
-            for (int row = 0; row < MainController.RoomInfos.Count; row++)
+            for (int row = 0; row < MainController.RoomInfos.Skip(1).Count(); row++)
             {
                 dataForPdf.Add(new List<Tuple<string[], DateTime[], bool>>());
                 int skipColumns = 0;
-                RoomInfo roomInfo = MainController.RoomInfos[row];
+                RoomInfo roomInfo = MainController.RoomInfos.Skip(1).ToList()[row];
                 Rooms.RowDefinitions.Add(new RowDefinition { Height = new GridLength(roomInfo.LastOnFloor ? 50 : 30), MinHeight = 30 });
                 Table.RowDefinitions.Add(new RowDefinition { Height = new GridLength(roomInfo.LastOnFloor ? 50 : 30), MinHeight = 30 });
                 TextBox roomTextBox = new RoomsTextBox(controller, roomInfo);

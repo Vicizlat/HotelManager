@@ -114,5 +114,24 @@ namespace HotelManager.Controller
                 controller.Context.SaveChanges();
             }
         }
+
+        public static void ImportPriceRanges(MainController controller, string importFilePath)
+        {
+            IEnumerable<PriceRange> priceRangesImport = JsonHandler.GetFromFile<PriceRange>(importFilePath);
+            foreach (PriceRange priceRange in priceRangesImport)
+            {
+                if (controller.Context.PriceRanges.Any(pr => pr.Id == priceRange.Id)) continue;
+                controller.Context.PriceRanges.Add(new PriceRange
+                {
+                    StartDate = priceRange.StartDate,
+                    EndDate = priceRange.EndDate,
+                    BasePrice = priceRange.BasePrice,
+                    BasePriceGuests = priceRange.BasePriceGuests,
+                    PriceChangePerGuest = priceRange.PriceChangePerGuest,
+                    IsActive = priceRange.IsActive
+                });
+                controller.Context.SaveChanges();
+            }
+        }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HotelManager.Data.Models
@@ -16,12 +14,10 @@ namespace HotelManager.Data.Models
         [Column(TypeName = "decimal(6, 2)")]
         public decimal PriceChangePerGuest { get; set; }
         public bool IsActive { get; set; }
-        [JsonIgnore]
-        public ICollection<Room> Rooms { get; set; }
 
         public PriceRange()
         {
-            Rooms = new HashSet<Room>();
+
         }
 
         public override string ToString()

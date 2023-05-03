@@ -86,6 +86,9 @@ namespace HotelManager.Views
                     case 5:
                         controller.ImportTransactions(ImportFilePath.Text);
                         break;
+                    case 6:
+                        controller.ImportPriceRanges(ImportFilePath.Text);
+                        break;
                 }
             }
             else

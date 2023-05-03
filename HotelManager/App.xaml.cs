@@ -4,7 +4,6 @@ using System.Text;
 using System.Windows;
 using HotelManager.Handlers;
 using HotelManager.Controller;
-using HotelManager.Program.Views;
 using HotelManager.Utils;
 using HotelManager.Views;
 using Squirrel;
@@ -66,10 +65,7 @@ namespace HotelManager
         {
             if (!FileHandler.FileExists(Constants.SettingsFilename))
             {
-                if (new AskForWebsiteWindow().ShowDialog() == false)
-                {
-                    return new SettingsWindow().ShowDialog() ?? false;
-                }
+                return new SettingsWindow().ShowDialog() ?? false;
             }
             StringReader reader = new StringReader(FileHandler.ReadAllText(Constants.SettingsFilename));
             return Settings.CreateSettings(XmlHandler.Serializer(Settings.Instance).Deserialize(reader));
@@ -109,16 +105,11 @@ namespace HotelManager
                     controller.ExportCollectionToJson(path, controller.GetCollectionByName(item), item, false);
                 }
             }
-            Logging.Instance.Close();
             Shutdown();
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)
         {
-            if (controller != null && FtpHandler.TryUploadFileByName(Constants.LogFileName, true)) return;
-            string text = string.Format(Constants.ErrorRemoteFileUpload, Constants.LogFileName);
-            new Logging().WriteLine(text);
-            MessageBox.Show(text);
             Logging.Instance.Close();
         }
     }

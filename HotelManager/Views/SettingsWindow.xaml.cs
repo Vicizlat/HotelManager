@@ -10,18 +10,13 @@ namespace HotelManager.Views
         public SettingsWindow()
         {
             InitializeComponent();
-            WebAddress.Text = Settings.Instance.WebAddress;
-            FtpAddress.Text = Settings.Instance.FtpAddress;
-            FtpUserName.Text = Settings.Instance.FtpUserName;
-            FtpPassword.Text = Settings.Instance.FtpPassword;
             SeasonStartDate.SelectedDate = Settings.Instance.SeasonStartDate;
             SeasonEndDate.SelectedDate = Settings.Instance.SeasonEndDate;
             Server.Text = Settings.Instance.Server;
             Port.Text = $"{Settings.Instance.Port}";
             Database.Text = Settings.Instance.Database;
-            UserName.Text = Settings.Instance.UserName;
+            Username.Text = Settings.Instance.Username;
             Password.Text = Settings.Instance.Password;
-            LocalUseOnly.IsChecked = Settings.Instance.LocalUseOnly;
         }
 
         private void GenericText_TextChanged(object sender, TextChangedEventArgs e)
@@ -42,25 +37,19 @@ namespace HotelManager.Views
         private bool IsSaveEnabled()
         {
             bool hasDates = SeasonStartDate.SelectedDate.HasValue && SeasonEndDate.SelectedDate.HasValue;
-            if (LocalUseOnly.IsChecked.GetValueOrDefault()) return hasDates;
-            return !string.IsNullOrEmpty(WebAddress.Text) && !string.IsNullOrEmpty(FtpAddress.Text) &&
-                   !string.IsNullOrEmpty(FtpUserName.Text) && !string.IsNullOrEmpty(FtpPassword.Text) && hasDates;
+            return !string.IsNullOrEmpty(Server.Text) && !string.IsNullOrEmpty(Port.Text) && !string.IsNullOrEmpty(Username.Text) &&
+                   !string.IsNullOrEmpty(Password.Text) && !string.IsNullOrEmpty(Database.Text) && hasDates;
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            Settings.Instance.WebAddress = WebAddress.Text;
-            Settings.Instance.FtpAddress = FtpAddress.Text;
-            Settings.Instance.FtpUserName = FtpUserName.Text;
-            Settings.Instance.FtpPassword = FtpPassword.Text;
             Settings.Instance.SeasonStartDate = SeasonStartDate.SelectedDate.GetValueOrDefault(DateTime.Today);
             Settings.Instance.SeasonEndDate = SeasonEndDate.SelectedDate.GetValueOrDefault(DateTime.Today.AddDays(365));
             Settings.Instance.Server = Server.Text;
-            Settings.Instance.Port = int.TryParse(Server.Text, out int port) ? port : 3306;
+            Settings.Instance.Port = int.TryParse(Port.Text, out int port) ? port : 3306;
             Settings.Instance.Database = Database.Text;
-            Settings.Instance.UserName = UserName.Text;
+            Settings.Instance.Username = Username.Text;
             Settings.Instance.Password = Password.Text;
-            Settings.Instance.LocalUseOnly = LocalUseOnly.IsChecked.GetValueOrDefault();
             CloseWindow(Settings.InvokeSettingsChanged());
         }
 

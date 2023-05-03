@@ -31,14 +31,15 @@ namespace HotelManager.Controller
 
         public bool Initialize()
         {
-            //bool localConnection = MessageBox.Show("Use local connection?", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
-            //Context = DbContextGetter.GetContext(localConnection: localConnection);
-            Context = DbContextGetter.GetContext(localConnection: false);
+            Context = DbContextGetter.GetContext();
             if (!Context.Database.CanConnect()) return false;
             if (resetDb) ResetDatabase();
             if (!Context.Buildings.Any() || !Context.Floors.Any() || !Context.Rooms.Any())
             {
-                new HotelSetupWindow(this).ShowDialog();
+                string messageText = "Database seems to be empty! Do you want to import from backups?";
+                MessageBoxResult result = MessageBox.Show(messageText, "Database reset", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes) LoadFromBackups();
+                else new HotelSetupWindow(this).ShowDialog();
             }
             RoomInfos = GetRoomInfos();
             return true;
@@ -50,22 +51,26 @@ namespace HotelManager.Controller
             Context.Database.EnsureCreated();
             string messageText = "Database has been reset successfully! Do you want to import from backups?";
             MessageBoxResult result = MessageBox.Show(messageText, "Database reset", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.Yes)
-            {
-                string title = "Load backup file for ";
-                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[0], out string buildingsPath)) return;
-                ImportBuildings(buildingsPath);
-                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[1], out string floorsPath)) return;
-                ImportFloors(floorsPath);
-                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[2], out string roomsPath)) return;
-                ImportRooms(roomsPath);
-                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[3], out string guestsPath)) return;
-                ImportGuests(guestsPath);
-                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[4], out string reservationsPath)) return;
-                ImportReservations(reservationsPath);
-                if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[5], out string transactionsPath)) return;
-                ImportTransactions(transactionsPath);
-            }
+            if (result == MessageBoxResult.Yes) LoadFromBackups();
+        }
+
+        private void LoadFromBackups()
+        {
+            string title = "Load backup file for ";
+            if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[0], out string buildingsPath)) return;
+            ImportBuildings(buildingsPath);
+            if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[1], out string floorsPath)) return;
+            ImportFloors(floorsPath);
+            if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[2], out string roomsPath)) return;
+            ImportRooms(roomsPath);
+            if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[3], out string guestsPath)) return;
+            ImportGuests(guestsPath);
+            if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[4], out string reservationsPath)) return;
+            ImportReservations(reservationsPath);
+            if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[5], out string transactionsPath)) return;
+            ImportTransactions(transactionsPath);
+            if (!FileHandler.TryGetOpenFilePath(".json", title + Constants.ImportExportSources[6], out string priceRangesPath)) return;
+            ImportPriceRanges(priceRangesPath);
         }
 
         public void ImportBuildings(string importFilePath)
@@ -104,6 +109,11 @@ namespace HotelManager.Controller
             OnReservationsChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        public void ImportPriceRanges(string importFilePath)
+        {
+            JsonImport.ImportPriceRanges(this, importFilePath);
+        }
+
         public void ExportCollectionToJson(string filePath, IEnumerable<object> collection, string collectionName, bool showSuccessMessage = true)
         {
             if (FileHandler.WriteAllLines(filePath, JsonHandler.GetJsonStrings(collection)))
@@ -136,6 +146,8 @@ namespace HotelManager.Controller
                     return Context.Reservations.Include(r => r.Room.Floor.Building).Include(r => r.Guest).OrderBy(r => r.Id);
                 case "Transactions":
                     return Context.Transactions.Include(t => t.Guest).Include(t => t.Reservation).OrderBy(t => t.Id);
+                case "PriceRanges":
+                    return Context.PriceRanges.OrderBy(t => t.Id);
                 default:
                     return new List<object>();
             }

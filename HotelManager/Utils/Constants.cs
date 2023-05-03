@@ -9,7 +9,6 @@ namespace HotelManager.Utils
         public static readonly string LocalPath = Directory.CreateDirectory(Path.Combine(AppDataPath, "HotelManager")).FullName;
         public static readonly string LogsPath = Directory.CreateDirectory(Path.Combine(LocalPath, "Logs")).FullName;
         public static string LogFileName = $"Log-{DateTime.Now:[yyyy-MM-dd][HH-mm-ss]}.txt";
-        public static string LocalConnection = @"Server=.\SQLEXPRESS;Database=HotelManager;Integrated Security=True";
         public static string DoubleLine = Environment.NewLine + Environment.NewLine;
         public static DateTime SeasonStartDate = Settings.Instance.SeasonStartDate;
         public static DateTime SeasonEndDate = Settings.Instance.SeasonEndDate;
@@ -62,7 +61,8 @@ namespace HotelManager.Utils
             "Rooms",
             "Guests",
             "Reservations",
-            "Transactions"
+            "Transactions",
+            "PriceRanges"
         };
     }
 }

@@ -14,7 +14,7 @@ namespace HotelManager.Views.Templates
             this.controller = controller;
             this.priceRangeId = priceRangeId;
             IsChecked = controller.GetPriceRangeState(priceRangeId);
-            HorizontalAlignment = HorizontalAlignment.Right;
+            HorizontalAlignment = HorizontalAlignment.Center;
             VerticalAlignment = VerticalAlignment.Center;
             Checked += PriceRangeCheckBox_Checked;
             Unchecked += PriceRangeCheckBox_Unchecked;

@@ -24,7 +24,7 @@ namespace HotelManager.ViewModels
             this.controller = controller;
             SearchOptionsModel = new SearchOptionsModel(false, false, true);
             SearchCriteriaModel = new SearchCriteriaModel("", null, null);
-            SearchStatusBarModel = new SearchStatusBarModel(0, 0, 100, "");
+            SearchStatusBarModel = new SearchStatusBarModel(0, 0, 0, 100, "");
             SearchResultsTebleModel = new SearchResultsTebleModel();
             SearchButtonCommand = new SearchButtonCommand(this);
             controller.OnReservationEdit += delegate { SearchButtonPressed(); };
@@ -36,6 +36,7 @@ namespace HotelManager.ViewModels
             SearchResultsTebleModel.Results.Clear();
             SearchStatusBarModel.Text = "Търсене...";
             SearchStatusBarModel.Sum = 0;
+            SearchStatusBarModel.Nights = 0;
             await Task.Run(async () => { await SearchResultsAsync(); });
             SearchStatusBarModel.Text = "Търсенето завърши";
             controller.CloseWaitWindow();
@@ -63,6 +64,7 @@ namespace HotelManager.ViewModels
                     SearchResultsTebleModel.Results.Add(new SearchResultModel(result, tooltip, command));
                     SearchStatusBarModel.Count = i + 1;
                     SearchStatusBarModel.Sum += searchResults[i].TotalSum;
+                    SearchStatusBarModel.Nights += (searchResults[i].EndDate - searchResults[i].StartDate).Days;
                 });
             }
         }

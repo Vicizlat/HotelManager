@@ -7,6 +7,7 @@ namespace HotelManager.Models
     {
         private int count;
         private decimal sum;
+        private int nights;
         private double progBarMax;
         private string text;
 
@@ -30,6 +31,18 @@ namespace HotelManager.Models
                 if (sum != value)
                 {
                     sum = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public int Nights
+        {
+            get => nights;
+            set
+            {
+                if (nights != value)
+                {
+                    nights = value;
                     OnPropertyChanged();
                 }
             }
@@ -59,10 +72,11 @@ namespace HotelManager.Models
             }
         }
 
-        public SearchStatusBarModel(int count, decimal sum, double progBarMax, string text)
+        public SearchStatusBarModel(int count, decimal sum, int nights, double progBarMax, string text)
         {
             Count = count;
             Sum = sum;
+            Nights = nights;
             ProgBarMax = progBarMax;
             Text = text;
         }

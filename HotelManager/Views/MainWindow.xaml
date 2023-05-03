@@ -67,7 +67,7 @@
                                 MouseLeftButtonUp="SavePdfImage_MouseLeftButtonUp"/>
             <images:ButtonImage Grid.Row="6" FileName="PrintIcon" ToolTip="Print" Source="Images\PrintIconBW.png"
                                 MouseLeftButtonUp="PrintImage_MouseLeftButtonUp"/>
-            <images:ButtonImage Grid.Row="7" FileName="AddGuestIcon" ToolTip="Print" Source="Images\AddGuestIconBW.png"
+            <images:ButtonImage Grid.Row="7" FileName="AddGuestIcon" ToolTip="Add Guest" Source="Images\AddGuestIconBW.png"
                                 MouseLeftButtonUp="AddGuest_MouseLeftButtonUp"/>
         </Grid>
         <Grid x:Name="MainGrid" Grid.Row="1" Margin="20,20,10,20">
