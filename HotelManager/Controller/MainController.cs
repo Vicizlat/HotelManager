@@ -33,6 +33,7 @@ namespace HotelManager.Controller
         {
             Context = DbContextGetter.GetContext();
             if (!Context.Database.CanConnect()) return false;
+            Context.Database.EnsureCreated();
             if (resetDb) ResetDatabase();
             if (!Context.Buildings.Any() || !Context.Floors.Any() || !Context.Rooms.Any())
             {
